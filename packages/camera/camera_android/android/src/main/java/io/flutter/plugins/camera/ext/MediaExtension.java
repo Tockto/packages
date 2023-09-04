@@ -12,9 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.flutter.plugin.common.MethodChannel;
-import io.sentry.Attachment;
-import io.sentry.Hint;
-import io.sentry.Sentry;
+//import io.sentry.Attachment;
+//import io.sentry.Hint;
+//import io.sentry.Sentry;
 
 public class MediaExtension {
 
@@ -52,7 +52,7 @@ public class MediaExtension {
             Log.e(TAG, "Error saving extension files", e1);
 
             // Capture log
-            Sentry.captureException(e1, Hint.withAttachment(new Attachment(captureFile.getAbsolutePath())));
+            //Sentry.captureException(e1, Hint.withAttachment(new Attachment(captureFile.getAbsolutePath())));
 
             // Safe clean up
             try {

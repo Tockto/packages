@@ -40,10 +40,10 @@
   void (^taskHandler)(NSError *) = ^(NSError *error){
     if(error != nil) {
       NSLog(@"Error: %@", error);
-      SentryAttachment *attachment = [[SentryAttachment alloc] initWithPath:captureFile];
-      [SentrySDK captureError:error withScopeBlock:^(SentryScope * _Nonnull scope) {
-        [scope addAttachment:attachment];
-      }];
+//       SentryAttachment *attachment = [[SentryAttachment alloc] initWithPath:captureFile];
+//       [SentrySDK captureError:error withScopeBlock:^(SentryScope * _Nonnull scope) {
+//         [scope addAttachment:attachment];
+//       }];
     }
   };
   

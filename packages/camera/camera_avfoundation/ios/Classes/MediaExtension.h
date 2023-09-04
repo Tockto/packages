@@ -11,7 +11,7 @@
 @import AVFoundation;
 @import Foundation;
 @import Flutter;
-@import Sentry;
+//@import Sentry;
 
 #import "QueueUtils.h"
 

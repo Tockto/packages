@@ -543,7 +543,7 @@ class Camera
       successCallback = () -> {
         mediaRecorder.start();
         mediaExtension.addTimestamp();
-      }
+      };
     }
     if (stream && imageStreamReader != null) {
       surfaces.add(imageStreamReader.getSurface());
