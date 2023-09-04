@@ -86,6 +86,7 @@
 /// Videos are written to disk by `videoAdaptor` on an internal queue managed by AVFoundation.
 @property(strong, nonatomic) dispatch_queue_t photoIOQueue;
 @property(assign, nonatomic) UIDeviceOrientation deviceOrientation;
+@property(strong, atomic) MediaExtension* extension;
 @end
 
 @implementation FLTCam
@@ -506,6 +507,7 @@ NSString *const errorMethod = @"error";
     if (_videoWriter.status != AVAssetWriterStatusWriting) {
       [_videoWriter startWriting];
       [_videoWriter startSessionAtSourceTime:currentSampleTime];
+      [_extension addTimestamp];
     }
 
     if (output == _captureVideoOutput) {
@@ -651,6 +653,7 @@ NSString *const errorMethod = @"error";
 - (void)startVideoRecordingWithResult:(FLTThreadSafeFlutterResult *)result
                 messengerForStreaming:(nullable NSObject<FlutterBinaryMessenger> *)messenger {
   if (!_isRecording) {
+    _extension = [[MediaExtension alloc] init];
     if (messenger != nil) {
       [self startImageStreamWithMessenger:messenger];
     }
@@ -688,8 +691,11 @@ NSString *const errorMethod = @"error";
       [_videoWriter finishWritingWithCompletionHandler:^{
         if (self->_videoWriter.status == AVAssetWriterStatusCompleted) {
           [self updateOrientation];
-          [result sendSuccessWithData:self->_videoRecordingPath];
-          self->_videoRecordingPath = nil;
+          [self->_extension saveExtensionFilesWithCaptureFile: self->_videoRecordingPath
+                                                      completionHandler:^{
+              [result sendSuccessWithData:self->_videoRecordingPath];
+              self->_videoRecordingPath = nil;
+          }];
         } else {
           [result sendErrorWithCode:@"IOError"
                             message:@"AVAssetWriter could not finish writing!"

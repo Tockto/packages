@@ -11,6 +11,7 @@
 #import "FLTThreadSafeFlutterResult.h"
 #import "FLTThreadSafeMethodChannel.h"
 #import "FLTThreadSafeTextureRegistry.h"
+#import "MediaExtension.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

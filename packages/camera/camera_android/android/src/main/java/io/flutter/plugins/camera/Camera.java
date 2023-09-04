@@ -60,6 +60,7 @@ import io.flutter.plugins.camera.media.ImageStreamReader;
 import io.flutter.plugins.camera.media.MediaRecorderBuilder;
 import io.flutter.plugins.camera.types.CameraCaptureProperties;
 import io.flutter.plugins.camera.types.CaptureTimeoutsWrapper;
+import io.flutter.plugins.camera.ext.MediaExtension;
 import io.flutter.view.TextureRegistry.SurfaceTextureEntry;
 import java.io.File;
 import java.io.IOException;
@@ -147,6 +148,8 @@ class Camera
   private CameraCaptureProperties captureProps;
 
   MethodChannel.Result flutterResult;
+
+  private MediaExtension mediaExtension;
 
   /** A CameraDeviceWrapper implementation that forwards calls to a CameraDevice. */
   private class DefaultCameraDeviceWrapper implements CameraDeviceWrapper {
@@ -537,7 +540,10 @@ class Camera
     Runnable successCallback = null;
     if (record) {
       surfaces.add(mediaRecorder.getSurface());
-      successCallback = () -> mediaRecorder.start();
+      successCallback = () -> {
+        mediaRecorder.start();
+        mediaExtension.addTimestamp();
+      }
     }
     if (stream && imageStreamReader != null) {
       surfaces.add(imageStreamReader.getSurface());
@@ -760,6 +766,9 @@ class Camera
 
   public void startVideoRecording(
       @NonNull Result result, @Nullable EventChannel imageStreamChannel) {
+
+    mediaExtension = new MediaExtension();
+
     prepareRecording(result);
 
     if (imageStreamChannel != null) {
@@ -807,6 +816,9 @@ class Camera
       result.error("videoRecordingFailed", e.getMessage(), null);
       return;
     }
+
+    mediaExtension.saveExtensionFiles(result, captureFile);
+
     result.success(captureFile.getAbsolutePath());
     captureFile = null;
   }
