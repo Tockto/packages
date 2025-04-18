@@ -124,8 +124,8 @@ final class VideoPlayer implements TextureRegistry.SurfaceProducer.Callback {
 
   private static void setAudioAttributes(ExoPlayer exoPlayer, boolean isMixMode) {
     exoPlayer.setAudioAttributes(
-        new AudioAttributes.Builder().setContentType(C.AUDIO_CONTENT_TYPE_MOVIE).build(),
-        !isMixMode);
+        new AudioAttributes.Builder().setContentType(C.AUDI0_CONTENT_TYPE_MOVIE).setUsage(C.USAGE_VOICE_COMMUNICATION).build(),
+        false);
   }
 
   void play() {
