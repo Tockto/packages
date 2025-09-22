@@ -67,7 +67,7 @@ class _ViewTypeTabBarState extends State<_ViewTypeTabBar>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
   }
 
   @override
@@ -86,6 +86,7 @@ class _ViewTypeTabBarState extends State<_ViewTypeTabBar>
           tabs: const <Widget>[
             Tab(icon: Icon(Icons.texture), text: 'Texture view'),
             Tab(icon: Icon(Icons.construction), text: 'Platform view'),
+            Tab(icon: Icon(Icons.computer), text: 'GPU Texture view'),
           ],
         ),
         Expanded(
@@ -94,6 +95,7 @@ class _ViewTypeTabBarState extends State<_ViewTypeTabBar>
             children: <Widget>[
               widget.builder(VideoViewType.textureView),
               widget.builder(VideoViewType.platformView),
+              widget.builder(VideoViewType.gpuTextureView),
             ],
           ),
         ),

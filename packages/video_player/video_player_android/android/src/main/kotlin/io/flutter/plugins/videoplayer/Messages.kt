@@ -408,6 +408,8 @@ interface AndroidVideoPlayerApi {
 
   fun createForTextureView(options: CreationOptions): TexturePlayerIds
 
+  fun createForGPUTextureView(options: CreationOptions): TexturePlayerIds
+
   fun dispose(playerId: Long)
 
   fun setMixWithOthers(mixWithOthers: Boolean)
@@ -488,6 +490,28 @@ interface AndroidVideoPlayerApi {
                 } catch (exception: Throwable) {
                   MessagesPigeonUtils.wrapError(exception)
                 }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel =
+          BasicMessageChannel<Any?>(
+            binaryMessenger,
+            "dev.flutter.pigeon.video_player_android.AndroidVideoPlayerApi.createForGPUTextureView$separatedMessageChannelSuffix",
+            codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val optionsArg = args[0] as CreationOptions
+            val wrapped: List<Any?> =
+              try {
+                listOf(api.createForGPUTextureView(optionsArg))
+              } catch (exception: Throwable) {
+                MessagesPigeonUtils.wrapError(exception)
+              }
             reply.reply(wrapped)
           }
         } else {
