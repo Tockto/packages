@@ -78,6 +78,8 @@ public final class GPUTextureVideoPlayer extends VideoPlayer implements SurfaceP
     Surface surface = surfaceProducer.getSurface();
     setupSurface(surface);
     needsSurface = surface == null;
+
+    initializeEventListener();
   }
 
   void setupSurface(Surface surface) {

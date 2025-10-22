@@ -46,7 +46,7 @@ public class PlatformViewVideoPlayer extends VideoPlayer {
       @NonNull VideoPlayerCallbacks events,
       @NonNull VideoAsset asset,
       @NonNull VideoPlayerOptions options) {
-    return new PlatformViewVideoPlayer(
+    PlatformViewVideoPlayer player = new PlatformViewVideoPlayer(
         events,
         asset.getMediaItem(),
         options,
@@ -56,6 +56,8 @@ public class PlatformViewVideoPlayer extends VideoPlayer {
                   .setMediaSourceFactory(asset.getMediaSourceFactory(context));
           return builder.build();
         });
+    player.initializeEventListener();
+    return player;
   }
 
   @NonNull
