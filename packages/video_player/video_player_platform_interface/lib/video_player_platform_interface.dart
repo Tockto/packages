@@ -226,6 +226,9 @@ enum VideoViewType {
 
   /// Platform view will be used to render video.
   platformView,
+
+  /// GPU texture view will be used to render video.
+  gpuTextureView,
 }
 
 /// Event emitted from the platform implementation.
