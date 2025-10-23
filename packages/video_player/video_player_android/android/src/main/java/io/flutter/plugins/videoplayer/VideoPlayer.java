@@ -54,8 +54,15 @@ public abstract class VideoPlayer implements VideoPlayerInstanceApi {
     exoPlayer = exoPlayerProvider.get();
     exoPlayer.setMediaItem(mediaItem);
     exoPlayer.prepare();
-    exoPlayer.addListener(createExoPlayerEventListener(exoPlayer, surfaceProducer));
     setAudioAttributes(exoPlayer, options.mixWithOthers);
+  }
+
+  /**
+   * Initializes the ExoPlayer event listener. This method should be called by subclasses
+   * after their constructor completes to ensure proper initialization order.
+   */
+  protected final void initializeEventListener() {
+    exoPlayer.addListener(createExoPlayerEventListener(exoPlayer, surfaceProducer));
   }
 
   public void setDisposeHandler(@Nullable DisposeHandler handler) {

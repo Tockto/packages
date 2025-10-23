@@ -81,6 +81,8 @@ abstract class AndroidVideoPlayerApi {
   int createForPlatformView(CreationOptions options);
   // Creates a new player using a texture for rendering and returns its IDs.
   TexturePlayerIds createForTextureView(CreationOptions options);
+  // Creates a new player using a GPU texture for rendering and returns its IDs.
+  TexturePlayerIds createForGPUTextureView(CreationOptions options);
   void dispose(int playerId);
   void setMixWithOthers(bool mixWithOthers);
   String getLookupKeyForAsset(String asset, String? packageName);
