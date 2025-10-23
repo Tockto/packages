@@ -108,6 +108,7 @@ class AVFoundationVideoPlayer extends VideoPlayerPlatform {
     final int playerId;
     final VideoPlayerViewState state;
     switch (viewType) {
+      case VideoViewType.gpuTextureView:
       case VideoViewType.textureView:
         final TexturePlayerIds ids = await _api.createForTextureView(
           pigeonCreationOptions,
