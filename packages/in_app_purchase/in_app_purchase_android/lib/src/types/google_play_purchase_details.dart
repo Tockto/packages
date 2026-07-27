@@ -26,30 +26,23 @@ class GooglePlayPurchaseDetails extends PurchaseDetails {
   /// Generates a [List] of [PurchaseDetails] based on an Android [Purchase] object.
   ///
   /// The list contains one entry per product.
-  static List<GooglePlayPurchaseDetails> fromPurchase(
-    PurchaseWrapper purchase,
-  ) {
+  static List<GooglePlayPurchaseDetails> fromPurchase(PurchaseWrapper purchase) {
     return purchase.products.map((String productId) {
-      final GooglePlayPurchaseDetails purchaseDetails =
-          GooglePlayPurchaseDetails(
-            purchaseID: purchase.orderId,
-            productID: productId,
-            verificationData: PurchaseVerificationData(
-              localVerificationData: purchase.originalJson,
-              serverVerificationData: purchase.purchaseToken,
-              source: kIAPSource,
-            ),
-            transactionDate: purchase.purchaseTime.toString(),
-            billingClientPurchase: purchase,
-            status: purchaseStatusFromWrapper(purchase.purchaseState),
-          );
+      final purchaseDetails = GooglePlayPurchaseDetails(
+        purchaseID: purchase.orderId,
+        productID: productId,
+        verificationData: PurchaseVerificationData(
+          localVerificationData: purchase.originalJson,
+          serverVerificationData: purchase.purchaseToken,
+          source: kIAPSource,
+        ),
+        transactionDate: purchase.purchaseTime.toString(),
+        billingClientPurchase: purchase,
+        status: purchaseStatusFromWrapper(purchase.purchaseState),
+      );
 
       if (purchaseDetails.status == PurchaseStatus.error) {
-        purchaseDetails.error = IAPError(
-          source: kIAPSource,
-          code: kPurchaseErrorCode,
-          message: '',
-        );
+        purchaseDetails.error = IAPError(source: kIAPSource, code: kPurchaseErrorCode, message: '');
       }
 
       return purchaseDetails;

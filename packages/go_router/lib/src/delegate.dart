@@ -16,8 +16,7 @@ import 'route.dart';
 import 'state.dart';
 
 /// GoRouter implementation of [RouterDelegate].
-class GoRouterDelegate extends RouterDelegate<RouteMatchList>
-    with ChangeNotifier {
+class GoRouterDelegate extends RouterDelegate<RouteMatchList> with ChangeNotifier {
   /// Constructor for GoRouter's implementation of the RouterDelegate base
   /// class.
   GoRouterDelegate({
@@ -56,7 +55,7 @@ class GoRouterDelegate extends RouterDelegate<RouteMatchList>
   @override
   Future<bool> popRoute() async {
     final Iterable<NavigatorState> states = _findCurrentNavigators();
-    for (final NavigatorState state in states) {
+    for (final state in states) {
       final bool didPop = await state.maybePop(); // Call maybePop() directly
       if (didPop) {
         return true; // Return true if maybePop handled the pop
@@ -68,10 +67,7 @@ class GoRouterDelegate extends RouterDelegate<RouteMatchList>
     if (lastRoute.onExit != null && navigatorKey.currentContext != null) {
       return !(await lastRoute.onExit!(
         navigatorKey.currentContext!,
-        currentConfiguration.last.buildState(
-          _configuration,
-          currentConfiguration,
-        ),
+        currentConfiguration.last.buildState(_configuration, currentConfiguration),
       ));
     }
 
@@ -114,7 +110,7 @@ class GoRouterDelegate extends RouterDelegate<RouteMatchList>
   /// 2. Branch route
   /// 3. Parent route
   Iterable<NavigatorState> _findCurrentNavigators() {
-    final List<NavigatorState> states = <NavigatorState>[];
+    final states = <NavigatorState>[];
     if (navigatorKey.currentState != null) {
       // Set state directly without canPop check
       states.add(navigatorKey.currentState!);
@@ -122,12 +118,9 @@ class GoRouterDelegate extends RouterDelegate<RouteMatchList>
 
     RouteMatchBase walker = currentConfiguration.matches.last;
     while (walker is ShellRouteMatch) {
-      final NavigatorState potentialCandidate =
-          walker.navigatorKey.currentState!;
+      final NavigatorState potentialCandidate = walker.navigatorKey.currentState!;
 
-      final ModalRoute<dynamic>? modalRoute = ModalRoute.of(
-        potentialCandidate.context,
-      );
+      final ModalRoute<dynamic>? modalRoute = ModalRoute.of(potentialCandidate.context);
       if (modalRoute == null || !modalRoute.isCurrent) {
         // Stop if there is a pageless route on top of the shell route.
         break;
@@ -138,17 +131,19 @@ class GoRouterDelegate extends RouterDelegate<RouteMatchList>
     return states.reversed;
   }
 
-  bool _handlePopPageWithRouteMatch(
-    Route<Object?> route,
-    Object? result,
-    RouteMatchBase match,
-  ) {
+  bool _handlePopPageWithRouteMatch(Route<Object?> route, Object? result, RouteMatchBase match) {
     if (route.willHandlePopInternally) {
       final bool popped = route.didPop(result);
       assert(!popped);
       return popped;
     }
-    final RouteBase routeBase = match.route;
+
+    var leafMatch = match;
+    while (leafMatch is ShellRouteMatch) {
+      leafMatch = leafMatch.matches.last;
+    }
+
+    final RouteBase routeBase = leafMatch.route;
     if (routeBase is! GoRoute || routeBase.onExit == null) {
       route.didPop(result);
       _completeRouteMatch(result, match);
@@ -161,7 +156,7 @@ class GoRouterDelegate extends RouterDelegate<RouteMatchList>
     scheduleMicrotask(() async {
       final bool onExitResult = await routeBase.onExit!(
         navigatorKey.currentContext!,
-        match.buildState(_configuration, currentConfiguration),
+        leafMatch.buildState(_configuration, currentConfiguration),
       );
       if (onExitResult) {
         _completeRouteMatch(result, match);
@@ -179,7 +174,7 @@ class GoRouterDelegate extends RouterDelegate<RouteMatchList>
   }
 
   void _completeRouteMatch(Object? result, RouteMatchBase match) {
-    RouteMatchBase walker = match;
+    var walker = match;
     while (walker is ShellRouteMatch) {
       walker = walker.matches.last;
     }
@@ -198,10 +193,8 @@ class GoRouterDelegate extends RouterDelegate<RouteMatchList>
 
   /// The top [GoRouterState], the state of the route that was
   /// last used in either [GoRouter.go] or [GoRouter.push].
-  GoRouterState get state => currentConfiguration.last.buildState(
-    _configuration,
-    currentConfiguration,
-  );
+  GoRouterState get state =>
+      currentConfiguration.last.buildState(_configuration, currentConfiguration);
 
   /// For use by the Router architecture as part of the RouterDelegate.
   GlobalKey<NavigatorState> get navigatorKey => _configuration.navigatorKey;
@@ -230,14 +223,14 @@ class GoRouterDelegate extends RouterDelegate<RouteMatchList>
     final BuildContext? navigatorContext = navigatorKey.currentContext;
     // If navigator is not built or disposed, the GoRoute.onExit is irrelevant.
     if (navigatorContext != null) {
-      final List<RouteMatch> currentGoRouteMatches = <RouteMatch>[];
+      final currentGoRouteMatches = <RouteMatch>[];
       currentConfiguration.visitRouteMatches((RouteMatchBase match) {
         if (match is RouteMatch) {
           currentGoRouteMatches.add(match);
         }
         return true;
       });
-      final List<RouteMatch> newGoRouteMatches = <RouteMatch>[];
+      final newGoRouteMatches = <RouteMatch>[];
       configuration.visitRouteMatches((RouteMatchBase match) {
         if (match is RouteMatch) {
           newGoRouteMatches.add(match);
@@ -245,21 +238,18 @@ class GoRouterDelegate extends RouterDelegate<RouteMatchList>
         return true;
       });
 
-      final int compareUntil = math.min(
-        currentGoRouteMatches.length,
-        newGoRouteMatches.length,
-      );
-      int indexOfFirstDiff = 0;
+      final int compareUntil = math.min(currentGoRouteMatches.length, newGoRouteMatches.length);
+      var indexOfFirstDiff = 0;
       for (; indexOfFirstDiff < compareUntil; indexOfFirstDiff++) {
-        if (currentGoRouteMatches[indexOfFirstDiff] !=
-            newGoRouteMatches[indexOfFirstDiff]) {
+        if (currentGoRouteMatches[indexOfFirstDiff] != newGoRouteMatches[indexOfFirstDiff]) {
           break;
         }
       }
 
       if (indexOfFirstDiff < currentGoRouteMatches.length) {
-        final List<RouteMatch> exitingMatches =
-            currentGoRouteMatches.sublist(indexOfFirstDiff).toList();
+        final List<RouteMatch> exitingMatches = currentGoRouteMatches
+            .sublist(indexOfFirstDiff)
+            .toList();
         return _callOnExitStartsAt(
           exitingMatches.length - 1,
           context: navigatorContext,
@@ -296,11 +286,7 @@ class GoRouterDelegate extends RouterDelegate<RouteMatchList>
 
     Future<bool> handleOnExitResult(bool exit) {
       if (exit) {
-        return _callOnExitStartsAt(
-          index - 1,
-          context: context,
-          matches: matches,
-        );
+        return _callOnExitStartsAt(index - 1, context: context, matches: matches);
       }
       return SynchronousFuture<bool>(false);
     }

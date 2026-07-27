@@ -18,9 +18,7 @@ void main() {
       final Object json = descriptor.toJson();
 
       // Rehydrate a new bitmap descriptor...
-      final BitmapDescriptor descriptorFromJson = BitmapDescriptor.fromJson(
-        json,
-      );
+      final BitmapDescriptor descriptorFromJson = BitmapDescriptor.fromJson(json);
 
       expect(descriptorFromJson, isNot(descriptor)); // New instance
       expect(descriptorFromJson.toJson(), json);
@@ -97,10 +95,7 @@ void main() {
     group('fromJson validation', () {
       group('type validation', () {
         test('correct type', () {
-          expect(
-            BitmapDescriptor.fromJson(<dynamic>['defaultMarker']),
-            isA<DefaultMarker>(),
-          );
+          expect(BitmapDescriptor.fromJson(<dynamic>['defaultMarker']), isA<DefaultMarker>());
         });
 
         test('wrong type', () {
@@ -111,17 +106,11 @@ void main() {
       });
       group('defaultMarker', () {
         test('hue is null', () {
-          expect(
-            BitmapDescriptor.fromJson(<dynamic>['defaultMarker']),
-            isA<DefaultMarker>(),
-          );
+          expect(BitmapDescriptor.fromJson(<dynamic>['defaultMarker']), isA<DefaultMarker>());
         });
 
         test('hue is number', () {
-          expect(
-            BitmapDescriptor.fromJson(<dynamic>['defaultMarker', 158]),
-            isA<DefaultMarker>(),
-          );
+          expect(BitmapDescriptor.fromJson(<dynamic>['defaultMarker', 158]), isA<DefaultMarker>());
         });
 
         test('hue is not number', () {
@@ -178,40 +167,24 @@ void main() {
 
         test('package is passed', () {
           expect(
-            BitmapDescriptor.fromJson(<dynamic>[
-              'fromAsset',
-              'some/path.png',
-              'some_package',
-            ]),
+            BitmapDescriptor.fromJson(<dynamic>['fromAsset', 'some/path.png', 'some_package']),
             isA<AssetBitmap>(),
           );
         });
 
         test('package cannot be null or empty', () {
           expect(() {
-            BitmapDescriptor.fromJson(<dynamic>[
-              'fromAsset',
-              'some/path.png',
-              null,
-            ]);
+            BitmapDescriptor.fromJson(<dynamic>['fromAsset', 'some/path.png', null]);
           }, throwsAssertionError);
           expect(() {
-            BitmapDescriptor.fromJson(<dynamic>[
-              'fromAsset',
-              'some/path.png',
-              '',
-            ]);
+            BitmapDescriptor.fromJson(<dynamic>['fromAsset', 'some/path.png', '']);
           }, throwsAssertionError);
         });
       });
       group('fromAssetImage', () {
         test('name and dpi passed', () {
           expect(
-            BitmapDescriptor.fromJson(<dynamic>[
-              'fromAssetImage',
-              'some/path.png',
-              1.0,
-            ]),
+            BitmapDescriptor.fromJson(<dynamic>['fromAssetImage', 'some/path.png', 1.0]),
             isA<AssetImageBitmap>(),
           );
         });
@@ -219,20 +192,17 @@ void main() {
         test(
           'mipmaps determines dpi',
           () async {
-            const ImageConfiguration imageConfiguration = ImageConfiguration(
-              devicePixelRatio: 3,
-            );
+            const imageConfiguration = ImageConfiguration(devicePixelRatio: 3);
 
             final BitmapDescriptor mip = await BitmapDescriptor.fromAssetImage(
               imageConfiguration,
               'red_square.png',
             );
-            final BitmapDescriptor scaled =
-                await BitmapDescriptor.fromAssetImage(
-                  imageConfiguration,
-                  'red_square.png',
-                  mipmaps: false,
-                );
+            final BitmapDescriptor scaled = await BitmapDescriptor.fromAssetImage(
+              imageConfiguration,
+              'red_square.png',
+              mipmaps: false,
+            );
 
             expect((mip.toJson() as List<dynamic>)[2], 1);
             expect((scaled.toJson() as List<dynamic>)[2], 3);
@@ -252,18 +222,10 @@ void main() {
 
         test('dpi must be number', () {
           expect(() {
-            BitmapDescriptor.fromJson(<dynamic>[
-              'fromAssetImage',
-              'some/path.png',
-              null,
-            ]);
+            BitmapDescriptor.fromJson(<dynamic>['fromAssetImage', 'some/path.png', null]);
           }, throwsAssertionError);
           expect(() {
-            BitmapDescriptor.fromJson(<dynamic>[
-              'fromAssetImage',
-              'some/path.png',
-              'one',
-            ]);
+            BitmapDescriptor.fromJson(<dynamic>['fromAssetImage', 'some/path.png', 'one']);
           }, throwsAssertionError);
         });
 
@@ -279,35 +241,27 @@ void main() {
           );
         });
 
-        test(
-          'optional [width, height] List cannot be null or not contain 2 elements',
-          () {
-            expect(() {
-              BitmapDescriptor.fromJson(<dynamic>[
-                'fromAssetImage',
-                'some/path.png',
-                1.0,
-                null,
-              ]);
-            }, throwsAssertionError);
-            expect(() {
-              BitmapDescriptor.fromJson(<dynamic>[
-                'fromAssetImage',
-                'some/path.png',
-                1.0,
-                <dynamic>[],
-              ]);
-            }, throwsAssertionError);
-            expect(() {
-              BitmapDescriptor.fromJson(<dynamic>[
-                'fromAssetImage',
-                'some/path.png',
-                1.0,
-                <dynamic>[640, 480, 1024],
-              ]);
-            }, throwsAssertionError);
-          },
-        );
+        test('optional [width, height] List cannot be null or not contain 2 elements', () {
+          expect(() {
+            BitmapDescriptor.fromJson(<dynamic>['fromAssetImage', 'some/path.png', 1.0, null]);
+          }, throwsAssertionError);
+          expect(() {
+            BitmapDescriptor.fromJson(<dynamic>[
+              'fromAssetImage',
+              'some/path.png',
+              1.0,
+              <dynamic>[],
+            ]);
+          }, throwsAssertionError);
+          expect(() {
+            BitmapDescriptor.fromJson(<dynamic>[
+              'fromAssetImage',
+              'some/path.png',
+              1.0,
+              <dynamic>[640, 480, 1024],
+            ]);
+          }, throwsAssertionError);
+        });
       });
 
       group('bytes', () {
@@ -329,20 +283,10 @@ void main() {
 
         test('without bytes', () {
           expect(() {
-            BitmapDescriptor.fromJson(<dynamic>[
-              BytesMapBitmap.type,
-              null,
-              'auto',
-              3.0,
-            ]);
+            BitmapDescriptor.fromJson(<dynamic>[BytesMapBitmap.type, null, 'auto', 3.0]);
           }, throwsAssertionError);
           expect(() {
-            BitmapDescriptor.fromJson(<dynamic>[
-              BytesMapBitmap.type,
-              <dynamic>[],
-              'auto',
-              3.0,
-            ]);
+            BitmapDescriptor.fromJson(<dynamic>[BytesMapBitmap.type, <dynamic>[], 'auto', 3.0]);
           }, throwsAssertionError);
         });
       });
@@ -364,20 +308,10 @@ void main() {
 
         test('name cannot be null or empty', () {
           expect(() {
-            BitmapDescriptor.fromJson(<dynamic>[
-              AssetMapBitmap.type,
-              null,
-              'auto',
-              1.0,
-            ]);
+            BitmapDescriptor.fromJson(<dynamic>[AssetMapBitmap.type, null, 'auto', 1.0]);
           }, throwsAssertionError);
           expect(() {
-            BitmapDescriptor.fromJson(<dynamic>[
-              AssetMapBitmap.type,
-              '',
-              'auto',
-              1.0,
-            ]);
+            BitmapDescriptor.fromJson(<dynamic>[AssetMapBitmap.type, '', 'auto', 1.0]);
           }, throwsAssertionError);
         });
 
@@ -420,67 +354,64 @@ void main() {
           );
         });
 
-        test(
-          'optional width and height parameters must be in proper format',
-          () {
-            expect(() {
-              BitmapDescriptor.fromJson(<dynamic>[
-                'fromAssetImage',
-                'some/path.png',
-                'auto',
-                1.0,
-                null,
-              ]);
-            }, throwsAssertionError);
-            expect(() {
-              BitmapDescriptor.fromJson(<dynamic>[
-                'fromAssetImage',
-                'some/path.png',
-                'auto',
-                1.0,
-                <dynamic>[],
-              ]);
-            }, throwsAssertionError);
-            expect(() {
-              BitmapDescriptor.fromJson(<dynamic>[
-                AssetMapBitmap.type,
-                'some/path.png',
-                <String, Object?>{
-                  'assetName': 'red_square.png',
-                  'bitmapScaling': MapBitmapScaling.auto.name,
-                  'imagePixelRatio': null,
-                  'width': null,
-                  'height': 1.0,
-                },
-              ]);
-            }, throwsAssertionError);
-            expect(() {
-              BitmapDescriptor.fromJson(<dynamic>[
-                AssetMapBitmap.type,
-                'some/path.png',
-                <String, Object?>{
-                  'assetName': 'red_square.png',
-                  'bitmapScaling': MapBitmapScaling.auto.name,
-                  'imagePixelRatio': null,
-                  'width': 1.0,
-                  'height': null,
-                },
-              ]);
-            }, throwsAssertionError);
-            expect(() {
-              BitmapDescriptor.fromJson(<dynamic>[
-                AssetMapBitmap.type,
-                'some/path.png',
-                <String, Object?>{
-                  'assetName': 'red_square.png',
-                  'bitmapScaling': MapBitmapScaling.auto.name,
-                  'imagePixelRatio': null,
-                  'width': '1.0',
-                },
-              ]);
-            }, throwsAssertionError);
-          },
-        );
+        test('optional width and height parameters must be in proper format', () {
+          expect(() {
+            BitmapDescriptor.fromJson(<dynamic>[
+              'fromAssetImage',
+              'some/path.png',
+              'auto',
+              1.0,
+              null,
+            ]);
+          }, throwsAssertionError);
+          expect(() {
+            BitmapDescriptor.fromJson(<dynamic>[
+              'fromAssetImage',
+              'some/path.png',
+              'auto',
+              1.0,
+              <dynamic>[],
+            ]);
+          }, throwsAssertionError);
+          expect(() {
+            BitmapDescriptor.fromJson(<dynamic>[
+              AssetMapBitmap.type,
+              'some/path.png',
+              <String, Object?>{
+                'assetName': 'red_square.png',
+                'bitmapScaling': MapBitmapScaling.auto.name,
+                'imagePixelRatio': null,
+                'width': null,
+                'height': 1.0,
+              },
+            ]);
+          }, throwsAssertionError);
+          expect(() {
+            BitmapDescriptor.fromJson(<dynamic>[
+              AssetMapBitmap.type,
+              'some/path.png',
+              <String, Object?>{
+                'assetName': 'red_square.png',
+                'bitmapScaling': MapBitmapScaling.auto.name,
+                'imagePixelRatio': null,
+                'width': 1.0,
+                'height': null,
+              },
+            ]);
+          }, throwsAssertionError);
+          expect(() {
+            BitmapDescriptor.fromJson(<dynamic>[
+              AssetMapBitmap.type,
+              'some/path.png',
+              <String, Object?>{
+                'assetName': 'red_square.png',
+                'bitmapScaling': MapBitmapScaling.auto.name,
+                'imagePixelRatio': null,
+                'width': '1.0',
+              },
+            ]);
+          }, throwsAssertionError);
+        });
       });
     });
   });
@@ -536,10 +467,7 @@ void main() {
 
       test('construct with width', () async {
         const double width = 100;
-        final BitmapDescriptor descriptor = AssetMapBitmap(
-          'red_square.png',
-          width: width,
-        );
+        final BitmapDescriptor descriptor = AssetMapBitmap('red_square.png', width: width);
 
         expect(descriptor, isA<BitmapDescriptor>());
         expect(descriptor, isA<AssetMapBitmap>());
@@ -592,10 +520,8 @@ void main() {
       );
 
       test('create with size', () async {
-        const Size size = Size(100, 200);
-        const ImageConfiguration imageConfiguration = ImageConfiguration(
-          size: size,
-        );
+        const size = Size(100, 200);
+        const imageConfiguration = ImageConfiguration(size: size);
         final BitmapDescriptor descriptor = await AssetMapBitmap.create(
           imageConfiguration,
           'red_square.png',
@@ -694,9 +620,7 @@ void main() {
     });
 
     test('construct', () {
-      final BitmapDescriptor descriptor = BytesMapBitmap(
-        Uint8List.fromList(<int>[1, 2, 3]),
-      );
+      final BitmapDescriptor descriptor = BytesMapBitmap(Uint8List.fromList(<int>[1, 2, 3]));
       expect(descriptor, isA<BitmapDescriptor>());
       expect(descriptor, isA<BytesMapBitmap>());
       expect(
@@ -774,24 +698,21 @@ void main() {
     });
 
     test('construct', () {
-      const PinConfig pinConfig = PinConfig(
-        backgroundColor: Colors.green,
-        borderColor: Colors.blue,
-      );
+      const pinConfig = PinConfig(backgroundColor: Colors.green, borderColor: Colors.blue);
       expect(pinConfig, isA<BitmapDescriptor>());
       expect(pinConfig.backgroundColor, Colors.green);
       expect(pinConfig.borderColor, Colors.blue);
       expect(pinConfig.toJson(), <Object>[
         PinConfig.type,
         <String, Object>{
-          'backgroundColor': Colors.green.value,
-          'borderColor': Colors.blue.value,
+          'backgroundColor': Colors.green.toARGB32(),
+          'borderColor': Colors.blue.toARGB32(),
         },
       ]);
     });
 
     test('construct with glyph text', () {
-      const PinConfig pinConfig = PinConfig(
+      const pinConfig = PinConfig(
         backgroundColor: Colors.green,
         borderColor: Colors.blue,
         glyph: TextGlyph(text: 'Hello', textColor: Colors.red),
@@ -802,11 +723,11 @@ void main() {
       expect(pinConfig.toJson(), <Object>[
         PinConfig.type,
         <String, Object>{
-          'backgroundColor': Colors.green.value,
-          'borderColor': Colors.blue.value,
+          'backgroundColor': Colors.green.toARGB32(),
+          'borderColor': Colors.blue.toARGB32(),
           'glyph': <Object>[
             'textGlyph',
-            <Object, Object>{'text': 'Hello', 'textColor': Colors.red.value},
+            <Object, Object>{'text': 'Hello', 'textColor': Colors.red.toARGB32()},
           ],
         },
       ]);
@@ -814,7 +735,7 @@ void main() {
 
     test('construct with glyph bitmap', () async {
       const BitmapDescriptor bitmap = AssetBitmap(name: 'red_square.png');
-      const PinConfig pinConfig = PinConfig(
+      const pinConfig = PinConfig(
         backgroundColor: Colors.black,
         borderColor: Colors.red,
         glyph: BitmapGlyph(bitmap: bitmap),
@@ -831,8 +752,8 @@ void main() {
               'bitmap': <Object>['fromAsset', 'red_square.png'],
             },
           ],
-          'backgroundColor': Colors.black.value,
-          'borderColor': Colors.red.value,
+          'backgroundColor': Colors.black.toARGB32(),
+          'borderColor': Colors.red.toARGB32(),
         },
       ]);
     });

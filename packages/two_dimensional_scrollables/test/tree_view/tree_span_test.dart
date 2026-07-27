@@ -10,19 +10,14 @@ import 'package:two_dimensional_scrollables/two_dimensional_scrollables.dart';
 void main() {
   group('TreeRowExtent', () {
     test('FixedTreeRowExtent', () {
-      FixedTreeRowExtent extent = const FixedTreeRowExtent(150);
+      var extent = const FixedTreeRowExtent(150);
       expect(
-        extent.calculateExtent(
-          const TreeRowExtentDelegate(precedingExtent: 0, viewportExtent: 0),
-        ),
+        extent.calculateExtent(const TreeRowExtentDelegate(precedingExtent: 0, viewportExtent: 0)),
         150,
       );
       expect(
         extent.calculateExtent(
-          const TreeRowExtentDelegate(
-            precedingExtent: 100,
-            viewportExtent: 1000,
-          ),
+          const TreeRowExtentDelegate(precedingExtent: 100, viewportExtent: 1000),
         ),
         150,
       );
@@ -42,19 +37,14 @@ void main() {
     });
 
     test('FractionalTreeRowExtent', () {
-      FractionalTreeRowExtent extent = const FractionalTreeRowExtent(0.5);
+      var extent = const FractionalTreeRowExtent(0.5);
       expect(
-        extent.calculateExtent(
-          const TreeRowExtentDelegate(precedingExtent: 0, viewportExtent: 0),
-        ),
+        extent.calculateExtent(const TreeRowExtentDelegate(precedingExtent: 0, viewportExtent: 0)),
         0.0,
       );
       expect(
         extent.calculateExtent(
-          const TreeRowExtentDelegate(
-            precedingExtent: 100,
-            viewportExtent: 1000,
-          ),
+          const TreeRowExtentDelegate(precedingExtent: 100, viewportExtent: 1000),
         ),
         500,
       );
@@ -74,26 +64,21 @@ void main() {
     });
 
     test('RemainingTreeRowExtent', () {
-      const RemainingTreeRowExtent extent = RemainingTreeRowExtent();
+      const extent = RemainingTreeRowExtent();
       expect(
-        extent.calculateExtent(
-          const TreeRowExtentDelegate(precedingExtent: 0, viewportExtent: 0),
-        ),
+        extent.calculateExtent(const TreeRowExtentDelegate(precedingExtent: 0, viewportExtent: 0)),
         0.0,
       );
       expect(
         extent.calculateExtent(
-          const TreeRowExtentDelegate(
-            precedingExtent: 100,
-            viewportExtent: 1000,
-          ),
+          const TreeRowExtentDelegate(precedingExtent: 100, viewportExtent: 1000),
         ),
         900,
       );
     });
 
     test('CombiningTreeRowExtent', () {
-      final CombiningTreeRowExtent extent = CombiningTreeRowExtent(
+      final extent = CombiningTreeRowExtent(
         const FixedTreeRowExtent(100),
         const RemainingTreeRowExtent(),
         (double a, double b) {
@@ -101,61 +86,40 @@ void main() {
         },
       );
       expect(
-        extent.calculateExtent(
-          const TreeRowExtentDelegate(precedingExtent: 0, viewportExtent: 0),
-        ),
+        extent.calculateExtent(const TreeRowExtentDelegate(precedingExtent: 0, viewportExtent: 0)),
         100,
       );
       expect(
         extent.calculateExtent(
-          const TreeRowExtentDelegate(
-            precedingExtent: 100,
-            viewportExtent: 1000,
-          ),
+          const TreeRowExtentDelegate(precedingExtent: 100, viewportExtent: 1000),
         ),
         1000,
       );
     });
 
     test('MaxTreeRowExtent', () {
-      const MaxTreeRowExtent extent = MaxTreeRowExtent(
-        FixedTreeRowExtent(100),
-        RemainingTreeRowExtent(),
-      );
+      const extent = MaxTreeRowExtent(FixedTreeRowExtent(100), RemainingTreeRowExtent());
       expect(
-        extent.calculateExtent(
-          const TreeRowExtentDelegate(precedingExtent: 0, viewportExtent: 0),
-        ),
+        extent.calculateExtent(const TreeRowExtentDelegate(precedingExtent: 0, viewportExtent: 0)),
         100,
       );
       expect(
         extent.calculateExtent(
-          const TreeRowExtentDelegate(
-            precedingExtent: 100,
-            viewportExtent: 1000,
-          ),
+          const TreeRowExtentDelegate(precedingExtent: 100, viewportExtent: 1000),
         ),
         900,
       );
     });
 
     test('MinTreeRowExtent', () {
-      const MinTreeRowExtent extent = MinTreeRowExtent(
-        FixedTreeRowExtent(100),
-        RemainingTreeRowExtent(),
-      );
+      const extent = MinTreeRowExtent(FixedTreeRowExtent(100), RemainingTreeRowExtent());
       expect(
-        extent.calculateExtent(
-          const TreeRowExtentDelegate(precedingExtent: 0, viewportExtent: 0),
-        ),
+        extent.calculateExtent(const TreeRowExtentDelegate(precedingExtent: 0, viewportExtent: 0)),
         0,
       );
       expect(
         extent.calculateExtent(
-          const TreeRowExtentDelegate(
-            precedingExtent: 100,
-            viewportExtent: 1000,
-          ),
+          const TreeRowExtentDelegate(precedingExtent: 100, viewportExtent: 1000),
         ),
         100,
       );
@@ -163,22 +127,20 @@ void main() {
   });
 
   test('TreeRowDecoration', () {
-    TreeRowDecoration decoration = const TreeRowDecoration(
-      color: Color(0xffff0000),
-    );
-    final TestCanvas canvas = TestCanvas();
-    const Rect rect = Rect.fromLTWH(0, 0, 10, 10);
-    final TreeRowDecorationPaintDetails details = TreeRowDecorationPaintDetails(
+    var decoration = const TreeRowDecoration(color: Color(0xffff0000));
+    final canvas = TestCanvas();
+    const rect = Rect.fromLTWH(0, 0, 10, 10);
+    final details = TreeRowDecorationPaintDetails(
       canvas: canvas,
       rect: rect,
       axisDirection: AxisDirection.down,
     );
-    final BorderRadius radius = BorderRadius.circular(10.0);
+    final radius = BorderRadius.circular(10.0);
     decoration.paint(details);
     expect(canvas.rect, rect);
     expect(canvas.paint.color, const Color(0xffff0000));
     expect(canvas.paint.isAntiAlias, isFalse);
-    final TestTreeRowBorder border = TestTreeRowBorder(top: const BorderSide());
+    final border = TestTreeRowBorder(top: const BorderSide());
     decoration = TreeRowDecoration(border: border, borderRadius: radius);
     decoration.paint(details);
     expect(border.details, details);

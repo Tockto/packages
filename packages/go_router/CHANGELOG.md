@@ -1,3 +1,45 @@
+## 17.3.0
+
+- Updates minimum supported SDK version to Flutter 3.38/Dart 3.10.
+- Adds `hasOverriddenOnExit` parameter to `GoRouteData.$route` and `RelativeGoRouteData.$route` helper methods for type-safe routes. When set to `true`, enables custom `onExit` callback invocation from route data classes extending `GoRouteData` or `RelativeGoRouteData` when the route is removed from the navigation stack.
+
+## 17.2.3
+
+- Fixes an assertion failure when navigating to URLs with hash fragments missing a leading slash.
+
+## 17.2.2
+
+- Fixes `pop()` restoring stale configuration when route has `onExit`, which could cause the popped route to reappear with async redirects.
+
+## 17.2.1
+
+- Fixes chained top-level redirects not being fully resolved (e.g. `/ → /a → /b` stopping at `/a`).
+- Fixes route-level redirects not triggering top-level redirect re-evaluation on the new location.
+
+## 17.2.0
+
+- Fixes `Block.then()` and `Allow.then()` navigation callbacks being silently lost when triggered by `refreshListenable` due to re-entrant route processing.
+- Adds `encoder`, `decoder` and `compare` parameters to `TypedQueryParameter` annotation for custom encoding, decoding and comparison of query parameters in `TypedGoRoute` constructors.
+
+## 17.1.0
+
+- Adds `TypedQueryParameter` annotation to override parameter names in `TypedGoRoute` constructors.
+
+## 17.0.1
+
+- Fixes an issue where `onEnter` blocking causes navigation stack loss (stale state restoration).
+- Updates minimum supported SDK version to Flutter 3.32/Dart 3.8.
+
+## 17.0.0
+
+- **BREAKING CHANGE**
+  - `ShellRoute`'s navigating changes notify `GoRouter`'s observers by default.
+  - Adds `notifyRootObserver` to `ShellRouteBase`, `ShellRoute`, `StatefulShellRoute`, `ShellRouteData.$route`, `TypedShellRoute`, `TypedStatefulShellRoute`.
+
+## 16.3.0
+
+- Adds a top-level `onEnter` callback with access to current and next route states.
+
 ## 16.2.5
 
 - Fixes `GoRouter.of(context)` access inside redirect callbacks by providing router access through Zone-based context tracking.
@@ -413,7 +455,7 @@
 
 ## 7.0.1
 
-- Adds a workaround for the `dart fix --apply` issue, https://github.com/dart-lang/sdk/issues/52233.
+- Adds a workaround for the `dart fix --apply` issue, <https://github.com/dart-lang/sdk/issues/52233>.
 
 ## 7.0.0
 
@@ -896,7 +938,7 @@
 ## 2.2.8
 
 - reformatted CHANGELOG file; lets see if pub.dev is still ok with it...
-- staged an in-progress doc site at https://docs.page/csells/go_router
+- staged an in-progress doc site at <https://docs.page/csells/go_router>
 - tightened up a test that was silently failing
 - fixed a bug that dropped parent params in sub-route redirects
 
@@ -1229,4 +1271,3 @@
 ## 0.1.0
 
 - squatting on the package name (I'm not too proud to admit it)
-

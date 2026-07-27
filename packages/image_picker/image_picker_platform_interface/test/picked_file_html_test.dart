@@ -15,15 +15,12 @@ import 'package:web/web.dart' as web;
 
 const String expectedStringContents = 'Hello, world!';
 final Uint8List bytes = utf8.encode(expectedStringContents);
-final web.File textFile = web.File(
-  <JSUint8Array>[bytes.toJS].toJS,
-  'hello.txt',
-);
+final web.File textFile = web.File(<JSUint8Array>[bytes.toJS].toJS, 'hello.txt');
 final String textFileUrl = web.URL.createObjectURL(textFile);
 
 void main() {
   group('Create with an objectUrl', () {
-    final PickedFile pickedFile = PickedFile(textFileUrl);
+    final pickedFile = PickedFile(textFileUrl);
 
     test('Can be read as a string', () async {
       expect(await pickedFile.readAsString(), equals(expectedStringContents));
@@ -37,10 +34,7 @@ void main() {
     });
 
     test('Stream can be sliced', () async {
-      expect(
-        await pickedFile.openRead(2, 5).first,
-        equals(bytes.sublist(2, 5)),
-      );
+      expect(await pickedFile.openRead(2, 5).first, equals(bytes.sublist(2, 5)));
     });
   });
 }

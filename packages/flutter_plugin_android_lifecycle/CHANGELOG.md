@@ -1,3 +1,17 @@
+## 2.0.35
+
+* Bumps the androidx group across 10 directories with 1 update.
+* Updates minimum supported SDK version to Flutter 3.38/Dart 3.10.
+
+## 2.0.34
+
+* Updates build files from Groovy to Kotlin.
+* Updates README to reflect currently supported OS version.
+
+## 2.0.33
+
+* Bumps com.android.tools.build:gradle from 8.12.1 to 8.13.1.
+
 ## 2.0.32
 
 * Updates Java compatibility version to 17 and minimum supported SDK version to Flutter 3.35/Dart 3.9.

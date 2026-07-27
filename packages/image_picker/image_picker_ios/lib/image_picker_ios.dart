@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:image_picker_platform_interface/image_picker_platform_interface.dart';
 
 import 'src/messages.g.dart';
@@ -43,7 +44,10 @@ SourceCamera _convertCamera(CameraDevice camera) {
 
 /// An implementation of [ImagePickerPlatform] for iOS.
 class ImagePickerIOS extends ImagePickerPlatform {
-  final ImagePickerApi _hostApi = ImagePickerApi();
+  /// Creates a new plugin implementation instance.
+  ImagePickerIOS({@visibleForTesting ImagePickerApi? api}) : _hostApi = api ?? ImagePickerApi();
+
+  final ImagePickerApi _hostApi;
 
   /// Registers this class as the default platform implementation.
   static void registerWith() {
@@ -75,10 +79,7 @@ class ImagePickerIOS extends ImagePickerPlatform {
     required ImageSource source,
     ImagePickerOptions options = const ImagePickerOptions(),
   }) async {
-    final String? path = await _pickImageAsPath(
-      source: source,
-      options: options,
-    );
+    final String? path = await _pickImageAsPath(source: source, options: options);
     return path != null ? XFile(path) : null;
   }
 
@@ -119,11 +120,7 @@ class ImagePickerIOS extends ImagePickerPlatform {
   }) async {
     final int? imageQuality = options.imageOptions.imageQuality;
     if (imageQuality != null && (imageQuality < 0 || imageQuality > 100)) {
-      throw ArgumentError.value(
-        imageQuality,
-        'imageQuality',
-        'must be between 0 and 100',
-      );
+      throw ArgumentError.value(imageQuality, 'imageQuality', 'must be between 0 and 100');
     }
 
     final double? maxWidth = options.imageOptions.maxWidth;
@@ -155,11 +152,7 @@ class ImagePickerIOS extends ImagePickerPlatform {
   }) {
     final int? imageQuality = options.imageQuality;
     if (imageQuality != null && (imageQuality < 0 || imageQuality > 100)) {
-      throw ArgumentError.value(
-        imageQuality,
-        'imageQuality',
-        'must be between 0 and 100',
-      );
+      throw ArgumentError.value(imageQuality, 'imageQuality', 'must be between 0 and 100');
     }
 
     final double? maxHeight = options.maxHeight;
@@ -185,8 +178,9 @@ class ImagePickerIOS extends ImagePickerPlatform {
 
   @override
   Future<List<XFile>> getMedia({required MediaOptions options}) async {
-    final MediaSelectionOptions mediaSelectionOptions =
-        _mediaOptionsToMediaSelectionOptions(options);
+    final MediaSelectionOptions mediaSelectionOptions = _mediaOptionsToMediaSelectionOptions(
+      options,
+    );
 
     return (await _hostApi.pickMedia(
       mediaSelectionOptions,
@@ -199,11 +193,7 @@ class ImagePickerIOS extends ImagePickerPlatform {
     final int? imageQuality = imageOptions.imageQuality;
 
     if (imageQuality != null && (imageQuality < 0 || imageQuality > 100)) {
-      throw ArgumentError.value(
-        imageQuality,
-        'imageQuality',
-        'must be between 0 and 100',
-      );
+      throw ArgumentError.value(imageQuality, 'imageQuality', 'must be between 0 and 100');
     }
 
     if (maxWidth != null && maxWidth < 0) {
@@ -217,12 +207,8 @@ class ImagePickerIOS extends ImagePickerPlatform {
     return MaxSize(width: maxWidth, height: maxHeight);
   }
 
-  MediaSelectionOptions _mediaOptionsToMediaSelectionOptions(
-    MediaOptions mediaOptions,
-  ) {
-    final MaxSize maxSize = _imageOptionsToMaxSizeWithValidation(
-      mediaOptions.imageOptions,
-    );
+  MediaSelectionOptions _mediaOptionsToMediaSelectionOptions(MediaOptions mediaOptions) {
+    final MaxSize maxSize = _imageOptionsToMaxSizeWithValidation(mediaOptions.imageOptions);
 
     final bool allowMultiple = mediaOptions.allowMultiple;
     final int? limit = mediaOptions.limit;

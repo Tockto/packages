@@ -35,7 +35,7 @@ void bufferContains(VectorGraphicsBuffer buffer, List<int> expectedBytes) {
 
 void main() {
   test('Messages begin with a magic number and version', () {
-    final VectorGraphicsBuffer buffer = VectorGraphicsBuffer();
+    final buffer = VectorGraphicsBuffer();
 
     bufferContains(buffer, <int>[98, 45, 136, 0, 1]);
   });
@@ -67,7 +67,7 @@ void main() {
   });
 
   test('Messages without an incompatible version cannot be decoded', () {
-    final Uint8List bytes = Uint8List(6);
+    final bytes = Uint8List(6);
     bytes[0] = 98;
     bytes[1] = 45;
     bytes[2] = 136;
@@ -80,17 +80,15 @@ void main() {
         isA<StateError>().having(
           (StateError se) => se.message,
           'message',
-          contains(
-            'he provided data does not match the currently supported version.',
-          ),
+          contains('he provided data does not match the currently supported version.'),
         ),
       ),
     );
   });
 
   test('Basic message encode and decode with filled path', () {
-    final VectorGraphicsBuffer buffer = VectorGraphicsBuffer();
-    final TestListener listener = TestListener();
+    final buffer = VectorGraphicsBuffer();
+    final listener = TestListener();
     final int paintId = codec.writeFill(buffer, 23, 0);
     final int pathId = codec.writePath(
       buffer,
@@ -128,8 +126,8 @@ void main() {
   });
 
   test('Basic message encode and decode with shaded path', () {
-    final VectorGraphicsBuffer buffer = VectorGraphicsBuffer();
-    final TestListener listener = TestListener();
+    final buffer = VectorGraphicsBuffer();
+    final listener = TestListener();
     final int shaderId = codec.writeLinearGradient(
       buffer,
       fromX: 0,
@@ -141,16 +139,7 @@ void main() {
       tileMode: 1,
     );
     final int fillId = codec.writeFill(buffer, 23, 0, shaderId);
-    final int strokeId = codec.writeStroke(
-      buffer,
-      44,
-      1,
-      2,
-      3,
-      4.0,
-      6.0,
-      shaderId,
-    );
+    final int strokeId = codec.writeStroke(buffer, 44, 1, 2, 3, 4.0, 6.0, shaderId);
     final int pathId = codec.writePath(
       buffer,
       Uint8List.fromList(<int>[
@@ -210,8 +199,8 @@ void main() {
   });
 
   test('Basic message encode and decode with stroked vertex', () {
-    final VectorGraphicsBuffer buffer = VectorGraphicsBuffer();
-    final TestListener listener = TestListener();
+    final buffer = VectorGraphicsBuffer();
+    final listener = TestListener();
     final int paintId = codec.writeStroke(buffer, 44, 1, 2, 3, 4.0, 6.0);
     codec.writeDrawVertices(
       buffer,
@@ -234,17 +223,13 @@ void main() {
         id: paintId,
         shaderId: null,
       ),
-      OnDrawVertices(
-        const <double>[0.0, 2.0, 3.0, 4.0, 2.0, 4.0],
-        null,
-        paintId,
-      ),
+      OnDrawVertices(const <double>[0.0, 2.0, 3.0, 4.0, 2.0, 4.0], null, paintId),
     ]);
   });
 
   test('Basic message encode and decode with stroked vertex and indexes', () {
-    final VectorGraphicsBuffer buffer = VectorGraphicsBuffer();
-    final TestListener listener = TestListener();
+    final buffer = VectorGraphicsBuffer();
+    final listener = TestListener();
     final int paintId = codec.writeStroke(buffer, 44, 1, 2, 3, 4.0, 6.0);
     codec.writeDrawVertices(
       buffer,
@@ -276,8 +261,8 @@ void main() {
   });
 
   test('Can encode opacity/save/restore layers', () {
-    final VectorGraphicsBuffer buffer = VectorGraphicsBuffer();
-    final TestListener listener = TestListener();
+    final buffer = VectorGraphicsBuffer();
+    final listener = TestListener();
     final int paintId = codec.writeFill(buffer, 0xAA000000, 0);
 
     codec.writeSaveLayer(buffer, paintId);
@@ -302,8 +287,8 @@ void main() {
   });
 
   test('Can encode a radial gradient', () {
-    final VectorGraphicsBuffer buffer = VectorGraphicsBuffer();
-    final TestListener listener = TestListener();
+    final buffer = VectorGraphicsBuffer();
+    final listener = TestListener();
 
     final int shaderId = codec.writeRadialGradient(
       buffer,
@@ -337,8 +322,8 @@ void main() {
   });
 
   test('Can encode a radial gradient (no matrix)', () {
-    final VectorGraphicsBuffer buffer = VectorGraphicsBuffer();
-    final TestListener listener = TestListener();
+    final buffer = VectorGraphicsBuffer();
+    final listener = TestListener();
 
     final int shaderId = codec.writeRadialGradient(
       buffer,
@@ -372,8 +357,8 @@ void main() {
   });
 
   test('Can encode a linear gradient', () {
-    final VectorGraphicsBuffer buffer = VectorGraphicsBuffer();
-    final TestListener listener = TestListener();
+    final buffer = VectorGraphicsBuffer();
+    final listener = TestListener();
 
     final int shaderId = codec.writeLinearGradient(
       buffer,
@@ -403,8 +388,8 @@ void main() {
   });
 
   test('Can encode clips', () {
-    final VectorGraphicsBuffer buffer = VectorGraphicsBuffer();
-    final TestListener listener = TestListener();
+    final buffer = VectorGraphicsBuffer();
+    final listener = TestListener();
     final int pathId = codec.writePath(
       buffer,
       Uint8List.fromList(<int>[
@@ -434,16 +419,16 @@ void main() {
   });
 
   test('Can encode masks', () {
-    final VectorGraphicsBuffer buffer = VectorGraphicsBuffer();
-    final TestListener listener = TestListener();
+    final buffer = VectorGraphicsBuffer();
+    final listener = TestListener();
     codec.writeMask(buffer);
     codec.decode(buffer.done(), listener);
     expect(listener.commands, <OnMask>[const OnMask()]);
   });
 
   test('Encodes a size', () {
-    final VectorGraphicsBuffer buffer = VectorGraphicsBuffer();
-    final TestListener listener = TestListener();
+    final buffer = VectorGraphicsBuffer();
+    final listener = TestListener();
 
     codec.writeSize(buffer, 20, 30);
     codec.decode(buffer.done(), listener);
@@ -452,15 +437,15 @@ void main() {
   });
 
   test('Only supports a single size', () {
-    final VectorGraphicsBuffer buffer = VectorGraphicsBuffer();
+    final buffer = VectorGraphicsBuffer();
 
     codec.writeSize(buffer, 20, 30);
     expect(() => codec.writeSize(buffer, 1, 1), throwsStateError);
   });
 
   test('Encodes text', () {
-    final VectorGraphicsBuffer buffer = VectorGraphicsBuffer();
-    final TestListener listener = TestListener();
+    final buffer = VectorGraphicsBuffer();
+    final listener = TestListener();
 
     final int paintId = codec.writeFill(buffer, 0xFFAABBAA, 0);
     final int textId = codec.writeTextConfig(
@@ -495,8 +480,8 @@ void main() {
   });
 
   test('Encodes text with null font family', () {
-    final VectorGraphicsBuffer buffer = VectorGraphicsBuffer();
-    final TestListener listener = TestListener();
+    final buffer = VectorGraphicsBuffer();
+    final listener = TestListener();
 
     final int paintId = codec.writeFill(buffer, 0xFFAABBAA, 0);
     final int textId = codec.writeTextConfig(
@@ -531,8 +516,8 @@ void main() {
   });
 
   test('Encodes empty text', () {
-    final VectorGraphicsBuffer buffer = VectorGraphicsBuffer();
-    final TestListener listener = TestListener();
+    final buffer = VectorGraphicsBuffer();
+    final listener = TestListener();
 
     final int paintId = codec.writeFill(buffer, 0xFFAABBAA, 0);
     final int textId = codec.writeTextConfig(
@@ -567,35 +552,23 @@ void main() {
   });
 
   test('Encodes text position', () {
-    final VectorGraphicsBuffer buffer = VectorGraphicsBuffer();
-    final TestListener listener = TestListener();
+    final buffer = VectorGraphicsBuffer();
+    final listener = TestListener();
 
     codec.writeTextPosition(buffer, 1, 2, 3, 4, true, mat4);
 
     codec.decode(buffer.done(), listener);
 
     expect(listener.commands, <Object>[
-      OnTextPosition(
-        id: 0,
-        x: 1,
-        y: 2,
-        dx: 3,
-        dy: 4,
-        reset: true,
-        transform: mat4,
-      ),
+      OnTextPosition(id: 0, x: 1, y: 2, dx: 3, dy: 4, reset: true, transform: mat4),
     ]);
   });
 
   test('Encodes image data without transform', () {
-    final VectorGraphicsBuffer buffer = VectorGraphicsBuffer();
-    final TestListener listener = TestListener();
+    final buffer = VectorGraphicsBuffer();
+    final listener = TestListener();
 
-    final int id = codec.writeImage(
-      buffer,
-      0,
-      Uint8List.fromList(<int>[0, 1, 3, 4, 5]),
-    );
+    final int id = codec.writeImage(buffer, 0, Uint8List.fromList(<int>[0, 1, 3, 4, 5]));
     codec.writeDrawImage(buffer, id, 1, 2, 100, 100, null);
     final ByteData data = buffer.done();
     final DecodeResponse response = codec.decode(data, listener);
@@ -605,11 +578,7 @@ void main() {
       OnImage(id, 0, const <int>[0, 1, 3, 4, 5]),
     ]);
 
-    final DecodeResponse nextResponse = codec.decode(
-      data,
-      listener,
-      response: response,
-    );
+    final DecodeResponse nextResponse = codec.decode(data, listener, response: response);
 
     expect(nextResponse.complete, true);
     expect(listener.commands, <Object>[
@@ -619,14 +588,10 @@ void main() {
   });
 
   test('Encodes image data with transform', () {
-    final VectorGraphicsBuffer buffer = VectorGraphicsBuffer();
-    final TestListener listener = TestListener();
+    final buffer = VectorGraphicsBuffer();
+    final listener = TestListener();
 
-    final int id = codec.writeImage(
-      buffer,
-      0,
-      Uint8List.fromList(<int>[0, 1, 3, 4, 5]),
-    );
+    final int id = codec.writeImage(buffer, 0, Uint8List.fromList(<int>[0, 1, 3, 4, 5]));
     codec.writeDrawImage(buffer, id, 1, 2, 100, 100, mat4);
     final ByteData data = buffer.done();
     final DecodeResponse response = codec.decode(data, listener);
@@ -636,11 +601,7 @@ void main() {
       OnImage(id, 0, const <int>[0, 1, 3, 4, 5]),
     ]);
 
-    final DecodeResponse nextResponse = codec.decode(
-      data,
-      listener,
-      response: response,
-    );
+    final DecodeResponse nextResponse = codec.decode(data, listener, response: response);
 
     expect(nextResponse.complete, true);
     expect(listener.commands, <Object>[
@@ -650,29 +611,21 @@ void main() {
   });
 
   test('Encodes image data with various formats', () {
-    final VectorGraphicsBuffer buffer = VectorGraphicsBuffer();
+    final buffer = VectorGraphicsBuffer();
 
     for (final int format in ImageFormatTypes.values) {
       expect(
-        codec.writeImage(
-          buffer,
-          format,
-          Uint8List.fromList(<int>[0, 1, 3, 4, 5]),
-        ),
+        codec.writeImage(buffer, format, Uint8List.fromList(<int>[0, 1, 3, 4, 5])),
         greaterThan(-1),
       );
     }
   });
 
   test('Basic message encode and decode with shaded path and image', () {
-    final VectorGraphicsBuffer buffer = VectorGraphicsBuffer();
-    final TestListener listener = TestListener();
+    final buffer = VectorGraphicsBuffer();
+    final listener = TestListener();
 
-    final int imageId = codec.writeImage(
-      buffer,
-      0,
-      Uint8List.fromList(<int>[0, 1, 3, 4, 5]),
-    );
+    final int imageId = codec.writeImage(buffer, 0, Uint8List.fromList(<int>[0, 1, 3, 4, 5]));
     final int shaderId = codec.writeLinearGradient(
       buffer,
       fromX: 0,
@@ -684,16 +637,7 @@ void main() {
       tileMode: 1,
     );
     final int fillId = codec.writeFill(buffer, 23, 0, shaderId);
-    final int strokeId = codec.writeStroke(
-      buffer,
-      44,
-      1,
-      2,
-      3,
-      4.0,
-      6.0,
-      shaderId,
-    );
+    final int strokeId = codec.writeStroke(buffer, 44, 1, 2, 3, 4.0, 6.0, shaderId);
     final int pathId = codec.writePath(
       buffer,
       Uint8List.fromList(<int>[
@@ -803,8 +747,8 @@ void main() {
   });
 
   test('Basic message encode and decode with half precision path', () {
-    final VectorGraphicsBuffer buffer = VectorGraphicsBuffer();
-    final TestListener listener = TestListener();
+    final buffer = VectorGraphicsBuffer();
+    final listener = TestListener();
 
     final int fillId = codec.writeFill(buffer, 23, 0);
     final int strokeId = codec.writeStroke(buffer, 44, 1, 2, 3, 4.0, 6.0);
@@ -937,14 +881,7 @@ class TestListener extends VectorGraphicsCodecListener {
   }
 
   @override
-  void onPathCubicTo(
-    double x1,
-    double y1,
-    double x2,
-    double y2,
-    double x3,
-    double y3,
-  ) {
+  void onPathCubicTo(double x1, double y1, double x2, double y2, double x3, double y3) {
     commands.add(OnPathCubicTo(x1, y1, x2, y2, x3, y3));
   }
 
@@ -1080,12 +1017,7 @@ class TestListener extends VectorGraphicsCodecListener {
   }
 
   @override
-  void onImage(
-    int imageId,
-    int format,
-    Uint8List data, {
-    VectorGraphicsErrorListener? onError,
-  }) {
+  void onImage(int imageId, int format, Uint8List data, {VectorGraphicsErrorListener? onError}) {
     commands.add(OnImage(imageId, format, data, onError: onError));
   }
 
@@ -1136,15 +1068,8 @@ class OnTextPosition {
   final Float64List? transform;
 
   @override
-  int get hashCode => Object.hash(
-    id,
-    x,
-    y,
-    dx,
-    dy,
-    reset,
-    Object.hashAll(transform ?? <Object?>[]),
-  );
+  int get hashCode =>
+      Object.hash(id, x, y, dx, dy, reset, Object.hashAll(transform ?? <Object?>[]));
 
   @override
   bool operator ==(Object other) {
@@ -1343,11 +1268,8 @@ class OnDrawVertices {
   final int? paintId;
 
   @override
-  int get hashCode => Object.hash(
-    Object.hashAll(vertices),
-    Object.hashAll(indices ?? <Object?>[]),
-    paintId,
-  );
+  int get hashCode =>
+      Object.hash(Object.hashAll(vertices), Object.hashAll(indices ?? <Object?>[]), paintId);
 
   @override
   bool operator ==(Object other) =>
@@ -1484,8 +1406,7 @@ class OnPathLineTo {
   int get hashCode => Object.hash(x, y);
 
   @override
-  bool operator ==(Object other) =>
-      other is OnPathLineTo && other.x == x && other.y == y;
+  bool operator ==(Object other) => other is OnPathLineTo && other.x == x && other.y == y;
 
   @override
   String toString() => 'OnPathLineTo($x, $y)';
@@ -1502,8 +1423,7 @@ class OnPathMoveTo {
   int get hashCode => Object.hash(x, y);
 
   @override
-  bool operator ==(Object other) =>
-      other is OnPathMoveTo && other.x == x && other.y == y;
+  bool operator ==(Object other) => other is OnPathMoveTo && other.x == x && other.y == y;
 
   @override
   String toString() => 'OnPathMoveTo($x, $y)';
@@ -1650,14 +1570,7 @@ class OnImage {
 
 @immutable
 class OnDrawImage {
-  const OnDrawImage(
-    this.id,
-    this.x,
-    this.y,
-    this.width,
-    this.height,
-    this.transform,
-  );
+  const OnDrawImage(this.id, this.x, this.y, this.width, this.height, this.transform);
 
   final int id;
   final double x;
@@ -1667,14 +1580,8 @@ class OnDrawImage {
   final Float64List? transform;
 
   @override
-  int get hashCode => Object.hash(
-    id,
-    x,
-    y,
-    width,
-    height,
-    Object.hashAll(transform ?? const <Object?>[]),
-  );
+  int get hashCode =>
+      Object.hash(id, x, y, width, height, Object.hashAll(transform ?? const <Object?>[]));
 
   @override
   bool operator ==(Object other) {
@@ -1693,14 +1600,7 @@ class OnDrawImage {
 
 @immutable
 class OnPatternStart {
-  const OnPatternStart(
-    this.patternId,
-    this.x,
-    this.y,
-    this.width,
-    this.height,
-    this.transform,
-  );
+  const OnPatternStart(this.patternId, this.x, this.y, this.width, this.height, this.transform);
 
   final int patternId;
   final double x;
@@ -1710,8 +1610,7 @@ class OnPatternStart {
   final Float64List transform;
 
   @override
-  int get hashCode =>
-      Object.hash(patternId, x, y, width, height, Object.hashAll(transform));
+  int get hashCode => Object.hash(patternId, x, y, width, height, Object.hashAll(transform));
 
   @override
   bool operator ==(Object other) =>
@@ -1724,8 +1623,7 @@ class OnPatternStart {
       _listEquals(other.transform, transform);
 
   @override
-  String toString() =>
-      'OnPatternStart($patternId, $x, $y, $width, $height, $transform)';
+  String toString() => 'OnPatternStart($patternId, $x, $y, $width, $height, $transform)';
 }
 
 bool _listEquals<E>(List<E>? left, List<E>? right) {
@@ -1738,7 +1636,7 @@ bool _listEquals<E>(List<E>? left, List<E>? right) {
   if (left.length != right.length) {
     return false;
   }
-  for (int i = 0; i < left.length; i++) {
+  for (var i = 0; i < left.length; i++) {
     if (left[i] != right[i]) {
       return false;
     }
@@ -1756,6 +1654,5 @@ class OnUpdateTextPosition {
   int get hashCode => id;
 
   @override
-  bool operator ==(Object other) =>
-      other is OnUpdateTextPosition && other.id == id;
+  bool operator ==(Object other) => other is OnUpdateTextPosition && other.id == id;
 }

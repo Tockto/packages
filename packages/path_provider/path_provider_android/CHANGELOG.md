@@ -1,3 +1,28 @@
+## NEXT
+
+* Updates minimum supported SDK version to Flutter 3.38/Dart 3.10.
+
+## 2.3.1
+
+* Removes dependency on `PathUtils` to avoid a potential
+  `ClassNotFoundException` when running in release mode.
+
+## 2.3.0
+
+* Changes internal implementation to use JNI.
+
+## 2.2.23
+
+* Updates build files from Groovy to Kotlin.
+
+## 2.2.22
+
+* Bumps com.android.tools.build:gradle from 8.12.1 to 8.13.1.
+
+## 2.2.21
+
+* Updates to Pigeon 26.
+
 ## 2.2.20
 
 * Updates Java compatibility version to 17 and minimum supported SDK version to Flutter 3.35/Dart 3.9.

@@ -38,7 +38,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
 
-    final QuickActionsIos quickActions = QuickActionsIos();
+    final quickActions = QuickActionsIos();
     quickActions.initialize((String shortcutType) {
       setState(() {
         shortcut = shortcutType;
@@ -53,11 +53,7 @@ class _MyHomePageState extends State<MyHomePage> {
             localizedSubtitle: 'Action one subtitle',
             icon: 'AppIcon',
           ),
-          const ShortcutItem(
-            type: 'action_two',
-            localizedTitle: 'Action two',
-            icon: 'ic_launcher',
-          ),
+          const ShortcutItem(type: 'action_two', localizedTitle: 'Action two', icon: 'ic_launcher'),
         ])
         .then((void _) {
           setState(() {

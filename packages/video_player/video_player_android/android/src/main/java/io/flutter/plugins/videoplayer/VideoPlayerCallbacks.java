@@ -24,4 +24,8 @@ public interface VideoPlayerCallbacks {
   void onError(@NonNull String code, @Nullable String message, @Nullable Object details);
 
   void onIsPlayingStateUpdate(boolean isPlaying);
+
+  void onAudioTrackChanged(@Nullable String selectedTrackId);
+
+  void onVideoTrackChanged(@Nullable String selectedTrackId);
 }

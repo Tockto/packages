@@ -14,39 +14,56 @@ import 'webview_cookie_manager_test.mocks.dart';
 void main() {
   group('WebViewCookieManager', () {
     test('clearCookies', () async {
-      final MockPlatformWebViewCookieManager mockPlatformWebViewCookieManager =
-          MockPlatformWebViewCookieManager();
+      final mockPlatformWebViewCookieManager = MockPlatformWebViewCookieManager();
       when(
         mockPlatformWebViewCookieManager.clearCookies(),
       ).thenAnswer((_) => Future<bool>.value(false));
 
-      final WebViewCookieManager cookieManager =
-          WebViewCookieManager.fromPlatform(mockPlatformWebViewCookieManager);
+      final cookieManager = WebViewCookieManager.fromPlatform(mockPlatformWebViewCookieManager);
 
       await expectLater(cookieManager.clearCookies(), completion(false));
     });
 
     test('setCookie', () async {
-      final MockPlatformWebViewCookieManager mockPlatformWebViewCookieManager =
-          MockPlatformWebViewCookieManager();
+      final mockPlatformWebViewCookieManager = MockPlatformWebViewCookieManager();
 
-      final WebViewCookieManager cookieManager =
-          WebViewCookieManager.fromPlatform(mockPlatformWebViewCookieManager);
+      final cookieManager = WebViewCookieManager.fromPlatform(mockPlatformWebViewCookieManager);
 
-      const WebViewCookie cookie = WebViewCookie(
-        name: 'name',
-        value: 'value',
-        domain: 'domain',
-      );
+      const cookie = WebViewCookie(name: 'name', value: 'value', domain: 'domain');
 
       await cookieManager.setCookie(cookie);
 
-      final WebViewCookie capturedCookie =
-          verify(
-                mockPlatformWebViewCookieManager.setCookie(captureAny),
-              ).captured.single
+      final capturedCookie =
+          verify(mockPlatformWebViewCookieManager.setCookie(captureAny)).captured.single
               as WebViewCookie;
       expect(capturedCookie, cookie);
+    });
+
+    test('getCookies', () async {
+      final mockPlatformWebViewCookieManager = MockPlatformWebViewCookieManager();
+      final cookieManager = WebViewCookieManager.fromPlatform(mockPlatformWebViewCookieManager);
+
+      when(
+        mockPlatformWebViewCookieManager.getCookies(Uri(host: 'flutter.dev')),
+      ).thenAnswer((_) async => []);
+
+      final List<WebViewCookie> cookies = await cookieManager.getCookies(
+        domain: Uri(host: 'flutter.dev'),
+      );
+
+      expect(cookies, isEmpty);
+
+      verify(mockPlatformWebViewCookieManager.getCookies(Uri(host: 'flutter.dev'))).called(1);
+
+      const cookie = WebViewCookie(name: 'name', value: 'value', domain: 'domain');
+
+      when(
+        mockPlatformWebViewCookieManager.getCookies(Uri(host: 'domain')),
+      ).thenAnswer((_) => Future.value([cookie]));
+
+      expect(await cookieManager.getCookies(domain: Uri(host: 'domain')), isNotEmpty);
+
+      verify(mockPlatformWebViewCookieManager.getCookies(Uri(host: 'domain'))).called(1);
     });
   });
 }

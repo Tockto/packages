@@ -10,33 +10,19 @@ import '../platform_interface/build_widget_creation_params.dart';
 import '../platform_interface/companion_ad_slot_size.dart';
 import '../platform_interface/platform_companion_ad_slot.dart';
 import 'interactive_media_ads.g.dart';
-import 'interactive_media_ads_proxy.dart';
 
 /// Implementation of [PlatformCompanionAdSlotCreationParams] for iOS.
-final class IOSCompanionAdSlotCreationParams
-    extends PlatformCompanionAdSlotCreationParams {
+final class IOSCompanionAdSlotCreationParams extends PlatformCompanionAdSlotCreationParams {
   /// Constructs an [IOSCompanionAdSlotCreationParams].
-  const IOSCompanionAdSlotCreationParams({
-    required super.size,
-    super.onClicked,
-    @visibleForTesting InteractiveMediaAdsProxy? proxy,
-  }) : _proxy = proxy ?? const InteractiveMediaAdsProxy(),
-       super();
+  const IOSCompanionAdSlotCreationParams({required super.size, super.onClicked}) : super();
 
   /// Creates an [IOSCompanionAdSlotCreationParams] from an instance of
   /// [PlatformCompanionAdSlotCreationParams].
   factory IOSCompanionAdSlotCreationParams.fromPlatformCompanionAdSlotCreationParamsSize(
-    PlatformCompanionAdSlotCreationParams params, {
-    @visibleForTesting InteractiveMediaAdsProxy? proxy,
-  }) {
-    return IOSCompanionAdSlotCreationParams(
-      size: params.size,
-      onClicked: params.onClicked,
-      proxy: proxy,
-    );
+    PlatformCompanionAdSlotCreationParams params,
+  ) {
+    return IOSCompanionAdSlotCreationParams(size: params.size, onClicked: params.onClicked);
   }
-
-  final InteractiveMediaAdsProxy _proxy;
 }
 
 /// Implementation of [PlatformCompanionAdSlot] for iOS.
@@ -44,12 +30,8 @@ base class IOSCompanionAdSlot extends PlatformCompanionAdSlot {
   /// Constructs an [IOSCompanionAdSlot].
   IOSCompanionAdSlot(super.params) : super.implementation();
 
-  late final IOSCompanionAdSlotCreationParams _iosParams = _initIOSParams(
-    params,
-  );
-
   // View used to display the Ad.
-  late final UIView _view = _iosParams._proxy.newUIView();
+  late final UIView _view = UIView();
 
   late final IMACompanionDelegate _delegate = _createCompanionDelegate(
     WeakReference<IOSCompanionAdSlot>(this),
@@ -65,34 +47,19 @@ base class IOSCompanionAdSlot extends PlatformCompanionAdSlot {
       key: params.key,
       viewType: 'interactive_media_ads.packages.flutter.dev/view',
       layoutDirection: params.layoutDirection,
-      creationParams: _view.pigeon_instanceManager.getIdentifier(_view),
+      creationParams: PigeonInstanceManager.instance.getIdentifier(_view),
       creationParamsCodec: const StandardMessageCodec(),
-    );
-  }
-
-  IOSCompanionAdSlotCreationParams _initIOSParams(
-    PlatformCompanionAdSlotCreationParams params,
-  ) {
-    if (params is IOSCompanionAdSlotCreationParams) {
-      return params;
-    }
-
-    return IOSCompanionAdSlotCreationParams.fromPlatformCompanionAdSlotCreationParamsSize(
-      params,
     );
   }
 
   IMACompanionAdSlot _initCompanionAdSlot() {
     final IMACompanionAdSlot adSlot = switch (params.size) {
-      final CompanionAdSlotSizeFixed size =>
-        _iosParams._proxy.sizeIMACompanionAdSlot(
-          view: _view,
-          width: size.width,
-          height: size.height,
-        ),
-      CompanionAdSlotSizeFluid() => _iosParams._proxy.newIMACompanionAdSlot(
+      final CompanionAdSlotSizeFixed size => IMACompanionAdSlot.size(
         view: _view,
+        width: size.width,
+        height: size.height,
       ),
+      CompanionAdSlotSizeFluid() => IMACompanionAdSlot(view: _view),
     };
 
     if (params.onClicked != null) {
@@ -105,11 +72,9 @@ base class IOSCompanionAdSlot extends PlatformCompanionAdSlot {
   // This value is created in a static method because the callback methods for
   // any wrapped classes must not reference the encapsulating object. This is to
   // prevent a circular reference that prevents garbage collection.
-  static IMACompanionDelegate _createCompanionDelegate(
-    WeakReference<IOSCompanionAdSlot> weakThis,
-  ) {
-    return weakThis.target!._iosParams._proxy.newIMACompanionDelegate(
-      companionSlotWasClicked: (_, __) {
+  static IMACompanionDelegate _createCompanionDelegate(WeakReference<IOSCompanionAdSlot> weakThis) {
+    return IMACompanionDelegate(
+      companionSlotWasClicked: (_, _) {
         weakThis.target?.params.onClicked!.call();
       },
     );

@@ -15,14 +15,12 @@ class OpenImagePage extends StatelessWidget {
 
   Future<void> _openImageFile(BuildContext context) async {
     // #docregion SingleOpen
-    const XTypeGroup typeGroup = XTypeGroup(
+    const typeGroup = XTypeGroup(
       label: 'images',
       extensions: <String>['jpg', 'png'],
       uniformTypeIdentifiers: <String>['public.jpeg', 'public.png'],
     );
-    final XFile? file = await openFile(
-      acceptedTypeGroups: <XTypeGroup>[typeGroup],
-    );
+    final XFile? file = await openFile(acceptedTypeGroups: <XTypeGroup>[typeGroup]);
     // #enddocregion SingleOpen
     if (file == null) {
       // Operation was canceled by the user.

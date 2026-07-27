@@ -26,17 +26,14 @@ class QuickActionsIos extends QuickActionsPlatform {
 
   @override
   Future<void> initialize(QuickActionHandler handler) async {
-    final _QuickActionHandlerApi quickActionsHandlerApi =
-        _QuickActionHandlerApi();
+    final quickActionsHandlerApi = _QuickActionHandlerApi();
     IOSQuickActionsFlutterApi.setUp(quickActionsHandlerApi);
     _handler = handler;
   }
 
   @override
   Future<void> setShortcutItems(List<ShortcutItem> items) async {
-    await _hostApi.setShortcutItems(
-      items.map(_shortcutItemToShortcutItemMessage).toList(),
-    );
+    await _hostApi.setShortcutItems(items.map(_shortcutItemToShortcutItemMessage).toList());
   }
 
   @override

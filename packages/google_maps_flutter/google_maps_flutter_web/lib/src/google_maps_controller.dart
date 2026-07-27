@@ -6,8 +6,7 @@ part of '../google_maps_flutter_web.dart';
 
 /// Type used when passing an override to the _createMap function.
 @visibleForTesting
-typedef DebugCreateMapFunction =
-    gmaps.Map Function(HTMLElement div, gmaps.MapOptions options);
+typedef DebugCreateMapFunction = gmaps.Map Function(web.HTMLElement div, gmaps.MapOptions options);
 
 /// Type used when passing an override to the _setOptions function.
 @visibleForTesting
@@ -38,32 +37,65 @@ class GoogleMapController {
     _heatmapsController = HeatmapsController();
     _polygonsController = PolygonsController(stream: _streamController);
     _polylinesController = PolylinesController(stream: _streamController);
-    _clusterManagersController = ClusterManagersController(
-      stream: _streamController,
-    );
-    _markersController = MarkersController(
-      stream: _streamController,
-      clusterManagersController: _clusterManagersController!,
-    );
+
+    // Check if all markers are of the same type. Mixing marker types is not
+    // allowed.
+    final Set<Type> markerTypes = _markers.map((Marker e) => e.runtimeType).toSet();
+    if (markerTypes.isNotEmpty) {
+      assert(markerTypes.length == 1, 'All markers must be of the same type.');
+
+      switch (mapConfiguration.markerType) {
+        case null:
+        case MarkerType.marker:
+          assert(
+            markerTypes.first == Marker,
+            'All markers must be of type Marker because '
+            'mapConfiguration.markerType is MarkerType.marker',
+          );
+        case MarkerType.advancedMarker:
+          assert(
+            markerTypes.first == AdvancedMarker,
+            'All markers must be of type AdvancedMarker because '
+            'mapConfiguration.markerType is MarkerType.advanced',
+          );
+      }
+    }
+
+    // Advanced and legacy markers are handled differently so markers controller
+    // and cluster manager need be initialized with the correct marker type.
+    _clusterManagersController = switch (mapConfiguration.markerType) {
+      null ||
+      MarkerType.marker => ClusterManagersController<gmaps.Marker>(stream: _streamController),
+      MarkerType.advancedMarker => ClusterManagersController<gmaps.AdvancedMarkerElement>(
+        stream: _streamController,
+      ),
+    };
+    _markersController = switch (mapConfiguration.markerType) {
+      null || MarkerType.marker => LegacyMarkersController(
+        stream: stream,
+        clusterManagersController:
+            _clusterManagersController! as ClusterManagersController<gmaps.Marker>,
+      ),
+      MarkerType.advancedMarker => AdvancedMarkersController(
+        stream: stream,
+        clusterManagersController:
+            _clusterManagersController! as ClusterManagersController<gmaps.AdvancedMarkerElement>,
+      ),
+    };
+
     _tileOverlaysController = TileOverlaysController();
-    _groundOverlaysController = GroundOverlaysController(
-      stream: _streamController,
-    );
+    _groundOverlaysController = GroundOverlaysController(stream: _streamController);
     _updateStylesFromConfiguration(mapConfiguration);
 
     // Register the view factory that will hold the `_div` that holds the map in the DOM.
     // The `_div` needs to be created outside of the ViewFactory (and cached!) so we can
     // use it to create the [gmaps.Map] in the `init()` method of this class.
-    _div =
-        createDivElement()
-          ..id = _getViewType(mapId)
-          ..style.width = '100%'
-          ..style.height = '100%';
+    _div = createDivElement()
+      ..id = _getViewType(mapId)
+      ..style.width = '100%'
+      ..style.height = '100%';
 
-    ui_web.platformViewRegistry.registerViewFactory(
-      _getViewType(mapId),
-      (int viewId) => _div,
-    );
+    ui_web.platformViewRegistry.registerViewFactory(_getViewType(mapId), (int viewId) => _div);
   }
 
   // The internal ID of the map. Used to broadcast events, DOM IDs and everything where a unique ID is needed.
@@ -99,7 +131,7 @@ class GoogleMapController {
 
   // The Flutter widget that contains the rendered Map.
   HtmlElementView? _widget;
-  late HTMLElement _div;
+  late web.HTMLElement _div;
 
   /// The Flutter widget that will contain the rendered Map. Used for caching.
   Widget? get widget {
@@ -134,8 +166,8 @@ class GoogleMapController {
   HeatmapsController? _heatmapsController;
   PolygonsController? _polygonsController;
   PolylinesController? _polylinesController;
-  MarkersController? _markersController;
-  ClusterManagersController? _clusterManagersController;
+  MarkersController<Object?, Object>? _markersController;
+  ClusterManagersController<Object?>? _clusterManagersController;
   TileOverlaysController? _tileOverlaysController;
   GroundOverlaysController? _groundOverlaysController;
 
@@ -152,25 +184,23 @@ class GoogleMapController {
 
   /// The ClusterManagersController of this Map. Only for integration testing.
   @visibleForTesting
-  ClusterManagersController? get clusterManagersController =>
-      _clusterManagersController;
+  ClusterManagersController<Object?>? get clusterManagersController => _clusterManagersController;
 
   /// The GroundOverlaysController of this Map. Only for integration testing.
   @visibleForTesting
-  GroundOverlaysController? get groundOverlayController =>
-      _groundOverlaysController;
+  GroundOverlaysController? get groundOverlayController => _groundOverlaysController;
 
   /// Overrides certain properties to install mocks defined during testing.
   @visibleForTesting
   void debugSetOverrides({
     DebugCreateMapFunction? createMap,
     DebugSetOptionsFunction? setOptions,
-    MarkersController? markers,
+    MarkersController<Object?, Object>? markers,
     CirclesController? circles,
     HeatmapsController? heatmaps,
     PolygonsController? polygons,
     PolylinesController? polylines,
-    ClusterManagersController? clusterManagers,
+    ClusterManagersController<Object?>? clusterManagers,
     TileOverlaysController? tileOverlays,
     GroundOverlaysController? groundOverlays,
   }) {
@@ -189,7 +219,7 @@ class GoogleMapController {
   DebugCreateMapFunction? _overrideCreateMap;
   DebugSetOptionsFunction? _overrideSetOptions;
 
-  gmaps.Map _createMap(HTMLElement div, gmaps.MapOptions options) {
+  gmaps.Map _createMap(web.HTMLElement div, gmaps.MapOptions options) {
     if (_overrideCreateMap != null) {
       return _overrideCreateMap!(div, options);
     }
@@ -256,24 +286,16 @@ class GoogleMapController {
         _streamController.add(WebMapReadyEvent(_mapId));
       }
     });
-    _onClickSubscription = map.onClick.listen((
-      gmaps.MapMouseEventOrIconMouseEvent event,
-    ) {
+    _onClickSubscription = map.onClick.listen((gmaps.MapMouseEventOrIconMouseEvent event) {
       assert(event.latLng != null);
       if (!_streamController.isClosed) {
-        _streamController.add(
-          MapTapEvent(_mapId, gmLatLngToLatLng(event.latLng!)),
-        );
+        _streamController.add(MapTapEvent(_mapId, gmLatLngToLatLng(event.latLng!)));
       }
     });
-    _onRightClickSubscription = map.onRightclick.listen((
-      gmaps.MapMouseEvent event,
-    ) {
+    _onRightClickSubscription = map.onRightclick.listen((gmaps.MapMouseEvent event) {
       assert(event.latLng != null);
       if (!_streamController.isClosed) {
-        _streamController.add(
-          MapLongPressEvent(_mapId, gmLatLngToLatLng(event.latLng!)),
-        );
+        _streamController.add(MapLongPressEvent(_mapId, gmLatLngToLatLng(event.latLng!)));
       }
     });
     _onBoundsChangedSubscription = map.onBoundsChanged.listen((void _) {
@@ -284,9 +306,7 @@ class GoogleMapController {
         }
       }
       if (!_streamController.isClosed) {
-        _streamController.add(
-          CameraMoveEvent(_mapId, _gmViewportToCameraPosition(map)),
-        );
+        _streamController.add(CameraMoveEvent(_mapId, _gmViewportToCameraPosition(map)));
       }
     });
     _onIdleSubscription = map.onIdle.listen((void _) {
@@ -305,10 +325,7 @@ class GoogleMapController {
     // These controllers are either created in the constructor of this class, or
     // overriden (for testing) by the [debugSetOverrides] method. They can't be
     // null.
-    assert(
-      _circlesController != null,
-      'Cannot attach a map to a null CirclesController instance.',
-    );
+    assert(_circlesController != null, 'Cannot attach a map to a null CirclesController instance.');
     assert(
       _heatmapsController != null,
       'Cannot attach a map to a null HeatmapsController instance.',
@@ -321,10 +338,7 @@ class GoogleMapController {
       _polylinesController != null,
       'Cannot attach a map to a null PolylinesController instance.',
     );
-    assert(
-      _markersController != null,
-      'Cannot attach a map to a null MarkersController instance.',
-    );
+    assert(_markersController != null, 'Cannot attach a map to a null MarkersController instance.');
     assert(
       _clusterManagersController != null,
       'Cannot attach a map to a null ClusterManagersController instance.',
@@ -386,9 +400,7 @@ class GoogleMapController {
   // TODO(stuartmorgan): Refactor so that _lastMapConfiguration.style is the
   // source of truth for style info. Currently it's tracked and handled
   // separately since style didn't used to be part of the configuration.
-  List<gmaps.MapTypeStyle> _updateStylesFromConfiguration(
-    MapConfiguration update,
-  ) {
+  List<gmaps.MapTypeStyle> _updateStylesFromConfiguration(MapConfiguration update) {
     if (update.style != null) {
       // Provide async access to the error rather than throwing, to match the
       // behavior of other platforms where there's no mechanism to return errors
@@ -409,9 +421,7 @@ class GoogleMapController {
   void updateMapConfiguration(MapConfiguration update) {
     assert(_googleMap != null, 'Cannot update options on a null map.');
 
-    final List<gmaps.MapTypeStyle> styles = _updateStylesFromConfiguration(
-      update,
-    );
+    final List<gmaps.MapTypeStyle> styles = _updateStylesFromConfiguration(update);
     final MapConfiguration newConfiguration = _mergeConfigurations(update);
     final gmaps.MapOptions newOptions = _configurationAndStyleToGmapsOptions(
       newConfiguration,
@@ -425,9 +435,7 @@ class GoogleMapController {
   /// Updates the map options with a new list of [styles].
   void updateStyles(List<gmaps.MapTypeStyle> styles) {
     _lastStyles = styles;
-    _setOptions(
-      _configurationAndStyleToGmapsOptions(_lastMapConfiguration, styles),
-    );
+    _setOptions(_configurationAndStyleToGmapsOptions(_lastMapConfiguration, styles));
   }
 
   /// A getter for the current styles. Only for tests.
@@ -465,39 +473,25 @@ class GoogleMapController {
     assert(_googleMap != null, 'Cannot get the visible region of a null map.');
 
     final gmaps.LatLngBounds bounds =
-        await Future<gmaps.LatLngBounds?>.value(_googleMap!.bounds) ??
-        _nullGmapsLatLngBounds;
+        await Future<gmaps.LatLngBounds?>.value(_googleMap!.bounds) ?? _nullGmapsLatLngBounds;
 
-    return gmLatLngBoundsTolatLngBounds(bounds);
+    return gmLatLngBoundsToLatLngBounds(bounds);
   }
 
   /// Returns the [ScreenCoordinate] for a given viewport [LatLng].
   Future<ScreenCoordinate> getScreenCoordinate(LatLng latLng) async {
-    assert(
-      _googleMap != null,
-      'Cannot get the screen coordinates with a null map.',
-    );
+    assert(_googleMap != null, 'Cannot get the screen coordinates with a null map.');
 
-    final gmaps.Point point = toScreenLocation(
-      _googleMap!,
-      _latLngToGmLatLng(latLng),
-    );
+    final gmaps.Point point = toScreenLocation(_googleMap!, _latLngToGmLatLng(latLng));
 
     return ScreenCoordinate(x: point.x.toInt(), y: point.y.toInt());
   }
 
   /// Returns the [LatLng] for a `screenCoordinate` (in pixels) of the viewport.
   Future<LatLng> getLatLng(ScreenCoordinate screenCoordinate) async {
-    assert(
-      _googleMap != null,
-      'Cannot get the lat, lng of a screen coordinate with a null map.',
-    );
+    assert(_googleMap != null, 'Cannot get the lat, lng of a screen coordinate with a null map.');
 
-    final gmaps.LatLng latLng = _pixelToLatLng(
-      _googleMap!,
-      screenCoordinate.x,
-      screenCoordinate.y,
-    );
+    final gmaps.LatLng latLng = _pixelToLatLng(_googleMap!, screenCoordinate.x, screenCoordinate.y);
     return gmLatLngToLatLng(latLng);
   }
 
@@ -523,10 +517,7 @@ class GoogleMapController {
 
   /// Applies [CircleUpdates] to the currently managed circles.
   void updateCircles(CircleUpdates updates) {
-    assert(
-      _circlesController != null,
-      'Cannot update circles after dispose().',
-    );
+    assert(_circlesController != null, 'Cannot update circles after dispose().');
     _circlesController?.addCircles(updates.circlesToAdd);
     _circlesController?.changeCircles(updates.circlesToChange);
     _circlesController?.removeCircles(updates.circleIdsToRemove);
@@ -534,10 +525,7 @@ class GoogleMapController {
 
   /// Applies [HeatmapUpdates] to the currently managed heatmaps.
   void updateHeatmaps(HeatmapUpdates updates) {
-    assert(
-      _heatmapsController != null,
-      'Cannot update heatmaps after dispose().',
-    );
+    assert(_heatmapsController != null, 'Cannot update heatmaps after dispose().');
     _heatmapsController?.addHeatmaps(updates.heatmapsToAdd);
     _heatmapsController?.changeHeatmaps(updates.heatmapsToChange);
     _heatmapsController?.removeHeatmaps(updates.heatmapIdsToRemove);
@@ -545,10 +533,7 @@ class GoogleMapController {
 
   /// Applies [PolygonUpdates] to the currently managed polygons.
   void updatePolygons(PolygonUpdates updates) {
-    assert(
-      _polygonsController != null,
-      'Cannot update polygons after dispose().',
-    );
+    assert(_polygonsController != null, 'Cannot update polygons after dispose().');
     _polygonsController?.addPolygons(updates.polygonsToAdd);
     _polygonsController?.changePolygons(updates.polygonsToChange);
     _polygonsController?.removePolygons(updates.polygonIdsToRemove);
@@ -556,10 +541,7 @@ class GoogleMapController {
 
   /// Applies [PolylineUpdates] to the currently managed lines.
   void updatePolylines(PolylineUpdates updates) {
-    assert(
-      _polylinesController != null,
-      'Cannot update polylines after dispose().',
-    );
+    assert(_polylinesController != null, 'Cannot update polylines after dispose().');
     _polylinesController?.addPolylines(updates.polylinesToAdd);
     _polylinesController?.changePolylines(updates.polylinesToChange);
     _polylinesController?.removePolylines(updates.polylineIdsToRemove);
@@ -567,10 +549,7 @@ class GoogleMapController {
 
   /// Applies [MarkerUpdates] to the currently managed markers.
   Future<void> updateMarkers(MarkerUpdates updates) async {
-    assert(
-      _markersController != null,
-      'Cannot update markers after dispose().',
-    );
+    assert(_markersController != null, 'Cannot update markers after dispose().');
     await _markersController?.addMarkers(updates.markersToAdd);
     await _markersController?.changeMarkers(updates.markersToChange);
     _markersController?.removeMarkers(updates.markerIdsToRemove);
@@ -579,24 +558,14 @@ class GoogleMapController {
 
   /// Applies [ClusterManagerUpdates] to the currently managed cluster managers.
   void updateClusterManagers(ClusterManagerUpdates updates) {
-    assert(
-      _clusterManagersController != null,
-      'Cannot update markers after dispose().',
-    );
-    _clusterManagersController?.addClusterManagers(
-      updates.clusterManagersToAdd,
-    );
-    _clusterManagersController?.removeClusterManagers(
-      updates.clusterManagerIdsToRemove,
-    );
+    assert(_clusterManagersController != null, 'Cannot update markers after dispose().');
+    _clusterManagersController?.addClusterManagers(updates.clusterManagersToAdd);
+    _clusterManagersController?.removeClusterManagers(updates.clusterManagerIdsToRemove);
   }
 
   /// Updates the set of [GroundOverlay]s.
   void updateGroundOverlays(GroundOverlayUpdates updates) {
-    assert(
-      _groundOverlaysController != null,
-      'Cannot update tile overlays after dispose().',
-    );
+    assert(_groundOverlaysController != null, 'Cannot update tile overlays after dispose().');
     _groundOverlaysController?.addGroundOverlays(updates.objectsToAdd);
     _groundOverlaysController?.changeGroundOverlays(updates.objectsToChange);
     _groundOverlaysController?.removeGroundOverlays(
@@ -606,21 +575,15 @@ class GoogleMapController {
 
   /// Updates the set of [TileOverlay]s.
   void updateTileOverlays(Set<TileOverlay> newOverlays) {
-    final MapsObjectUpdates<TileOverlay> updates =
-        MapsObjectUpdates<TileOverlay>.from(
-          _tileOverlays,
-          newOverlays,
-          objectName: 'tileOverlay',
-        );
-    assert(
-      _tileOverlaysController != null,
-      'Cannot update tile overlays after dispose().',
+    final updates = MapsObjectUpdates<TileOverlay>.from(
+      _tileOverlays,
+      newOverlays,
+      objectName: 'tileOverlay',
     );
+    assert(_tileOverlaysController != null, 'Cannot update tile overlays after dispose().');
     _tileOverlaysController?.addTileOverlays(updates.objectsToAdd);
     _tileOverlaysController?.changeTileOverlays(updates.objectsToChange);
-    _tileOverlaysController?.removeTileOverlays(
-      updates.objectIdsToRemove.cast<TileOverlayId>(),
-    );
+    _tileOverlaysController?.removeTileOverlays(updates.objectIdsToRemove.cast<TileOverlayId>());
     _tileOverlays = newOverlays;
   }
 
@@ -650,6 +613,13 @@ class GoogleMapController {
   /// Returns true if the [InfoWindow] of the marker identified by [MarkerId] is shown.
   bool isInfoWindowShown(MarkerId markerId) {
     return _markersController?.isInfoWindowShown(markerId) ?? false;
+  }
+
+  /// Returns true if this map supports [AdvancedMarker]s.
+  bool isAdvancedMarkersAvailable() {
+    assert(_googleMap != null, 'Cannot get map capabilities of a null map.');
+
+    return _googleMap!.mapCapabilities.isAdvancedMarkersAvailable ?? false;
   }
 
   // Cleanup

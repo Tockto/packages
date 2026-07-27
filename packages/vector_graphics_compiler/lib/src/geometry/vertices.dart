@@ -15,13 +15,10 @@ class Vertices {
   /// [Float32List], interpreted as x,y pairs.
   factory Vertices.fromFloat32List(Float32List vertices) {
     if (vertices.length.isOdd) {
-      throw ArgumentError(
-        'must be an even number of vertex points',
-        'vertices',
-      );
+      throw ArgumentError('must be an even number of vertex points', 'vertices');
     }
-    final List<Point> vertexPoints = <Point>[];
-    for (int index = 0; index < vertices.length; index += 2) {
+    final vertexPoints = <Point>[];
+    for (var index = 0; index < vertices.length; index += 2) {
       vertexPoints.add(Point(vertices[index], vertices[index + 1]));
     }
     return Vertices(vertexPoints);
@@ -35,17 +32,17 @@ class Vertices {
   /// Creates an optimized version of [vertexPoints] where the points are
   /// deduplicated via an index buffer.
   IndexedVertices createIndex() {
-    final Map<Point, int> pointMap = <Point, int>{};
-    int index = 0;
-    final List<int> indices = <int>[];
+    final pointMap = <Point, int>{};
+    var index = 0;
+    final indices = <int>[];
     for (final Point point in vertexPoints) {
       indices.add(pointMap.putIfAbsent(point, () => index++));
     }
 
     Float32List pointsToFloat32List(List<Point> points) {
-      final Float32List vertices = Float32List(points.length * 2);
-      int vertexIndex = 0;
-      for (final Point point in points) {
+      final vertices = Float32List(points.length * 2);
+      var vertexIndex = 0;
+      for (final point in points) {
         vertices[vertexIndex++] = point.x;
         vertices[vertexIndex++] = point.y;
       }
@@ -53,15 +50,11 @@ class Vertices {
     }
 
     final List<Point> compressedPoints = pointMap.keys.toList();
-    if (compressedPoints.length * 2 + indices.length >
-        vertexPoints.length * 2) {
+    if (compressedPoints.length * 2 + indices.length > vertexPoints.length * 2) {
       return IndexedVertices(pointsToFloat32List(vertexPoints), null);
     }
 
-    return IndexedVertices(
-      pointsToFloat32List(compressedPoints),
-      Uint16List.fromList(indices),
-    );
+    return IndexedVertices(pointsToFloat32List(compressedPoints), Uint16List.fromList(indices));
   }
 }
 

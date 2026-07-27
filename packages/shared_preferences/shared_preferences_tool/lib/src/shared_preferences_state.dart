@@ -42,25 +42,22 @@ class SharedPreferencesState {
     bool editing,
     bool legacyApi,
   })
-  get copyWith => ({
-    Object allKeys = _undefined,
-    Object? selectedKey = _undefined,
-    Object editing = _undefined,
-    Object legacyApi = _undefined,
-  }) {
-    return SharedPreferencesState(
-      allKeys:
-          allKeys == _undefined
-              ? this.allKeys
-              : allKeys as AsyncState<List<String>>,
-      selectedKey:
-          selectedKey == _undefined
+  get copyWith =>
+      ({
+        Object allKeys = _undefined,
+        Object? selectedKey = _undefined,
+        Object editing = _undefined,
+        Object legacyApi = _undefined,
+      }) {
+        return SharedPreferencesState(
+          allKeys: allKeys == _undefined ? this.allKeys : allKeys as AsyncState<List<String>>,
+          selectedKey: selectedKey == _undefined
               ? this.selectedKey
               : selectedKey as SelectedSharedPreferencesKey?,
-      editing: editing == _undefined ? this.editing : editing as bool,
-      legacyApi: legacyApi == _undefined ? this.legacyApi : legacyApi as bool,
-    );
-  };
+          editing: editing == _undefined ? this.editing : editing as bool,
+          legacyApi: legacyApi == _undefined ? this.legacyApi : legacyApi as bool,
+        );
+      };
 
   @override
   bool operator ==(Object other) {
@@ -98,9 +95,7 @@ class SelectedSharedPreferencesKey {
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
-        (other is SelectedSharedPreferencesKey &&
-            other.key == key &&
-            other.value == value);
+        (other is SelectedSharedPreferencesKey && other.key == key && other.value == value);
   }
 
   @override
@@ -125,18 +120,15 @@ sealed class SharedPreferencesData implements _SharedPreferencesData<Object> {
   const factory SharedPreferencesData.string({required String value}) =
       SharedPreferencesDataString._;
 
-  const factory SharedPreferencesData.int({required int value}) =
-      SharedPreferencesDataInt._;
+  const factory SharedPreferencesData.int({required int value}) = SharedPreferencesDataInt._;
 
   const factory SharedPreferencesData.double({required double value}) =
       SharedPreferencesDataDouble._;
 
-  const factory SharedPreferencesData.bool({required bool value}) =
-      SharedPreferencesDataBool._;
+  const factory SharedPreferencesData.bool({required bool value}) = SharedPreferencesDataBool._;
 
-  const factory SharedPreferencesData.stringList({
-    required List<String> value,
-  }) = SharedPreferencesDataStringList._;
+  const factory SharedPreferencesData.stringList({required List<String> value}) =
+      SharedPreferencesDataStringList._;
 
   /// The string representation of the value.
   String get valueAsString {
@@ -164,18 +156,10 @@ sealed class SharedPreferencesData implements _SharedPreferencesData<Object> {
   /// preference value.
   SharedPreferencesData changeValue(String newValue) {
     return switch (this) {
-      SharedPreferencesDataString() => SharedPreferencesData.string(
-        value: newValue,
-      ),
-      SharedPreferencesDataInt() => SharedPreferencesData.int(
-        value: int.parse(newValue),
-      ),
-      SharedPreferencesDataDouble() => SharedPreferencesData.double(
-        value: double.parse(newValue),
-      ),
-      SharedPreferencesDataBool() => SharedPreferencesData.bool(
-        value: bool.parse(newValue),
-      ),
+      SharedPreferencesDataString() => SharedPreferencesData.string(value: newValue),
+      SharedPreferencesDataInt() => SharedPreferencesData.int(value: int.parse(newValue)),
+      SharedPreferencesDataDouble() => SharedPreferencesData.double(value: double.parse(newValue)),
+      SharedPreferencesDataBool() => SharedPreferencesData.bool(value: bool.parse(newValue)),
       SharedPreferencesDataStringList() => SharedPreferencesData.stringList(
         value: (jsonDecode(newValue) as List<dynamic>).cast(),
       ),
@@ -188,8 +172,7 @@ sealed class SharedPreferencesData implements _SharedPreferencesData<Object> {
         (other is SharedPreferencesData &&
             switch (this) {
               final SharedPreferencesDataStringList data =>
-                other is SharedPreferencesDataStringList &&
-                    listEquals(other.value, data.value),
+                other is SharedPreferencesDataStringList && listEquals(other.value, data.value),
               _ => other.value == value,
             });
   }

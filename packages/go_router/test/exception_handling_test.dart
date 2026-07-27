@@ -12,17 +12,14 @@ void main() {
   testWidgets('throws if more than one exception handlers are provided.', (
     WidgetTester tester,
   ) async {
-    bool thrown = false;
+    var thrown = false;
     try {
       GoRouter(
         routes: <RouteBase>[
-          GoRoute(
-            path: '/',
-            builder: (_, GoRouterState state) => const Text('home'),
-          ),
+          GoRoute(path: '/', builder: (_, GoRouterState state) => const Text('home')),
         ],
-        errorBuilder: (_, __) => const Text(''),
-        onException: (_, __, ___) {},
+        errorBuilder: (_, _) => const Text(''),
+        onException: (_, _, _) {},
       );
     } on Error {
       thrown = true;
@@ -33,13 +30,10 @@ void main() {
     try {
       GoRouter(
         routes: <RouteBase>[
-          GoRoute(
-            path: '/',
-            builder: (_, GoRouterState state) => const Text('home'),
-          ),
+          GoRoute(path: '/', builder: (_, GoRouterState state) => const Text('home')),
         ],
-        errorBuilder: (_, __) => const Text(''),
-        errorPageBuilder: (_, __) => const MaterialPage<void>(child: Text('')),
+        errorBuilder: (_, _) => const Text(''),
+        errorPageBuilder: (_, _) => const MaterialPage<void>(child: Text('')),
       );
     } on Error {
       thrown = true;
@@ -50,13 +44,10 @@ void main() {
     try {
       GoRouter(
         routes: <RouteBase>[
-          GoRoute(
-            path: '/',
-            builder: (_, GoRouterState state) => const Text('home'),
-          ),
+          GoRoute(path: '/', builder: (_, GoRouterState state) => const Text('home')),
         ],
-        onException: (_, __, ___) {},
-        errorPageBuilder: (_, __) => const MaterialPage<void>(child: Text('')),
+        onException: (_, _, _) {},
+        errorPageBuilder: (_, _) => const MaterialPage<void>(child: Text('')),
       );
     } on Error {
       thrown = true;
@@ -70,14 +61,12 @@ void main() {
         <RouteBase>[
           GoRoute(
             path: '/error',
-            builder:
-                (_, GoRouterState state) => Text('redirected ${state.extra}'),
+            builder: (_, GoRouterState state) => Text('redirected ${state.extra}'),
           ),
         ],
         tester,
-        onException:
-            (_, GoRouterState state, GoRouter router) =>
-                router.go('/error', extra: state.uri.toString()),
+        onException: (_, GoRouterState state, GoRouter router) =>
+            router.go('/error', extra: state.uri.toString()),
       );
       expect(find.text('redirected /'), findsOneWidget);
 
@@ -95,9 +84,8 @@ void main() {
           ),
         ],
         tester,
-        onException:
-            (_, GoRouterState state, GoRouter router) =>
-                router.go('/error', extra: state.extra),
+        onException: (_, GoRouterState state, GoRouter router) =>
+            router.go('/error', extra: state.extra),
       );
       expect(find.text('extra: null'), findsOneWidget);
 
@@ -108,14 +96,9 @@ void main() {
 
     testWidgets('stays on the same page if noop.', (WidgetTester tester) async {
       final GoRouter router = await createRouter(
-        <RouteBase>[
-          GoRoute(
-            path: '/',
-            builder: (_, GoRouterState state) => const Text('home'),
-          ),
-        ],
+        <RouteBase>[GoRoute(path: '/', builder: (_, GoRouterState state) => const Text('home'))],
         tester,
-        onException: (_, __, ___) {},
+        onException: (_, _, _) {},
       );
       expect(find.text('home'), findsOneWidget);
 
@@ -124,28 +107,20 @@ void main() {
       expect(find.text('home'), findsOneWidget);
     });
 
-    testWidgets('can catch errors thrown in redirect callbacks', (
-      WidgetTester tester,
-    ) async {
-      bool exceptionCaught = false;
+    testWidgets('can catch errors thrown in redirect callbacks', (WidgetTester tester) async {
+      var exceptionCaught = false;
       String? errorMessage;
 
       final GoRouter router = await createRouter(
         <RouteBase>[
-          GoRoute(
-            path: '/',
-            builder: (_, GoRouterState state) => const Text('home'),
-          ),
+          GoRoute(path: '/', builder: (_, GoRouterState state) => const Text('home')),
           GoRoute(
             path: '/error-page',
-            builder:
-                (_, GoRouterState state) =>
-                    Text('error handled: ${state.extra}'),
+            builder: (_, GoRouterState state) => Text('error handled: ${state.extra}'),
           ),
           GoRoute(
             path: '/trigger-error',
-            builder:
-                (_, GoRouterState state) => const Text('should not reach here'),
+            builder: (_, GoRouterState state) => const Text('should not reach here'),
           ),
         ],
         tester,
@@ -156,11 +131,7 @@ void main() {
           }
           return null;
         },
-        onException: (
-          BuildContext context,
-          GoRouterState state,
-          GoRouter router,
-        ) {
+        onException: (BuildContext context, GoRouterState state, GoRouter router) {
           exceptionCaught = true;
           errorMessage = 'Caught exception for ${state.uri}';
           router.go('/error-page', extra: errorMessage);
@@ -177,33 +148,25 @@ void main() {
       // Verify the exception was caught and handled
       expect(exceptionCaught, isTrue);
       expect(errorMessage, isNotNull);
-      expect(
-        find.text('error handled: Caught exception for /trigger-error'),
-        findsOneWidget,
-      );
+      expect(find.text('error handled: Caught exception for /trigger-error'), findsOneWidget);
       expect(find.text('should not reach here'), findsNothing);
     });
 
     testWidgets('can catch non-GoException errors thrown in redirect callbacks', (
       WidgetTester tester,
     ) async {
-      bool exceptionCaught = false;
+      var exceptionCaught = false;
 
       final GoRouter router = await createRouter(
         <RouteBase>[
-          GoRoute(
-            path: '/',
-            builder: (_, GoRouterState state) => const Text('home'),
-          ),
+          GoRoute(path: '/', builder: (_, GoRouterState state) => const Text('home')),
           GoRoute(
             path: '/error-page',
-            builder:
-                (_, GoRouterState state) => const Text('generic error handled'),
+            builder: (_, GoRouterState state) => const Text('generic error handled'),
           ),
           GoRoute(
             path: '/trigger-runtime-error',
-            builder:
-                (_, GoRouterState state) => const Text('should not reach here'),
+            builder: (_, GoRouterState state) => const Text('should not reach here'),
           ),
         ],
         tester,
@@ -214,11 +177,7 @@ void main() {
           }
           return null;
         },
-        onException: (
-          BuildContext context,
-          GoRouterState state,
-          GoRouter router,
-        ) {
+        onException: (BuildContext context, GoRouterState state, GoRouter router) {
           exceptionCaught = true;
           router.go('/error-page');
         },

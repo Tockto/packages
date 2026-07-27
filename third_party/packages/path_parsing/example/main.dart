@@ -10,14 +10,7 @@ class PathPrinter extends PathProxy {
   }
 
   @override
-  void cubicTo(
-    double x1,
-    double y1,
-    double x2,
-    double y2,
-    double x3,
-    double y3,
-  ) {
+  void cubicTo(double x1, double y1, double x2, double y2, double x3, double y3) {
     print('Path.cubicTo($x1, $y1, $x2, $y2, $x3, $y3);');
   }
 
@@ -33,7 +26,7 @@ class PathPrinter extends PathProxy {
 }
 
 void main() {
-  const String pathData =
+  const pathData =
       'M22.1595 3.80852C19.6789 1.35254 16.3807 -4.80966e-07 12.8727 '
       '-4.80966e-07C9.36452 -4.80966e-07 6.06642 1.35254 3.58579 '
       '3.80852C1.77297 5.60333 0.53896 7.8599 0.0171889 10.3343C-0.0738999 '

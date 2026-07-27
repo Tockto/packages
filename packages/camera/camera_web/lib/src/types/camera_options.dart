@@ -43,9 +43,7 @@ class CameraOptions {
       return true;
     }
 
-    return other is CameraOptions &&
-        other.audio == audio &&
-        other.video == video;
+    return other is CameraOptions && other.audio == audio && other.video == video;
   }
 
   @override
@@ -86,12 +84,7 @@ class AudioConstraints {
 class VideoConstraints {
   /// Creates a new instance of [VideoConstraints]
   /// with the given constraints.
-  const VideoConstraints({
-    this.facingMode,
-    this.width,
-    this.height,
-    this.deviceId,
-  });
+  const VideoConstraints({this.facingMode, this.width, this.height, this.deviceId});
 
   /// The facing mode of the video track.
   final FacingModeConstraint? facingMode;
@@ -108,12 +101,16 @@ class VideoConstraints {
   // TODO(dit): package:web has a class for this. Use it instead of jsify and toJson.
   /// Convert `this` to something that can be used on the browser.
   JSAny toMediaStreamConstraints() {
-    return <String, Object>{
+    final constraints = <String, Object>{
       if (width != null) 'width': width!.toJson(),
       if (height != null) 'height': height!.toJson(),
       if (facingMode != null) 'facingMode': facingMode!.toJson(),
       if (deviceId != null) 'deviceId': <String, Object>{'exact': deviceId!},
-    }.jsify()!;
+    };
+
+    // Return true instead of empty object for better browser compatibility.
+    // Firefox Android rejects getUserMedia({video: {}}) but accepts {video: true}.
+    return constraints.isEmpty ? true.toJS : constraints.jsify()!;
   }
 
   @override
@@ -160,8 +157,7 @@ enum CameraType {
 class FacingModeConstraint {
   /// Creates a new instance of [FacingModeConstraint]
   /// with [ideal] constraint set to [type].
-  factory FacingModeConstraint(CameraType type) =>
-      FacingModeConstraint._(ideal: type);
+  factory FacingModeConstraint(CameraType type) => FacingModeConstraint._(ideal: type);
 
   /// Creates a new instance of [FacingModeConstraint]
   /// with the given [ideal] and [exact] constraints.
@@ -169,8 +165,7 @@ class FacingModeConstraint {
 
   /// Creates a new instance of [FacingModeConstraint]
   /// with [exact] constraint set to [type].
-  factory FacingModeConstraint.exact(CameraType type) =>
-      FacingModeConstraint._(exact: type);
+  factory FacingModeConstraint.exact(CameraType type) => FacingModeConstraint._(exact: type);
 
   /// The ideal facing mode constraint.
   ///
@@ -199,9 +194,7 @@ class FacingModeConstraint {
       return true;
     }
 
-    return other is FacingModeConstraint &&
-        other.ideal == ideal &&
-        other.exact == exact;
+    return other is FacingModeConstraint && other.ideal == ideal && other.exact == exact;
   }
 
   @override
@@ -238,7 +231,7 @@ class VideoSizeConstraint {
   // TODO(dit): package:web has a class for this. Use it instead of toJson.
   /// Converts the current instance to a Map.
   Object toJson() {
-    final Map<String, dynamic> json = <String, dynamic>{};
+    final json = <String, dynamic>{};
 
     if (ideal != null) {
       json['ideal'] = ideal;

@@ -205,13 +205,7 @@ class CubicToCommand extends PathCommand {
   /// The returned list describes two cubics, where elements `0, 1, 2, 3` are
   /// the start, cp1, cp2, and end points of the first cubic and `3, 4, 5, 6`
   /// are the start, cp1, cp2, and end points of the second cubic.
-  static List<Point> subdivide(
-    Point start,
-    Point control1,
-    Point control2,
-    Point end,
-    double t,
-  ) {
+  static List<Point> subdivide(Point start, Point control1, Point control2, Point end, double t) {
     final Point ab = Point.lerp(start, control1, t);
     final Point bc = Point.lerp(control1, control2, t);
     final Point cd = Point.lerp(control2, end, t);
@@ -236,20 +230,8 @@ class CubicToCommand extends PathCommand {
       if (Point.distance(cp1, Point.lerp(p1, p2, 1 / 3)) > tolerance ||
           Point.distance(cp2, Point.lerp(p1, p2, 2 / 3)) > tolerance) {
         final List<Point> points = subdivide(p1, cp1, cp2, p2, .5);
-        distance = compute(
-          points[0],
-          points[1],
-          points[2],
-          points[3],
-          distance,
-        );
-        distance = compute(
-          points[3],
-          points[4],
-          points[5],
-          points[6],
-          distance,
-        );
+        distance = compute(points[0], points[1], points[2], points[3], distance);
+        distance = compute(points[3], points[4], points[5], points[6], distance);
       } else {
         // It's collinear enough to just treat as a line.
         distance += Point.distance(p1, p2);
@@ -319,8 +301,7 @@ class PathBuilder implements PathProxy {
   /// Creates a new path builder for paths of the specified fill type.
   ///
   /// By default, will create non-zero filled paths.
-  PathBuilder([PathFillType? fillType])
-    : fillType = fillType ?? PathFillType.nonZero;
+  PathBuilder([PathFillType? fillType]) : fillType = fillType ?? PathFillType.nonZero;
 
   /// Creates a new mutable path builder object from an existing [Path].
   PathBuilder.fromPath(Path path) {
@@ -337,14 +318,7 @@ class PathBuilder implements PathProxy {
   }
 
   @override
-  PathBuilder cubicTo(
-    double x1,
-    double y1,
-    double x2,
-    double y2,
-    double x3,
-    double y3,
-  ) {
+  PathBuilder cubicTo(double x1, double y1, double x2, double y2, double x3, double y3) {
     _commands.add(CubicToCommand(x1, y1, x2, y2, x3, y3));
     return this;
   }
@@ -369,15 +343,9 @@ class PathBuilder implements PathProxy {
 
   /// Adds an oval command to new path.
   PathBuilder addOval(Rect oval) {
-    final Point r = Point(oval.width * 0.5, oval.height * 0.5);
-    final Point c = Point(
-      oval.left + (oval.width * 0.5),
-      oval.top + (oval.height * 0.5),
-    );
-    final Point m = Point(
-      _kArcApproximationMagic * r.x,
-      _kArcApproximationMagic * r.y,
-    );
+    final r = Point(oval.width * 0.5, oval.height * 0.5);
+    final c = Point(oval.left + (oval.width * 0.5), oval.top + (oval.height * 0.5));
+    final m = Point(_kArcApproximationMagic * r.x, _kArcApproximationMagic * r.y);
 
     moveTo(c.x, c.y - r.y);
 
@@ -483,7 +451,7 @@ class PathBuilder implements PathProxy {
   /// path objects with the same commands. By default, the builder will reset
   /// to an initial state.
   Path toPath({bool reset = true}) {
-    final Path path = Path(commands: _commands, fillType: fillType);
+    final path = Path(commands: _commands, fillType: fillType);
 
     if (reset) {
       _commands.clear();
@@ -496,10 +464,7 @@ class PathBuilder implements PathProxy {
 @immutable
 class Path {
   /// Creates a new immutable collection of [PathCommand]s.
-  Path({
-    List<PathCommand> commands = const <PathCommand>[],
-    this.fillType = PathFillType.nonZero,
-  }) {
+  Path({List<PathCommand> commands = const <PathCommand>[], this.fillType = PathFillType.nonZero}) {
     _commands.addAll(commands);
   }
 
@@ -524,7 +489,7 @@ class Path {
 
   /// Creates a new path whose commands and points are transformed by `matrix`.
   Path transformed(AffineMatrix matrix) {
-    final List<PathCommand> commands = <PathCommand>[];
+    final commands = <PathCommand>[];
     for (final PathCommand command in _commands) {
       commands.add(command.transformed(matrix));
     }
@@ -536,9 +501,7 @@ class Path {
 
   @override
   bool operator ==(Object other) {
-    return other is Path &&
-        listEquals(_commands, other._commands) &&
-        other.fillType == fillType;
+    return other is Path && listEquals(_commands, other._commands) && other.fillType == fillType;
   }
 
   /// Creates a dashed version of this path.
@@ -554,7 +517,7 @@ class Path {
     if (intervals.isEmpty) {
       return this;
     }
-    final _PathDasher dasher = _PathDasher(intervals);
+    final dasher = _PathDasher(intervals);
     return dasher.dash(this);
   }
 
@@ -570,20 +533,20 @@ class Path {
     for (final PathCommand command in _commands) {
       switch (command.type) {
         case PathCommandType.move:
-          final MoveToCommand move = command as MoveToCommand;
+          final move = command as MoveToCommand;
           smallestX = math.min(move.x, smallestX);
           smallestY = math.min(move.y, smallestY);
           largestX = math.max(move.x, largestX);
           largestY = math.max(move.y, largestY);
         case PathCommandType.line:
-          final LineToCommand move = command as LineToCommand;
+          final move = command as LineToCommand;
           smallestX = math.min(move.x, smallestX);
           smallestY = math.min(move.y, smallestY);
           largestX = math.max(move.x, largestX);
           largestY = math.max(move.y, largestY);
         case PathCommandType.cubic:
-          final CubicToCommand cubic = command as CubicToCommand;
-          for (final List<double> pair in <List<double>>[
+          final cubic = command as CubicToCommand;
+          for (final pair in <List<double>>[
             <double>[cubic.x1, cubic.y1],
             <double>[cubic.x2, cubic.y2],
             <double>[cubic.x3, cubic.y3],
@@ -602,7 +565,7 @@ class Path {
 
   /// Returns a string that prints the dart:ui code to create this path.
   String toFlutterString() {
-    final StringBuffer buffer = StringBuffer('Path()');
+    final buffer = StringBuffer('Path()');
     if (fillType != PathFillType.nonZero) {
       buffer.write('\n  ..fillType = $fillType');
     }
@@ -615,7 +578,7 @@ class Path {
 
   @override
   String toString() {
-    final StringBuffer buffer = StringBuffer('Path(');
+    final buffer = StringBuffer('Path(');
     if (commands.isNotEmpty) {
       buffer.write('\n  commands: <PathCommand>$commands,');
     }
@@ -633,9 +596,9 @@ Path parseSvgPathData(String svg, [PathFillType? type]) {
     return Path(fillType: type ?? PathFillType.nonZero);
   }
 
-  final SvgPathStringSource parser = SvgPathStringSource(svg);
-  final PathBuilder pathBuilder = PathBuilder(type);
-  final SvgPathNormalizer normalizer = SvgPathNormalizer();
+  final parser = SvgPathStringSource(svg);
+  final pathBuilder = PathBuilder(type);
+  final normalizer = SvgPathNormalizer();
   for (final PathSegmentData seg in parser.parseSegments()) {
     normalizer.emitSegment(seg, pathBuilder);
   }
@@ -715,9 +678,7 @@ class _PathDasher {
       );
       currentPoint = dividedPoints[3];
       if (draw) {
-        _dashedCommands.add(
-          CubicToCommand._fromIterablePoints(dividedPoints.skip(1).take(3)),
-        );
+        _dashedCommands.add(CubicToCommand._fromIterablePoints(dividedPoints.skip(1).take(3)));
       } else {
         _dashedCommands.add(MoveToCommand(currentPoint.x, currentPoint.y));
       }
@@ -739,12 +700,12 @@ class _PathDasher {
     for (final PathCommand command in path._commands) {
       switch (command.type) {
         case PathCommandType.move:
-          final MoveToCommand move = command as MoveToCommand;
+          final move = command as MoveToCommand;
           currentPoint = Point(move.x, move.y);
           currentSubpathPoint = currentPoint;
           _dashedCommands.add(command);
         case PathCommandType.line:
-          final LineToCommand line = command as LineToCommand;
+          final line = command as LineToCommand;
           _dashLineTo(Point(line.x, line.y));
         case PathCommandType.cubic:
           _dashCubicTo(command as CubicToCommand);

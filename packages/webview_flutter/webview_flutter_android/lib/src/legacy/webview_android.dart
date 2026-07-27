@@ -20,15 +20,6 @@ import 'webview_android_widget.dart';
 /// an [AndroidView] to embed the webview in the widget hierarchy, and uses a method channel to
 /// communicate with the platform code.
 class AndroidWebView implements WebViewPlatform {
-  /// Constructs an [AndroidWebView].
-  AndroidWebView({@visibleForTesting PigeonInstanceManager? instanceManager})
-    : instanceManager = instanceManager ?? PigeonInstanceManager.instance;
-
-  /// Maintains instances used to communicate with the native objects they
-  /// represent.
-  @protected
-  final PigeonInstanceManager instanceManager;
-
   @override
   Widget build({
     required BuildContext context,
@@ -61,9 +52,8 @@ class AndroidWebView implements WebViewPlatform {
               }
             },
             gestureRecognizers: gestureRecognizers,
-            layoutDirection:
-                Directionality.maybeOf(context) ?? TextDirection.rtl,
-            creationParams: instanceManager.getIdentifier(controller.webView),
+            layoutDirection: Directionality.maybeOf(context) ?? TextDirection.rtl,
+            creationParams: PigeonInstanceManager.instance.getIdentifier(controller.webView),
             creationParamsCodec: const StandardMessageCodec(),
           ),
         );

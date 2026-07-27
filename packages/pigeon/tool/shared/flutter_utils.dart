@@ -18,19 +18,18 @@ Future<String?> getDeviceForPlatform(String platform) async {
     return null;
   }
 
-  String output = result.stdout as String;
+  var output = result.stdout as String;
   // --machine doesn't currently prevent the tool from printing banners;
   // see https://github.com/flutter/flutter/issues/86055. This workaround
   // can be removed once that is fixed.
   output = output.substring(output.indexOf('['));
 
-  final List<Map<String, dynamic>> devices =
-      (jsonDecode(output) as List<dynamic>).cast<Map<String, dynamic>>();
-  for (final Map<String, dynamic> deviceInfo in devices) {
-    final String targetPlatform =
-        (deviceInfo['targetPlatform'] as String?) ?? '';
+  final List<Map<String, dynamic>> devices = (jsonDecode(output) as List<dynamic>)
+      .cast<Map<String, dynamic>>();
+  for (final deviceInfo in devices) {
+    final String targetPlatform = (deviceInfo['targetPlatform'] as String?) ?? '';
     if (targetPlatform.startsWith(platform)) {
-      final String? deviceId = deviceInfo['id'] as String?;
+      final deviceId = deviceInfo['id'] as String?;
       if (deviceId != null) {
         return deviceId;
       }

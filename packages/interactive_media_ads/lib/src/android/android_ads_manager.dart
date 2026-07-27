@@ -10,27 +10,22 @@ import '../platform_interface/platform_interface.dart';
 import 'android_ads_rendering_settings.dart';
 import 'enum_converter_utils.dart';
 import 'interactive_media_ads.g.dart' as ima;
-import 'interactive_media_ads_proxy.dart';
 
 /// Android implementation of [PlatformAdsManager].
 class AndroidAdsManager extends PlatformAdsManager {
   /// Constructs an [AndroidAdsManager].
   @internal
-  AndroidAdsManager(ima.AdsManager manager, {InteractiveMediaAdsProxy? proxy})
+  AndroidAdsManager(ima.AdsManager manager)
     : _manager = manager,
-      _proxy = proxy ?? const InteractiveMediaAdsProxy(),
       super(
         adCuePoints: List<Duration>.unmodifiable(
           manager.adCuePoints.map((double seconds) {
-            return Duration(
-              milliseconds: (seconds * Duration.millisecondsPerSecond).round(),
-            );
+            return Duration(milliseconds: (seconds * Duration.millisecondsPerSecond).round());
           }),
         ),
       );
 
   final ima.AdsManager _manager;
-  final InteractiveMediaAdsProxy _proxy;
 
   PlatformAdsManagerDelegate? _managerDelegate;
 
@@ -52,9 +47,7 @@ class AndroidAdsManager extends PlatformAdsManager {
   }
 
   @override
-  Future<void> setAdsManagerDelegate(
-    PlatformAdsManagerDelegate delegate,
-  ) async {
+  Future<void> setAdsManagerDelegate(PlatformAdsManagerDelegate delegate) async {
     _managerDelegate = delegate;
     _addListeners(WeakReference<AndroidAdsManager>(this));
   }
@@ -88,15 +81,13 @@ class AndroidAdsManager extends PlatformAdsManager {
   // any wrapped classes must not reference the encapsulating object. This is to
   // prevent a circular reference that prevents garbage collection.
   static void _addListeners(WeakReference<AndroidAdsManager> weakThis) {
-    final InteractiveMediaAdsProxy proxy = weakThis.target!._proxy;
     weakThis.target?._manager.addAdEventListener(
-      proxy.newAdEventListener(
+      ima.AdEventListener(
         onAdEvent: (_, ima.AdEvent event) {
           weakThis.target?._managerDelegate?.params.onAdEvent?.call(
             PlatformAdEvent(
               type: toInterfaceEventType(event.type),
-              adData:
-                  event.adData?.cast<String, String>() ?? <String, String>{},
+              adData: event.adData?.cast<String, String>() ?? <String, String>{},
               ad: event.ad != null ? _asPlatformAd(event.ad!) : null,
             ),
           );
@@ -104,7 +95,7 @@ class AndroidAdsManager extends PlatformAdsManager {
       ),
     );
     weakThis.target?._manager.addAdErrorListener(
-      proxy.newAdErrorListener(
+      ima.AdErrorListener(
         onAdError: (_, ima.AdErrorEvent event) {
           weakThis.target?._managerDelegate?.params.onAdErrorEvent?.call(
             AdErrorEvent(
@@ -141,17 +132,11 @@ PlatformAd _asPlatformAd(ima.Ad ad) {
     description: ad.description,
     duration: ad.duration == -1
         ? null
-        : Duration(
-            milliseconds: (ad.duration * Duration.millisecondsPerSecond)
-                .round(),
-          ),
+        : Duration(milliseconds: (ad.duration * Duration.millisecondsPerSecond).round()),
     height: ad.height,
     skipTimeOffset: ad.skipTimeOffset == -1
         ? null
-        : Duration(
-            milliseconds: (ad.skipTimeOffset * Duration.millisecondsPerSecond)
-                .round(),
-          ),
+        : Duration(milliseconds: (ad.skipTimeOffset * Duration.millisecondsPerSecond).round()),
     surveyUrl: ad.surveyUrl,
     title: ad.title,
     traffickingParameters: ad.traffickingParameters,
@@ -180,15 +165,10 @@ PlatformAdPodInfo _asPlatformAdInfo(ima.AdPodInfo adPodInfo) {
     adPosition: adPodInfo.adPosition,
     maxDuration: adPodInfo.maxDuration == -1
         ? null
-        : Duration(
-            milliseconds:
-                (adPodInfo.maxDuration * Duration.millisecondsPerSecond)
-                    .round(),
-          ),
+        : Duration(milliseconds: (adPodInfo.maxDuration * Duration.millisecondsPerSecond).round()),
     podIndex: adPodInfo.podIndex,
     timeOffset: Duration(
-      milliseconds: (adPodInfo.timeOffset * Duration.millisecondsPerSecond)
-          .round(),
+      milliseconds: (adPodInfo.timeOffset * Duration.millisecondsPerSecond).round(),
     ),
     totalAds: adPodInfo.totalAds,
     isBumper: adPodInfo.isBumper,
@@ -204,15 +184,9 @@ PlatformCompanionAd _asPlatformCompanionAd(ima.CompanionAd ad) {
   );
 }
 
-PlatformUniversalAdId _asPlatformUniversalAdId(
-  ima.UniversalAdId universalAdId,
-) {
+PlatformUniversalAdId _asPlatformUniversalAdId(ima.UniversalAdId universalAdId) {
   return PlatformUniversalAdId(
-    adIdValue: universalAdId.adIdValue == 'unknown'
-        ? null
-        : universalAdId.adIdValue,
-    adIdRegistry: universalAdId.adIdRegistry == 'unknown'
-        ? null
-        : universalAdId.adIdRegistry,
+    adIdValue: universalAdId.adIdValue == 'unknown' ? null : universalAdId.adIdValue,
+    adIdRegistry: universalAdId.adIdRegistry == 'unknown' ? null : universalAdId.adIdRegistry,
   );
 }

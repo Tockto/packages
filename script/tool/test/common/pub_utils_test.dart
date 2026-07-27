@@ -14,71 +14,69 @@ void main() {
   late RecordingProcessRunner processRunner;
 
   setUp(() {
-    (:packagesDir, :processRunner, gitProcessRunner: _, gitDir: _) =
-        configureBaseCommandMocks();
+    (:packagesDir, :processRunner, gitProcessRunner: _, gitDir: _) = configureBaseCommandMocks();
   });
 
-  test('runs with Dart for a non-Flutter package by default', () async {
-    final RepositoryPackage package =
-        createFakePackage('a_package', packagesDir);
-    final MockPlatform platform = MockPlatform();
+  test('runs with Dart for a non-Flutter package', () async {
+    final RepositoryPackage package = createFakePackage('a_package', packagesDir);
+    final platform = MockPlatform();
 
     await runPubGet(package, processRunner, platform);
 
     expect(
-        processRunner.recordedCalls,
-        orderedEquals(<ProcessCall>[
-          ProcessCall('dart', const <String>['pub', 'get'], package.path),
-        ]));
+      processRunner.recordedCalls,
+      orderedEquals(<ProcessCall>[
+        ProcessCall('dart', const <String>['pub', 'get'], package.path),
+      ]),
+    );
   });
 
-  test('runs with Flutter for a Flutter package by default', () async {
-    final RepositoryPackage package =
-        createFakePackage('a_package', packagesDir, isFlutter: true);
-    final MockPlatform platform = MockPlatform();
+  test('runs with Flutter for a Flutter package', () async {
+    final RepositoryPackage package = createFakePackage('a_package', packagesDir, isFlutter: true);
+    final platform = MockPlatform();
 
     await runPubGet(package, processRunner, platform);
 
     expect(
-        processRunner.recordedCalls,
-        orderedEquals(<ProcessCall>[
-          ProcessCall('flutter', const <String>['pub', 'get'], package.path),
-        ]));
+      processRunner.recordedCalls,
+      orderedEquals(<ProcessCall>[
+        ProcessCall('flutter', const <String>['pub', 'get'], package.path),
+      ]),
+    );
   });
 
-  test('runs with Flutter for a Dart package when requested', () async {
-    final RepositoryPackage package =
-        createFakePackage('a_package', packagesDir);
-    final MockPlatform platform = MockPlatform();
+  test('runs with Flutter for a non-Flutter package with a Flutter example', () async {
+    final RepositoryPackage package = createFakePackage('a_package', packagesDir, examples: []);
+    createFakePackage('example', package.directory, examples: [], isFlutter: true);
+    final platform = MockPlatform();
 
-    await runPubGet(package, processRunner, platform, alwaysUseFlutter: true);
+    await runPubGet(package, processRunner, platform);
 
     expect(
-        processRunner.recordedCalls,
-        orderedEquals(<ProcessCall>[
-          ProcessCall('flutter', const <String>['pub', 'get'], package.path),
-        ]));
+      processRunner.recordedCalls,
+      orderedEquals(<ProcessCall>[
+        ProcessCall('flutter', const <String>['pub', 'get'], package.path),
+      ]),
+    );
   });
 
   test('uses the correct Flutter command on Windows', () async {
-    final RepositoryPackage package =
-        createFakePackage('a_package', packagesDir, isFlutter: true);
-    final MockPlatform platform = MockPlatform(isWindows: true);
+    final RepositoryPackage package = createFakePackage('a_package', packagesDir, isFlutter: true);
+    final platform = MockPlatform(isWindows: true);
 
     await runPubGet(package, processRunner, platform);
 
     expect(
-        processRunner.recordedCalls,
-        orderedEquals(<ProcessCall>[
-          ProcessCall(
-              'flutter.bat', const <String>['pub', 'get'], package.path),
-        ]));
+      processRunner.recordedCalls,
+      orderedEquals(<ProcessCall>[
+        ProcessCall('flutter.bat', const <String>['pub', 'get'], package.path),
+      ]),
+    );
   });
 
   test('reports success', () async {
-    final RepositoryPackage package =
-        createFakePackage('a_package', packagesDir);
-    final MockPlatform platform = MockPlatform();
+    final RepositoryPackage package = createFakePackage('a_package', packagesDir);
+    final platform = MockPlatform();
 
     final bool result = await runPubGet(package, processRunner, platform);
 
@@ -86,12 +84,11 @@ void main() {
   });
 
   test('reports failure', () async {
-    final RepositoryPackage package =
-        createFakePackage('a_package', packagesDir);
-    final MockPlatform platform = MockPlatform();
+    final RepositoryPackage package = createFakePackage('a_package', packagesDir);
+    final platform = MockPlatform();
 
     processRunner.mockProcessesForExecutable['dart'] = <FakeProcessInfo>[
-      FakeProcessInfo(MockProcess(exitCode: 1), <String>['pub', 'get'])
+      FakeProcessInfo(MockProcess(exitCode: 1), <String>['pub', 'get']),
     ];
 
     final bool result = await runPubGet(package, processRunner, platform);

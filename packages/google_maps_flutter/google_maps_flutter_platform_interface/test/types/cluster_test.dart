@@ -11,7 +11,7 @@ void main() {
 
   group('$Cluster', () {
     test('constructor', () {
-      final Cluster cluster = Cluster(
+      final cluster = Cluster(
         const ClusterManagerId('3456787654'),
         const <MarkerId>[MarkerId('23456')],
         position: const LatLng(55.0, 66.0),
@@ -26,10 +26,7 @@ void main() {
       expect(cluster.position, equals(const LatLng(55.0, 66.0)));
       expect(
         cluster.bounds,
-        LatLngBounds(
-          northeast: const LatLng(88.0, 22.0),
-          southwest: const LatLng(11.0, 99.0),
-        ),
+        LatLngBounds(northeast: const LatLng(88.0, 22.0), southwest: const LatLng(11.0, 99.0)),
       );
     });
 

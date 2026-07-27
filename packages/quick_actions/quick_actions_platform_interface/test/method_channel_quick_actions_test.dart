@@ -13,18 +13,18 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('$MethodChannelQuickActions', () {
-    final MethodChannelQuickActions quickActions = MethodChannelQuickActions();
+    final quickActions = MethodChannelQuickActions();
 
-    final List<MethodCall> log = <MethodCall>[];
+    final log = <MethodCall>[];
 
     setUp(() {
-      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-          .setMockMethodCallHandler(quickActions.channel, (
-            MethodCall methodCall,
-          ) async {
-            log.add(methodCall);
-            return '';
-          });
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
+        quickActions.channel,
+        (MethodCall methodCall) async {
+          log.add(methodCall);
+          return '';
+        },
+      );
 
       log.clear();
     });
@@ -33,19 +33,13 @@ void main() {
       test('passes getLaunchAction on launch method', () {
         quickActions.initialize((String type) {});
 
-        expect(log, <Matcher>[
-          isMethodCall('getLaunchAction', arguments: null),
-        ]);
+        expect(log, <Matcher>[isMethodCall('getLaunchAction', arguments: null)]);
       });
 
       test('initialize', () async {
-        final Completer<bool> quickActionsHandler = Completer<bool>();
-        await quickActions.initialize(
-          (_) => quickActionsHandler.complete(true),
-        );
-        expect(log, <Matcher>[
-          isMethodCall('getLaunchAction', arguments: null),
-        ]);
+        final quickActionsHandler = Completer<bool>();
+        await quickActions.initialize((_) => quickActionsHandler.complete(true));
+        expect(log, <Matcher>[isMethodCall('getLaunchAction', arguments: null)]);
         log.clear();
 
         expect(quickActionsHandler.future, completion(isTrue));
@@ -80,39 +74,28 @@ void main() {
         ]);
       });
 
-      test(
-        'passes shortcutItem through channel with null localizedSubtitle',
-        () {
-          quickActions.initialize((String type) {});
-          quickActions.setShortcutItems(<ShortcutItem>[
-            const ShortcutItem(
-              type: 'test',
-              localizedTitle: 'title',
-              icon: 'icon.svg',
-            ),
-          ]);
+      test('passes shortcutItem through channel with null localizedSubtitle', () {
+        quickActions.initialize((String type) {});
+        quickActions.setShortcutItems(<ShortcutItem>[
+          const ShortcutItem(type: 'test', localizedTitle: 'title', icon: 'icon.svg'),
+        ]);
 
-          expect(log, <Matcher>[
-            isMethodCall('getLaunchAction', arguments: null),
-            isMethodCall(
-              'setShortcutItems',
-              arguments: <Map<String, String>>[
-                <String, String>{
-                  'type': 'test',
-                  'localizedTitle': 'title',
-                  'icon': 'icon.svg',
-                },
-              ],
-            ),
-          ]);
-        },
-      );
+        expect(log, <Matcher>[
+          isMethodCall('getLaunchAction', arguments: null),
+          isMethodCall(
+            'setShortcutItems',
+            arguments: <Map<String, String>>[
+              <String, String>{'type': 'test', 'localizedTitle': 'title', 'icon': 'icon.svg'},
+            ],
+          ),
+        ]);
+      });
 
       test('setShortcutItems with demo data', () async {
-        const String type = 'type';
-        const String localizedTitle = 'localizedTitle';
-        const String localizedSubtitle = 'localizedSubtitle';
-        const String icon = 'icon';
+        const type = 'type';
+        const localizedTitle = 'localizedTitle';
+        const localizedSubtitle = 'localizedSubtitle';
+        const icon = 'icon';
         await quickActions.setShortcutItems(const <ShortcutItem>[
           ShortcutItem(
             type: type,
@@ -151,9 +134,7 @@ void main() {
 
       test('clearShortcutItems', () {
         quickActions.clearShortcutItems();
-        expect(log, <Matcher>[
-          isMethodCall('clearShortcutItems', arguments: null),
-        ]);
+        expect(log, <Matcher>[isMethodCall('clearShortcutItems', arguments: null)]);
         log.clear();
       });
     });
@@ -161,12 +142,12 @@ void main() {
 
   group('$ShortcutItem', () {
     test('Shortcut item can be constructed', () {
-      const String type = 'type';
-      const String localizedTitle = 'title';
-      const String localizedSubtitle = 'subtitle';
-      const String icon = 'foo';
+      const type = 'type';
+      const localizedTitle = 'title';
+      const localizedSubtitle = 'subtitle';
+      const icon = 'foo';
 
-      const ShortcutItem item = ShortcutItem(
+      const item = ShortcutItem(
         type: type,
         localizedTitle: localizedTitle,
         localizedSubtitle: localizedSubtitle,

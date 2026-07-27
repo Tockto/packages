@@ -34,9 +34,7 @@ class _MyAppState extends State<MyApp> {
     super.initState();
     auth.isDeviceSupported().then(
       (bool isSupported) => setState(
-        () => _supportState = isSupported
-            ? _SupportState.supported
-            : _SupportState.unsupported,
+        () => _supportState = isSupported ? _SupportState.supported : _SupportState.unsupported,
       ),
     );
   }
@@ -76,7 +74,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> _authenticate() async {
-    bool authenticated = false;
+    var authenticated = false;
     try {
       setState(() {
         _isAuthenticating = true;
@@ -112,21 +110,18 @@ class _MyAppState extends State<MyApp> {
       return;
     }
 
-    setState(
-      () => _authorized = authenticated ? 'Authorized' : 'Not Authorized',
-    );
+    setState(() => _authorized = authenticated ? 'Authorized' : 'Not Authorized');
   }
 
   Future<void> _authenticateWithBiometrics() async {
-    bool authenticated = false;
+    var authenticated = false;
     try {
       setState(() {
         _isAuthenticating = true;
         _authorized = 'Authenticating';
       });
       authenticated = await auth.authenticate(
-        localizedReason:
-            'Scan your fingerprint (or face or whatever) to authenticate',
+        localizedReason: 'Scan your fingerprint (or face or whatever) to authenticate',
         persistAcrossBackgrounding: true,
         biometricOnly: true,
       );
@@ -157,7 +152,7 @@ class _MyAppState extends State<MyApp> {
       return;
     }
 
-    final String message = authenticated ? 'Authorized' : 'Not Authorized';
+    final message = authenticated ? 'Authorized' : 'Not Authorized';
     setState(() {
       _authorized = message;
     });
@@ -187,10 +182,7 @@ class _MyAppState extends State<MyApp> {
                   const Text('This device is not supported'),
                 const Divider(height: 100),
                 Text('Can check biometrics: $_canCheckBiometrics\n'),
-                ElevatedButton(
-                  onPressed: _checkBiometrics,
-                  child: const Text('Check biometrics'),
-                ),
+                ElevatedButton(onPressed: _checkBiometrics, child: const Text('Check biometrics')),
                 const Divider(height: 100),
                 Text('Available biometrics: $_availableBiometrics\n'),
                 ElevatedButton(
@@ -204,10 +196,7 @@ class _MyAppState extends State<MyApp> {
                     onPressed: _cancelAuthentication,
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        Text('Cancel Authentication'),
-                        Icon(Icons.cancel),
-                      ],
+                      children: <Widget>[Text('Cancel Authentication'), Icon(Icons.cancel)],
                     ),
                   )
                 else
@@ -228,11 +217,7 @@ class _MyAppState extends State<MyApp> {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
-                            Text(
-                              _isAuthenticating
-                                  ? 'Cancel'
-                                  : 'Authenticate: biometrics only',
-                            ),
+                            Text(_isAuthenticating ? 'Cancel' : 'Authenticate: biometrics only'),
                             const Icon(Icons.fingerprint),
                           ],
                         ),

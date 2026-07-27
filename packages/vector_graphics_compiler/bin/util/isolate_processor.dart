@@ -40,7 +40,7 @@ class IsolateProcessor {
   }) async {
     _total = pairs.length;
     _current = 0;
-    bool failure = false;
+    var failure = false;
     await Future.wait(eagerError: true, <Future<void>>[
       for (final Pair pair in pairs)
         _process(
@@ -99,9 +99,7 @@ class IsolateProcessor {
     try {
       resource = await _pool.request();
       await Isolate.run(() {
-        if (maskingOptimizerEnabled ||
-            clippingOptimizerEnabled ||
-            overdrawOptimizerEnabled) {
+        if (maskingOptimizerEnabled || clippingOptimizerEnabled || overdrawOptimizerEnabled) {
           _loadPathOps(libpathops);
         }
         if (tessellate) {
@@ -152,11 +150,11 @@ class Pool {
 
   Future<PoolHandle> request() async {
     if (active.length < concurrency) {
-      final PoolHandle handle = PoolHandle(this);
+      final handle = PoolHandle(this);
       active.add(handle);
       return handle;
     }
-    final Completer<PoolHandle> completer = Completer<PoolHandle>();
+    final completer = Completer<PoolHandle>();
     pending.add(completer);
     return completer.future;
   }
@@ -166,7 +164,7 @@ class Pool {
     active.remove(oldHandle);
     while (active.length < concurrency && pending.isNotEmpty) {
       final Completer<PoolHandle> completer = pending.removeAt(0);
-      final PoolHandle handle = PoolHandle(this);
+      final handle = PoolHandle(this);
       active.add(handle);
       completer.complete(handle);
     }

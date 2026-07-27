@@ -24,7 +24,7 @@ void main() async {
 
   group('Config objects pass values from Dart to JS - ', () {
     testWidgets('TokenClientConfig', (_) async {
-      final TokenClientConfig config = TokenClientConfig(
+      final config = TokenClientConfig(
         client_id: 'testing_1-2-3',
         callback: (TokenResponse _) {},
         scope: <String>['one', 'two', 'three'],
@@ -37,8 +37,9 @@ void main() async {
         error_callback: (GoogleIdentityServicesError? _) {},
       );
 
-      final utils.ExpectConfigValueFn expectConfigValue = utils
-          .createExpectConfigValue(config as JSObject);
+      final utils.ExpectConfigValueFn expectConfigValue = utils.createExpectConfigValue(
+        config as JSObject,
+      );
 
       expectConfigValue('client_id', 'testing_1-2-3');
       expectConfigValue('callback', utils.isAJs('function'));
@@ -53,7 +54,7 @@ void main() async {
     });
 
     testWidgets('OverridableTokenClientConfig', (_) async {
-      final OverridableTokenClientConfig config = OverridableTokenClientConfig(
+      final config = OverridableTokenClientConfig(
         scope: <String>['one', 'two', 'three'],
         include_granted_scopes: true,
         prompt: 'some-prompt',
@@ -62,8 +63,9 @@ void main() async {
         state: 'some-state',
       );
 
-      final utils.ExpectConfigValueFn expectConfigValue = utils
-          .createExpectConfigValue(config as JSObject);
+      final utils.ExpectConfigValueFn expectConfigValue = utils.createExpectConfigValue(
+        config as JSObject,
+      );
 
       expectConfigValue('scope', 'one two three');
       expectConfigValue('include_granted_scopes', true);
@@ -74,7 +76,7 @@ void main() async {
     });
 
     testWidgets('CodeClientConfig', (_) async {
-      final CodeClientConfig config = CodeClientConfig(
+      final config = CodeClientConfig(
         client_id: 'testing_1-2-3',
         scope: <String>['one', 'two', 'three'],
         include_granted_scopes: true,
@@ -89,8 +91,9 @@ void main() async {
         error_callback: (GoogleIdentityServicesError? _) {},
       );
 
-      final utils.ExpectConfigValueFn expectConfigValue = utils
-          .createExpectConfigValue(config as JSObject);
+      final utils.ExpectConfigValueFn expectConfigValue = utils.createExpectConfigValue(
+        config as JSObject,
+      );
 
       expectConfigValue('scope', 'one two three');
       expectConfigValue('include_granted_scopes', true);
@@ -122,17 +125,12 @@ void main() async {
 
   group('requestAccessToken', () {
     testWidgets('passes through configuration', (_) async {
-      final StreamController<TokenResponse> controller =
-          StreamController<TokenResponse>();
+      final controller = StreamController<TokenResponse>();
 
-      final List<String> scopes = <String>['some_scope', 'another', 'more'];
+      final scopes = <String>['some_scope', 'another', 'more'];
 
       final TokenClient client = oauth2.initTokenClient(
-        TokenClientConfig(
-          client_id: 'for-tests',
-          callback: controller.add,
-          scope: scopes,
-        ),
+        TokenClientConfig(client_id: 'for-tests', callback: controller.add, scope: scopes),
       );
 
       utils.setMockTokenResponse(client, 'some-non-null-auth-token-value');
@@ -147,10 +145,9 @@ void main() async {
     });
 
     testWidgets('configuration can be overridden', (_) async {
-      final StreamController<TokenResponse> controller =
-          StreamController<TokenResponse>();
+      final controller = StreamController<TokenResponse>();
 
-      final List<String> scopes = <String>['some_scope', 'another', 'more'];
+      final scopes = <String>['some_scope', 'another', 'more'];
 
       final TokenClient client = oauth2.initTokenClient(
         TokenClientConfig(
@@ -174,10 +171,10 @@ void main() async {
 
   group('hasGranted...Scopes', () {
     // mock-gis.js returns false for scopes that start with "not-granted-".
-    const String notGranted = 'not-granted-scope';
+    const notGranted = 'not-granted-scope';
 
     testWidgets('all scopes granted', (_) async {
-      final List<String> scopes = <String>['some_scope', 'another', 'more'];
+      final scopes = <String>['some_scope', 'another', 'more'];
 
       final TokenResponse response = await utils.fakeAuthZWithScopes(scopes);
 
@@ -189,7 +186,7 @@ void main() async {
     });
 
     testWidgets('some scopes granted', (_) async {
-      final List<String> scopes = <String>['some_scope', notGranted, 'more'];
+      final scopes = <String>['some_scope', notGranted, 'more'];
 
       final TokenResponse response = await utils.fakeAuthZWithScopes(scopes);
 
@@ -201,7 +198,7 @@ void main() async {
     });
 
     testWidgets('no scopes granted', (_) async {
-      final List<String> scopes = <String>[notGranted, '$notGranted-2'];
+      final scopes = <String>[notGranted, '$notGranted-2'];
 
       final TokenResponse response = await utils.fakeAuthZWithScopes(scopes);
 

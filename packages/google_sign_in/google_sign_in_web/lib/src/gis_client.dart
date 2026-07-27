@@ -10,8 +10,7 @@ import 'package:google_identity_services_web/oauth2.dart';
 import 'package:google_sign_in_platform_interface/google_sign_in_platform_interface.dart';
 import 'package:web/web.dart' as web;
 
-import 'button_configuration.dart'
-    show GSIButtonConfiguration, convertButtonConfiguration;
+import 'button_configuration.dart' show GSIButtonConfiguration, convertButtonConfiguration;
 import 'utils.dart' as utils;
 
 /// A client to hide (most) of the interaction with the GIS SDK from the plugin.
@@ -47,11 +46,7 @@ class GisSdkClient {
 
   void _logIfEnabled(String message, [List<Object?>? more]) {
     if (_loggingEnabled) {
-      final String log = <Object?>[
-        '[google_sign_in_web]',
-        message,
-        ...?more,
-      ].join(' ');
+      final String log = <Object?>['[google_sign_in_web]', message, ...?more].join(' ');
       web.console.info(log.toJS);
     }
   }
@@ -96,15 +91,14 @@ class GisSdkClient {
     bool? useFedCM,
   }) {
     // Initialize `id` for the silent-sign in code.
-    final IdConfiguration idConfig = IdConfiguration(
+    final idConfig = IdConfiguration(
       client_id: clientId,
       callback: onResponse,
       cancel_on_tap_outside: false,
       auto_select: true, // Attempt to sign-in silently.
       nonce: nonce,
       hd: hostedDomain,
-      use_fedcm_for_prompt:
-          useFedCM, // Use the native browser prompt, when available.
+      use_fedcm_for_prompt: useFedCM, // Use the native browser prompt, when available.
     );
     id.initialize(idConfig);
   }
@@ -131,7 +125,7 @@ class GisSdkClient {
     required ErrorCallbackFn onError,
   }) {
     // Create a Token Client for authorization calls.
-    final TokenClientConfig tokenConfig = TokenClientConfig(
+    final tokenConfig = TokenClientConfig(
       prompt: userHint == null ? '' : 'select_account',
       client_id: clientId,
       login_hint: userHint,
@@ -151,7 +145,7 @@ class GisSdkClient {
     required ErrorCallbackFn onError,
   }) {
     // Create a Token Client for authorization calls.
-    final CodeClientConfig codeConfig = CodeClientConfig(
+    final codeConfig = CodeClientConfig(
       client_id: _clientId,
       login_hint: userHint,
       hd: _hostedDomain,
@@ -185,9 +179,7 @@ class GisSdkClient {
           break;
         case MomentDismissedReason.cancel_called:
           _credentialResponses.addError(
-            const GoogleSignInException(
-              code: GoogleSignInExceptionCode.canceled,
-            ),
+            const GoogleSignInException(code: GoogleSignInExceptionCode.canceled),
           );
         case MomentDismissedReason.flow_restarted:
           // Ignore, as this is not a final state.
@@ -217,20 +209,14 @@ class GisSdkClient {
   }
 
   /// Calls `id.renderButton` on [parent] with the given [options].
-  Future<void> renderButton(
-    Object parent,
-    GSIButtonConfiguration options,
-  ) async {
+  Future<void> renderButton(Object parent, GSIButtonConfiguration options) async {
     return id.renderButton(parent, convertButtonConfiguration(options));
   }
 
   /// Requests a server auth code per:
   /// https://developers.google.com/identity/oauth2/web/guides/use-code-model#initialize_a_code_client
-  Future<String?> requestServerAuthCode(
-    AuthorizationRequestDetails request,
-  ) async {
-    final Completer<(String? code, Exception? e)> completer =
-        Completer<(String? code, Exception? e)>();
+  Future<String?> requestServerAuthCode(AuthorizationRequestDetails request) async {
+    final completer = Completer<(String? code, Exception? e)>();
     final CodeClient codeClient = _initializeCodeClient(
       userHint: request.userId,
       onResponse: (CodeResponse response) {
@@ -300,8 +286,7 @@ class GisSdkClient {
     final (TokenResponse? cachedResponse, DateTime? cacheExpiration) =
         _lastClientAuthorizationByUser[userHint] ?? (null, null);
     if (cachedResponse != null) {
-      final bool isTokenValid =
-          cacheExpiration?.isAfter(DateTime.now()) ?? false;
+      final bool isTokenValid = cacheExpiration?.isAfter(DateTime.now()) ?? false;
       if (isTokenValid && oauth2.hasGrantedAllScopes(cachedResponse, scopes)) {
         return cachedResponse.access_token;
       }
@@ -311,8 +296,7 @@ class GisSdkClient {
       return null;
     }
 
-    final Completer<(String? token, Exception? e)> completer =
-        Completer<(String? token, Exception? e)>();
+    final completer = Completer<(String? token, Exception? e)>();
     final TokenClient tokenClient = _initializeTokenClient(
       _clientId,
       scopes: scopes,
@@ -325,9 +309,7 @@ class GisSdkClient {
           if (token == null) {
             _lastClientAuthorizationByUser.remove(userHint);
           } else {
-            final DateTime expiration = DateTime.now().add(
-              Duration(seconds: response.expires_in!),
-            );
+            final DateTime expiration = DateTime.now().add(Duration(seconds: response.expires_in!));
             _lastClientAuthorizationByUser[userHint] = (response, expiration);
           }
           completer.complete((response.access_token, null));
@@ -357,9 +339,7 @@ class GisSdkClient {
     return token;
   }
 
-  GoogleSignInException _exceptionForGisError(
-    GoogleIdentityServicesError? error,
-  ) {
+  GoogleSignInException _exceptionForGisError(GoogleIdentityServicesError? error) {
     final GoogleSignInExceptionCode code;
     switch (error?.type) {
       case GoogleIdentityServicesErrorType.missing_required_parameter:
@@ -394,8 +374,7 @@ class GisSdkClient {
   // request that was not associated with a known user (i.e., no user ID hint
   // was provided with the request).
   final Map<String?, (TokenResponse tokenResponse, DateTime expiration)>
-  _lastClientAuthorizationByUser =
-      <String?, (TokenResponse tokenResponse, DateTime expiration)>{};
+  _lastClientAuthorizationByUser = <String?, (TokenResponse tokenResponse, DateTime expiration)>{};
 
   /// The StreamController onto which the GIS Client propagates user authentication events.
   ///

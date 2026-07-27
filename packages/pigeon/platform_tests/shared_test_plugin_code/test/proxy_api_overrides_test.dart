@@ -9,7 +9,7 @@ void main() {
   test('can override ProxyApi constructors', () {
     PigeonOverrides.pigeon_reset();
 
-    final ProxyApiSuperClass instance = ProxyApiSuperClass.pigeon_detached();
+    final instance = ProxyApiSuperClass.pigeon_detached();
     PigeonOverrides.proxyApiSuperClass_new = () => instance;
 
     expect(ProxyApiSuperClass(), instance);
@@ -18,7 +18,7 @@ void main() {
   test('can override ProxyApi static attached fields', () {
     PigeonOverrides.pigeon_reset();
 
-    final ProxyApiSuperClass instance = ProxyApiSuperClass.pigeon_detached();
+    final instance = ProxyApiSuperClass.pigeon_detached();
     PigeonOverrides.proxyApiTestClass_staticAttachedField = instance;
 
     expect(ProxyApiTestClass.staticAttachedField, instance);
@@ -31,21 +31,19 @@ void main() {
       return value;
     };
 
-    const String value = 'testString';
+    const value = 'testString';
     expect(await ProxyApiTestClass.echoStaticString(value), value);
   });
 
   test('pigeon_reset sets constructor overrides to null', () {
-    PigeonOverrides.proxyApiSuperClass_new =
-        () => ProxyApiSuperClass.pigeon_detached();
+    PigeonOverrides.proxyApiSuperClass_new = () => ProxyApiSuperClass.pigeon_detached();
 
     PigeonOverrides.pigeon_reset();
     expect(PigeonOverrides.proxyApiSuperClass_new, isNull);
   });
 
   test('pigeon_reset sets attached field overrides to null', () {
-    PigeonOverrides.proxyApiTestClass_staticAttachedField =
-        ProxyApiSuperClass.pigeon_detached();
+    PigeonOverrides.proxyApiTestClass_staticAttachedField = ProxyApiSuperClass.pigeon_detached();
 
     PigeonOverrides.pigeon_reset();
     expect(PigeonOverrides.proxyApiTestClass_staticAttachedField, isNull);

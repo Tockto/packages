@@ -37,30 +37,25 @@ class _TableExampleState extends State<TableExample> {
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 50.0),
-        child:
-            _selectionMode == _TableSelection.multiCell
-                ? SelectionArea(
-                  child: TableView.builder(
-                    verticalDetails: ScrollableDetails.vertical(
-                      controller: _verticalController,
-                    ),
-                    cellBuilder: _buildCell,
-                    columnCount: 20,
-                    columnBuilder: _buildColumnSpan,
-                    rowCount: _rowCount,
-                    rowBuilder: _buildRowSpan,
-                  ),
-                )
-                : TableView.builder(
-                  verticalDetails: ScrollableDetails.vertical(
-                    controller: _verticalController,
-                  ),
+        child: _selectionMode == _TableSelection.multiCell
+            ? SelectionArea(
+                child: TableView.builder(
+                  verticalDetails: ScrollableDetails.vertical(controller: _verticalController),
                   cellBuilder: _buildCell,
                   columnCount: 20,
                   columnBuilder: _buildColumnSpan,
                   rowCount: _rowCount,
                   rowBuilder: _buildRowSpan,
                 ),
+              )
+            : TableView.builder(
+                verticalDetails: ScrollableDetails.vertical(controller: _verticalController),
+                cellBuilder: _buildCell,
+                columnCount: 20,
+                columnBuilder: _buildColumnSpan,
+                rowCount: _rowCount,
+                rowBuilder: _buildRowSpan,
+              ),
       ),
       persistentFooterButtons: <Widget>[
         OverflowBar(
@@ -111,9 +106,7 @@ class _TableExampleState extends State<TableExample> {
                 ),
                 TextButton(
                   onPressed: () {
-                    _verticalController.jumpTo(
-                      _verticalController.position.maxScrollExtent,
-                    );
+                    _verticalController.jumpTo(_verticalController.position.maxScrollExtent);
                   },
                   child: const Text('Jump to Bottom'),
                 ),
@@ -134,9 +127,7 @@ class _TableExampleState extends State<TableExample> {
   }
 
   TableViewCell _buildCell(BuildContext context, TableVicinity vicinity) {
-    Widget result = Center(
-      child: Text('Tile c: ${vicinity.column}, r: ${vicinity.row}'),
-    );
+    Widget result = Center(child: Text('Tile c: ${vicinity.column}, r: ${vicinity.row}'));
     if (_selectionMode == _TableSelection.singleCell) {
       result = SelectionArea(child: result);
     }
@@ -144,9 +135,7 @@ class _TableExampleState extends State<TableExample> {
   }
 
   TableSpan _buildColumnSpan(int index) {
-    const TableSpanDecoration decoration = TableSpanDecoration(
-      border: TableSpanBorder(trailing: BorderSide()),
-    );
+    const decoration = TableSpanDecoration(border: TableSpanBorder(trailing: BorderSide()));
 
     switch (index % 5) {
       case 0:
@@ -155,12 +144,10 @@ class _TableExampleState extends State<TableExample> {
           extent: const FixedTableSpanExtent(100),
           onEnter: (_) => print('Entered column $index'),
           recognizerFactories: <Type, GestureRecognizerFactory>{
-            TapGestureRecognizer:
-                GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
-                  () => TapGestureRecognizer(),
-                  (TapGestureRecognizer t) =>
-                      t.onTap = () => print('Tap column $index'),
-                ),
+            TapGestureRecognizer: GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
+              () => TapGestureRecognizer(),
+              (TapGestureRecognizer t) => t.onTap = () => print('Tap column $index'),
+            ),
           },
         );
       case 1:
@@ -196,7 +183,7 @@ class _TableExampleState extends State<TableExample> {
   }
 
   TableSpan _buildRowSpan(int index) {
-    final TableSpanDecoration decoration = TableSpanDecoration(
+    final decoration = TableSpanDecoration(
       color: index.isEven ? Colors.purple[100] : null,
       border: const TableSpanBorder(trailing: BorderSide(width: 3)),
     );
@@ -207,12 +194,10 @@ class _TableExampleState extends State<TableExample> {
           backgroundDecoration: decoration,
           extent: const FixedTableSpanExtent(50),
           recognizerFactories: <Type, GestureRecognizerFactory>{
-            TapGestureRecognizer:
-                GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
-                  () => TapGestureRecognizer(),
-                  (TapGestureRecognizer t) =>
-                      t.onTap = () => print('Tap row $index'),
-                ),
+            TapGestureRecognizer: GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
+              () => TapGestureRecognizer(),
+              (TapGestureRecognizer t) => t.onTap = () => print('Tap row $index'),
+            ),
           },
         );
       case 1:

@@ -1,3 +1,36 @@
+## 6.3.32
+
+* Bumps the androidx group across 10 directories with 1 update.
+
+## 6.3.31
+
+* Migrates to Built-in Kotlin to support AGP 9.
+* Updates minimum supported SDK version to Flutter 3.44/Dart 3.12.
+
+## 6.3.30
+
+* Updates internal implementation to use Kotlin Pigeon.
+
+## 6.3.29
+
+* Updates build files from Groovy to Kotlin.
+
+## 6.3.28
+
+* Bumps com.android.tools.build:gradle from 8.12.1 to 8.13.1.
+
+## 6.3.27
+
+* Bumps androidx.browser:browser from 1.8.0 to 1.9.0.
+
+## 6.3.26
+
+* Bumps androidx.core:core from 1.13.1 to 1.17.0.
+
+## 6.3.25
+
+* Updates to Pigeon 26.
+
 ## 6.3.24
 
 * Resolves Gradle 9 deprecations. 

@@ -24,36 +24,29 @@ const int _chromeDriverPort = 4444;
 /// A command to run the integration tests for a package's example applications.
 class DriveExamplesCommand extends PackageLoopingCommand {
   /// Creates an instance of the drive command.
-  DriveExamplesCommand(
-    super.packagesDir, {
-    super.processRunner,
-    super.platform,
-    super.gitDir,
-  }) {
-    argParser.addFlag(platformAndroid,
-        help: 'Runs the Android implementation of the examples',
-        aliases: const <String>[platformAndroidAlias]);
-    argParser.addFlag(platformIOS,
-        help: 'Runs the iOS implementation of the examples');
-    argParser.addFlag(platformLinux,
-        help: 'Runs the Linux implementation of the examples');
-    argParser.addFlag(platformMacOS,
-        help: 'Runs the macOS implementation of the examples');
-    argParser.addFlag(platformWeb,
-        help: 'Runs the web implementation of the examples');
-    argParser.addFlag(platformWindows,
-        help: 'Runs the Windows implementation of the examples');
-    argParser.addFlag(kWebWasmFlag,
-        help: 'Compile to WebAssembly rather than JavaScript');
+  DriveExamplesCommand(super.packagesDir, {super.processRunner, super.platform, super.gitDir}) {
+    argParser.addFlag(
+      platformAndroid,
+      help: 'Runs the Android implementation of the examples',
+      aliases: const <String>[platformAndroidAlias],
+    );
+    argParser.addFlag(platformIOS, help: 'Runs the iOS implementation of the examples');
+    argParser.addFlag(platformLinux, help: 'Runs the Linux implementation of the examples');
+    argParser.addFlag(platformMacOS, help: 'Runs the macOS implementation of the examples');
+    argParser.addFlag(platformWeb, help: 'Runs the web implementation of the examples');
+    argParser.addFlag(platformWindows, help: 'Runs the Windows implementation of the examples');
+    argParser.addFlag(kWebWasmFlag, help: 'Compile to WebAssembly rather than JavaScript');
     argParser.addOption(
       kEnableExperiment,
       defaultsTo: '',
-      help:
-          'Runs the driver tests in Dart VM with the given experiments enabled.',
+      help: 'Runs the driver tests in Dart VM with the given experiments enabled.',
     );
-    argParser.addFlag(_chromeDriverFlag,
-        help: 'Runs chromedriver for the duration of the test.\n\n'
-            'Requires the correct version of chromedriver to be in your path.');
+    argParser.addFlag(
+      _chromeDriverFlag,
+      help:
+          'Runs chromedriver for the duration of the test.\n\n'
+          'Requires the correct version of chromedriver to be in your path.',
+    );
   }
 
   static const String _chromeDriverFlag = 'run-chromedriver';
@@ -62,7 +55,8 @@ class DriveExamplesCommand extends PackageLoopingCommand {
   final String name = 'drive-examples';
 
   @override
-  final String description = 'Runs Dart integration tests for example apps.\n\n'
+  final String description =
+      'Runs Dart integration tests for example apps.\n\n'
       "This runs all tests in each example's integration_test directory, "
       'via "flutter test" on most platforms, and "flutter drive" on web.\n\n'
       'This command requires "flutter" to be in your path.';
@@ -82,7 +76,7 @@ class DriveExamplesCommand extends PackageLoopingCommand {
 
   @override
   Future<void> initializeRun() async {
-    final List<String> platformSwitches = <String>[
+    final platformSwitches = <String>[
       platformAndroid,
       platformIOS,
       platformLinux,
@@ -98,8 +92,9 @@ class DriveExamplesCommand extends PackageLoopingCommand {
     // If that is implemented, this check can be relaxed.
     if (platformCount != 1) {
       printError(
-          'Exactly one of ${platformSwitches.map((String platform) => '--$platform').join(', ')} '
-          'must be specified.');
+        'Exactly one of ${platformSwitches.map((String platform) => '--$platform').join(', ')} '
+        'must be specified.',
+      );
       throw ToolExit(_exitInvalidArgs);
     }
 
@@ -131,8 +126,7 @@ class DriveExamplesCommand extends PackageLoopingCommand {
     }
 
     _targetDeviceFlags = <String, List<String>>{
-      if (getBoolArg(platformAndroid))
-        platformAndroid: <String>['-d', androidDevice!],
+      if (getBoolArg(platformAndroid)) platformAndroid: <String>['-d', androidDevice!],
       if (getBoolArg(platformIOS)) platformIOS: <String>['-d', iOSDevice!],
       if (getBoolArg(platformLinux)) platformLinux: <String>['-d', 'linux'],
       if (getBoolArg(platformMacOS)) platformMacOS: <String>['-d', 'macos'],
@@ -146,8 +140,7 @@ class DriveExamplesCommand extends PackageLoopingCommand {
           if (platform.environment.containsKey('CHROME_EXECUTABLE'))
             '--chrome-binary=${platform.environment['CHROME_EXECUTABLE']}',
         ],
-      if (getBoolArg(platformWindows))
-        platformWindows: <String>['-d', 'windows'],
+      if (getBoolArg(platformWindows)) platformWindows: <String>['-d', 'windows'],
     };
   }
 
@@ -158,8 +151,7 @@ class DriveExamplesCommand extends PackageLoopingCommand {
     if (package.isPlatformInterface && package.getExamples().isEmpty) {
       // Platform interface packages generally aren't intended to have
       // examples, and don't need integration tests, so skip rather than fail.
-      return PackageResult.skip(
-          'Platform interfaces are not expected to have integration tests.');
+      return PackageResult.skip('Platform interfaces are not expected to have integration tests.');
     }
 
     // For plugin packages, skip if the plugin itself doesn't support any
@@ -167,30 +159,30 @@ class DriveExamplesCommand extends PackageLoopingCommand {
     if (isPlugin) {
       final Iterable<String> requestedPlatforms = _targetDeviceFlags.keys;
       final Iterable<String> unsupportedPlatforms = requestedPlatforms.where(
-          (String platform) => !pluginSupportsPlatform(platform, package));
-      for (final String platform in unsupportedPlatforms) {
+        (String platform) => !pluginSupportsPlatform(platform, package),
+      );
+      for (final platform in unsupportedPlatforms) {
         print('Skipping unsupported platform $platform...');
       }
       if (unsupportedPlatforms.length == requestedPlatforms.length) {
         return PackageResult.skip(
-            '${package.displayName} does not support any requested platform.');
+          '${package.displayName} does not support any requested platform.',
+        );
       }
     }
 
-    int examplesFound = 0;
-    int supportedExamplesFound = 0;
-    bool testsRan = false;
-    final List<String> errors = <String>[];
+    var examplesFound = 0;
+    var supportedExamplesFound = 0;
+    var testsRan = false;
+    final errors = <String>[];
     for (final RepositoryPackage example in package.getExamples()) {
       ++examplesFound;
-      final String exampleName =
-          getRelativePosixPath(example.directory, from: packagesDir);
+      final String exampleName = getRelativePosixPath(example.directory, from: packagesDir);
 
       // Skip examples that don't support any requested platform(s).
       final List<String> deviceFlags = _deviceFlagsForExample(example);
       if (deviceFlags.isEmpty) {
-        print(
-            'Skipping $exampleName; does not support any requested platforms.');
+        print('Skipping $exampleName; does not support any requested platforms.');
         continue;
       }
 
@@ -203,9 +195,7 @@ class DriveExamplesCommand extends PackageLoopingCommand {
       }
 
       // Check files for known problematic patterns.
-      testTargets
-          .where((File file) => !_validateIntegrationTest(file))
-          .forEach((File file) {
+      testTargets.where((File file) => !_validateIntegrationTest(file)).forEach((File file) {
         // Report the issue, but continue with the test as the validation
         // errors don't prevent running.
         errors.add('${file.basename} failed validation');
@@ -231,10 +221,11 @@ class DriveExamplesCommand extends PackageLoopingCommand {
         Process? chromedriver;
         if (getBoolArg(_chromeDriverFlag)) {
           print('Starting chromedriver on port $_chromeDriverPort');
-          chromedriver = await processRunner
-              .start('chromedriver', <String>['--port=$_chromeDriverPort']);
+          chromedriver = await processRunner.start('chromedriver', <String>[
+            '--port=$_chromeDriverPort',
+          ]);
         }
-        for (final File driver in drivers) {
+        for (final driver in drivers) {
           final List<File> failingTargets = await _driveTests(
             example,
             driver,
@@ -242,9 +233,8 @@ class DriveExamplesCommand extends PackageLoopingCommand {
             deviceFlags: deviceFlags,
             exampleName: exampleName,
           );
-          for (final File failingTarget in failingTargets) {
-            errors.add(
-                getRelativePosixPath(failingTarget, from: package.directory));
+          for (final failingTarget in failingTargets) {
+            errors.add(getRelativePosixPath(failingTarget, from: package.directory));
           }
         }
         if (chromedriver != null) {
@@ -252,8 +242,7 @@ class DriveExamplesCommand extends PackageLoopingCommand {
           chromedriver.kill();
         }
       } else {
-        if (!await _runTests(example,
-            deviceFlags: deviceFlags, testFiles: testTargets)) {
+        if (!await _runTests(example, deviceFlags: deviceFlags, testFiles: testTargets)) {
           errors.add('Integration tests failed.');
         }
       }
@@ -262,32 +251,29 @@ class DriveExamplesCommand extends PackageLoopingCommand {
       // It is an error for a plugin not to have integration tests, because that
       // is the only way to test the method channel communication.
       if (isPlugin) {
-        printError(
-            'No driver tests were run ($examplesFound example(s) found).');
+        printError('No driver tests were run ($examplesFound example(s) found).');
         errors.add('No tests ran (use --exclude if this is intentional).');
       } else {
-        return PackageResult.skip(supportedExamplesFound == 0
-            ? 'No example supports requested platform(s).'
-            : 'No example is configured for integration tests.');
+        return PackageResult.skip(
+          supportedExamplesFound == 0
+              ? 'No example supports requested platform(s).'
+              : 'No example is configured for integration tests.',
+        );
       }
     }
-    return errors.isEmpty
-        ? PackageResult.success()
-        : PackageResult.fail(errors);
+    return errors.isEmpty ? PackageResult.success() : PackageResult.fail(errors);
   }
 
   /// Returns the device flags for the intersection of the requested platforms
   /// and the platforms supported by [example].
   List<String> _deviceFlagsForExample(RepositoryPackage example) {
-    final List<String> deviceFlags = <String>[];
-    for (final MapEntry<String, List<String>> entry
-        in _targetDeviceFlags.entries) {
+    final deviceFlags = <String>[];
+    for (final MapEntry<String, List<String>> entry in _targetDeviceFlags.entries) {
       final String platform = entry.key;
       if (example.appSupportsPlatform(getPlatformByName(platform))) {
         deviceFlags.addAll(entry.value);
       } else {
-        final String exampleName =
-            getRelativePosixPath(example.directory, from: packagesDir);
+        final String exampleName = getRelativePosixPath(example.directory, from: packagesDir);
         print('Skipping unsupported platform $platform for $exampleName');
       }
     }
@@ -295,28 +281,28 @@ class DriveExamplesCommand extends PackageLoopingCommand {
   }
 
   Future<List<String>> _getDevicesForPlatform(String platform) async {
-    final List<String> deviceIds = <String>[];
+    final deviceIds = <String>[];
 
-    final ProcessResult result = await processRunner.run(
-        flutterCommand, <String>['devices', '--machine'],
-        stdoutEncoding: utf8);
+    final ProcessResult result = await processRunner.run(flutterCommand, <String>[
+      'devices',
+      '--machine',
+    ], stdoutEncoding: utf8);
     if (result.exitCode != 0) {
       return deviceIds;
     }
 
-    String output = result.stdout as String;
+    var output = result.stdout as String;
     // --machine doesn't currently prevent the tool from printing banners;
     // see https://github.com/flutter/flutter/issues/86055. This workaround
     // can be removed once that is fixed.
     output = output.substring(output.indexOf('['));
 
-    final List<Map<String, dynamic>> devices =
-        (jsonDecode(output) as List<dynamic>).cast<Map<String, dynamic>>();
-    for (final Map<String, dynamic> deviceInfo in devices) {
-      final String targetPlatform =
-          (deviceInfo['targetPlatform'] as String?) ?? '';
+    final List<Map<String, dynamic>> devices = (jsonDecode(output) as List<dynamic>)
+        .cast<Map<String, dynamic>>();
+    for (final deviceInfo in devices) {
+      final String targetPlatform = (deviceInfo['targetPlatform'] as String?) ?? '';
       if (targetPlatform.startsWith(platform)) {
-        final String? deviceId = deviceInfo['id'] as String?;
+        final deviceId = deviceInfo['id'] as String?;
         if (deviceId != null) {
           deviceIds.add(deviceId);
         }
@@ -326,7 +312,7 @@ class DriveExamplesCommand extends PackageLoopingCommand {
   }
 
   Future<List<File>> _getDrivers(RepositoryPackage example) async {
-    final List<File> drivers = <File>[];
+    final drivers = <File>[];
 
     final Directory driverDir = example.directory.childDirectory('test_driver');
     if (driverDir.existsSync()) {
@@ -340,13 +326,11 @@ class DriveExamplesCommand extends PackageLoopingCommand {
   }
 
   Future<List<File>> _getIntegrationTests(RepositoryPackage example) async {
-    final List<File> tests = <File>[];
-    final Directory integrationTestDir =
-        example.directory.childDirectory('integration_test');
+    final tests = <File>[];
+    final Directory integrationTestDir = example.directory.childDirectory('integration_test');
 
     if (integrationTestDir.existsSync()) {
-      await for (final FileSystemEntity file
-          in integrationTestDir.list(recursive: true)) {
+      await for (final FileSystemEntity file in integrationTestDir.list(recursive: true)) {
         if (file is File && file.basename.endsWith('_test.dart')) {
           tests.add(file);
         }
@@ -362,12 +346,13 @@ class DriveExamplesCommand extends PackageLoopingCommand {
   bool _validateIntegrationTest(File testFile) {
     final List<String> lines = testFile.readAsLinesSync();
 
-    final RegExp badTestPattern = RegExp(r'\s*test\(');
+    final badTestPattern = RegExp(r'\s*test\(');
     if (lines.any((String line) => line.startsWith(badTestPattern))) {
       final String filename = testFile.basename;
       printError(
-          '$filename uses "test", which will not report failures correctly. '
-          'Use testWidgets instead.');
+        '$filename uses "test", which will not report failures correctly. '
+        'Use testWidgets instead.',
+      );
       return false;
     }
 
@@ -390,31 +375,26 @@ class DriveExamplesCommand extends PackageLoopingCommand {
     required List<String> deviceFlags,
     required String exampleName,
   }) async {
-    final List<File> failures = <File>[];
+    final failures = <File>[];
 
     final String enableExperiment = getStringArg(kEnableExperiment);
-    final String screenshotBasename =
-        '${exampleName.replaceAll(platform.pathSeparator, '_')}-drive';
-    final Directory? screenshotDirectory =
-        ciLogsDirectory(platform, driver.fileSystem)
-            ?.childDirectory(screenshotBasename);
+    final screenshotBasename = '${exampleName.replaceAll(platform.pathSeparator, '_')}-drive';
+    final Directory? screenshotDirectory = ciLogsDirectory(
+      platform,
+      driver.fileSystem,
+    )?.childDirectory(screenshotBasename);
 
-    for (final File target in targets) {
-      final int exitCode = await processRunner.runAndStream(
-          flutterCommand,
-          <String>[
-            'drive',
-            ...deviceFlags,
-            if (enableExperiment.isNotEmpty)
-              '--enable-experiment=$enableExperiment',
-            if (screenshotDirectory != null)
-              '--screenshot=${screenshotDirectory.path}',
-            '--driver',
-            getRelativePosixPath(driver, from: example.directory),
-            '--target',
-            getRelativePosixPath(target, from: example.directory),
-          ],
-          workingDir: example.directory);
+    for (final target in targets) {
+      final int exitCode = await processRunner.runAndStream(flutterCommand, <String>[
+        'drive',
+        ...deviceFlags,
+        if (enableExperiment.isNotEmpty) '--enable-experiment=$enableExperiment',
+        if (screenshotDirectory != null) '--screenshot=${screenshotDirectory.path}',
+        '--driver',
+        getRelativePosixPath(driver, from: example.directory),
+        '--target',
+        getRelativePosixPath(target, from: example.directory),
+      ], workingDir: example.directory);
       if (exitCode != 0) {
         failures.add(target);
       }
@@ -436,51 +416,37 @@ class DriveExamplesCommand extends PackageLoopingCommand {
     required List<File> testFiles,
   }) async {
     final String enableExperiment = getStringArg(kEnableExperiment);
-    final Directory? logsDirectory =
-        ciLogsDirectory(platform, testFiles.first.fileSystem);
+    final Directory? logsDirectory = ciLogsDirectory(platform, testFiles.first.fileSystem);
 
     // Workaround for https://github.com/flutter/flutter/issues/135673
     // Once that is fixed on stable, this logic can be removed and the command
     // can always just be run with "integration_test".
-    final bool needsMultipleInvocations = testFiles.length > 1 &&
-        (getBoolArg(platformLinux) ||
-            getBoolArg(platformMacOS) ||
-            getBoolArg(platformWindows));
+    final bool needsMultipleInvocations =
+        testFiles.length > 1 &&
+        (getBoolArg(platformLinux) || getBoolArg(platformMacOS) || getBoolArg(platformWindows));
     final Iterable<String> individualRunTargets = needsMultipleInvocations
-        ? testFiles
-            .map((File f) => getRelativePosixPath(f, from: example.directory))
+        ? testFiles.map((File f) => getRelativePosixPath(f, from: example.directory))
         : <String>['integration_test'];
 
-    bool passed = true;
-    for (final String target in individualRunTargets) {
-      final Timer timeoutTimer = Timer(const Duration(minutes: 10), () async {
-        final String screenshotBasename =
+    var passed = true;
+    for (final target in individualRunTargets) {
+      final timeoutTimer = Timer(const Duration(minutes: 10), () async {
+        final screenshotBasename =
             'test-timeout-screenshot_${target.replaceAll(platform.pathSeparator, '_')}.png';
-        printWarning(
-            'Test is taking a long time, taking screenshot $screenshotBasename...');
-        await processRunner.runAndStream(
-          flutterCommand,
-          <String>[
-            'screenshot',
-            ...deviceFlags,
-            if (logsDirectory != null)
-              '--out=${logsDirectory.childFile(screenshotBasename).path}',
-          ],
-          workingDir: example.directory,
-        );
-      });
-      final int exitCode = await processRunner.runAndStream(
-        flutterCommand,
-        <String>[
-          'test',
+        printWarning('Test is taking a long time, taking screenshot $screenshotBasename...');
+        await processRunner.runAndStream(flutterCommand, <String>[
+          'screenshot',
           ...deviceFlags,
-          if (enableExperiment.isNotEmpty)
-            '--enable-experiment=$enableExperiment',
-          if (logsDirectory != null) '--debug-logs-dir=${logsDirectory.path}',
-          target,
-        ],
-        workingDir: example.directory,
-      );
+          if (logsDirectory != null) '--out=${logsDirectory.childFile(screenshotBasename).path}',
+        ], workingDir: example.directory);
+      });
+      final int exitCode = await processRunner.runAndStream(flutterCommand, <String>[
+        'test',
+        ...deviceFlags,
+        if (enableExperiment.isNotEmpty) '--enable-experiment=$enableExperiment',
+        if (logsDirectory != null) '--debug-logs-dir=${logsDirectory.path}',
+        target,
+      ], workingDir: example.directory);
 
       timeoutTimer.cancel();
       passed = passed && (exitCode == 0);

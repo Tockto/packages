@@ -8,7 +8,7 @@ A Flutter plugin for launching a URL.
 
 |             | Android | iOS   | Linux | macOS  | Web | Windows     |
 |-------------|---------|-------|-------|--------|-----|-------------|
-| **Support** | SDK 21+ | 12.0+ | Any   | 10.14+ | Any | Windows 10+ |
+| **Support** | SDK 24+ | 13.0+ | Any   | 10.15+ | Any | Windows 10+ |
 
 ## Example
 
@@ -23,10 +23,7 @@ void main() => runApp(
   const MaterialApp(
     home: Material(
       child: Center(
-        child: ElevatedButton(
-          onPressed: _launchUrl,
-          child: Text('Show Flutter homepage'),
-        ),
+        child: ElevatedButton(onPressed: _launchUrl, child: Text('Show Flutter homepage')),
       ),
     ),
   ),
@@ -161,8 +158,9 @@ String? encodeQueryParameters(Map<String, String> params) {
       )
       .join('&');
 }
+
 // ···
-  final Uri emailLaunchUri = Uri(
+  final emailLaunchUri = Uri(
     scheme: 'mailto',
     path: 'smith@example.com',
     query: encodeQueryParameters(<String, String>{
@@ -194,7 +192,7 @@ Example:
 <?code-excerpt "lib/files.dart (file)"?>
 ```dart
 final String filePath = testFile.absolute.path;
-final Uri uri = Uri.file(filePath);
+final uri = Uri.file(filePath);
 
 if (!File(uri.toFilePath()).existsSync()) {
   throw Exception('$uri does not exist!');

@@ -20,15 +20,12 @@ void main() {
   });
 
   testWidgets('Can animate camera with duration', (WidgetTester tester) async {
-    final Completer<GoogleMapController> controllerCompleter =
-        Completer<GoogleMapController>();
+    final controllerCompleter = Completer<GoogleMapController>();
     await tester.pumpWidget(
       Directionality(
         textDirection: TextDirection.ltr,
         child: GoogleMap(
-          initialCameraPosition: const CameraPosition(
-            target: LatLng(10.0, 15.0),
-          ),
+          initialCameraPosition: const CameraPosition(target: LatLng(10.0, 15.0)),
           onMapCreated: (GoogleMapController controller) {
             controllerCompleter.complete(controller);
           },
@@ -39,19 +36,14 @@ void main() {
     final PlatformMapStateRecorder map = platform.lastCreatedMap;
     expect(map.animateCameraConfiguration, isNull);
 
-    final CameraUpdate newCameraUpdate = CameraUpdate.newLatLng(
-      const LatLng(20.0, 25.0),
-    );
-    const Duration updateDuration = Duration(seconds: 10);
+    final CameraUpdate newCameraUpdate = CameraUpdate.newLatLng(const LatLng(20.0, 25.0));
+    const updateDuration = Duration(seconds: 10);
 
     await controller.animateCamera(newCameraUpdate, duration: updateDuration);
 
     expect(map.animateCameraConfiguration, isNotNull);
     expect(map.animateCameraConfiguration!.cameraUpdate, newCameraUpdate);
-    expect(
-      map.animateCameraConfiguration!.configuration?.duration,
-      updateDuration,
-    );
+    expect(map.animateCameraConfiguration!.configuration?.duration, updateDuration);
 
     /// Tests that the camera update respects the default behavior when the
     /// duration is null.

@@ -29,11 +29,7 @@ class _AppState extends State<App> {
         routes: <RouteBase>[
           ShellRoute(
             restorationScopeId: 'onboardingShell',
-            pageBuilder: (
-              BuildContext context,
-              GoRouterState state,
-              Widget child,
-            ) {
+            pageBuilder: (BuildContext context, GoRouterState state, Widget child) {
               return MaterialPage<void>(
                 restorationId: 'onboardingPage',
                 child: OnboardingScaffold(child: child),
@@ -100,10 +96,7 @@ class OnboardingScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Onboarding'),
-        automaticallyImplyLeading: false,
-      ),
+      appBar: AppBar(title: const Text('Onboarding'), automaticallyImplyLeading: false),
       body: child,
     );
   }

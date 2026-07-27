@@ -27,10 +27,7 @@ class GcsLock {
   /// If the lock file is stuck (e.g., `_unlock` is interrupted unexpectedly),
   /// one may need to manually delete the lock file from GCS to unblock any
   /// [protectedRun] that may depend on it.
-  Future<void> protectedRun(
-    String lockFileName,
-    Future<void> Function() f,
-  ) async {
+  Future<void> protectedRun(String lockFileName, Future<void> Function() f) async {
     await _lock(lockFileName);
     try {
       await f();
@@ -43,13 +40,13 @@ class GcsLock {
   }
 
   Future<void> _lock(String lockFileName) async {
-    final Object object = Object();
+    final object = Object();
     object.bucket = _bucketName;
     object.name = lockFileName;
-    final Media content = Media(const Stream<List<int>>.empty(), 0);
+    final content = Media(const Stream<List<int>>.empty(), 0);
 
-    Duration waitPeriod = const Duration(milliseconds: 10);
-    bool locked = false;
+    var waitPeriod = const Duration(milliseconds: 10);
+    var locked = false;
     while (!locked) {
       try {
         await _api.objects.insert(
@@ -82,8 +79,8 @@ class GcsLock {
   }
 
   Future<void> _unlock(String lockFileName) async {
-    Duration waitPeriod = const Duration(milliseconds: 10);
-    bool unlocked = false;
+    var waitPeriod = const Duration(milliseconds: 10);
+    var unlocked = false;
     // Retry in the case of GCS returning an API error, but rethrow if unable
     // to unlock after a certain period of time.
     while (!unlocked) {

@@ -20,7 +20,7 @@ void main() {
 
   SharedPreferencesWindows.registerWith();
 
-  const Map<String, Object> flutterTestValues = <String, Object>{
+  const flutterTestValues = <String, Object>{
     'flutter.String': 'hello world',
     'flutter.Bool': true,
     'flutter.Int': 42,
@@ -28,7 +28,7 @@ void main() {
     'flutter.StringList': <String>['foo', 'bar'],
   };
 
-  const Map<String, Object> prefixTestValues = <String, Object>{
+  const prefixTestValues = <String, Object>{
     'prefix.String': 'hello world',
     'prefix.Bool': true,
     'prefix.Int': 42,
@@ -36,7 +36,7 @@ void main() {
     'prefix.StringList': <String>['foo', 'bar'],
   };
 
-  const Map<String, Object> nonPrefixTestValues = <String, Object>{
+  const nonPrefixTestValues = <String, Object>{
     'String': 'hello world',
     'Bool': true,
     'Int': 42,
@@ -44,7 +44,7 @@ void main() {
     'StringList': <String>['foo', 'bar'],
   };
 
-  final Map<String, Object> allTestValues = <String, Object>{};
+  final allTestValues = <String, Object>{};
 
   allTestValues.addAll(flutterTestValues);
   allTestValues.addAll(prefixTestValues);
@@ -71,7 +71,7 @@ void main() {
   }
 
   SharedPreferencesWindows getPreferences() {
-    final SharedPreferencesWindows prefs = SharedPreferencesWindows();
+    final prefs = SharedPreferencesWindows();
     prefs.fs = fs;
     prefs.pathProvider = pathProvider;
     return prefs;
@@ -79,10 +79,7 @@ void main() {
 
   test('registered instance', () async {
     SharedPreferencesWindows.registerWith();
-    expect(
-      SharedPreferencesStorePlatform.instance,
-      isA<SharedPreferencesWindows>(),
-    );
+    expect(SharedPreferencesStorePlatform.instance, isA<SharedPreferencesWindows>());
   });
 
   test('getAll', () async {
@@ -120,10 +117,7 @@ void main() {
 
     final Map<String?, Object?> all = await prefs.getAllWithParameters(
       GetAllParameters(
-        filter: PreferencesFilter(
-          prefix: 'prefix.',
-          allowList: <String>{'prefix.Bool'},
-        ),
+        filter: PreferencesFilter(prefix: 'prefix.', allowList: <String>{'prefix.Bool'}),
       ),
     );
     expect(all.length, 1);
@@ -162,9 +156,7 @@ void main() {
     await writeTestFile(json.encode(flutterTestValues));
     final SharedPreferencesWindows prefs = getPreferences();
     await prefs.clearWithPrefix('prefix.');
-    final Map<String, Object> noValues = await prefs.getAllWithPrefix(
-      'prefix.',
-    );
+    final Map<String, Object> noValues = await prefs.getAllWithPrefix('prefix.');
     expect(noValues, hasLength(0));
 
     final Map<String, Object> values = await prefs.getAll();
@@ -192,9 +184,7 @@ void main() {
   test('clearWithParameters with Prefix', () async {
     await writeTestFile(json.encode(flutterTestValues));
     final SharedPreferencesWindows prefs = getPreferences();
-    await prefs.clearWithParameters(
-      ClearParameters(filter: PreferencesFilter(prefix: 'prefix.')),
-    );
+    await prefs.clearWithParameters(ClearParameters(filter: PreferencesFilter(prefix: 'prefix.')));
     final Map<String, Object> noValues = await prefs.getAllWithParameters(
       GetAllParameters(filter: PreferencesFilter(prefix: 'prefix.')),
     );
@@ -210,10 +200,7 @@ void main() {
     final SharedPreferencesWindows prefs = getPreferences();
     await prefs.clearWithParameters(
       ClearParameters(
-        filter: PreferencesFilter(
-          prefix: 'prefix.',
-          allowList: <String>{'prefix.StringList'},
-        ),
+        filter: PreferencesFilter(prefix: 'prefix.', allowList: <String>{'prefix.StringList'}),
       ),
     );
     final Map<String, Object> noValues = await prefs.getAllWithParameters(
@@ -236,9 +223,7 @@ void main() {
   test('clearWithNoPrefix', () async {
     await writeTestFile(json.encode(flutterTestValues));
     final SharedPreferencesWindows prefs = getPreferences();
-    await prefs.clearWithParameters(
-      ClearParameters(filter: PreferencesFilter(prefix: '')),
-    );
+    await prefs.clearWithParameters(ClearParameters(filter: PreferencesFilter(prefix: '')));
     final Map<String, Object> noValues = await prefs.getAllWithParameters(
       GetAllParameters(filter: PreferencesFilter(prefix: '')),
     );

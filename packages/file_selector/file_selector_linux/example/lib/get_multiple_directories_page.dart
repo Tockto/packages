@@ -12,9 +12,11 @@ class GetMultipleDirectoriesPage extends StatelessWidget {
   const GetMultipleDirectoriesPage({super.key});
 
   Future<void> _getDirectoryPaths(BuildContext context) async {
-    const String confirmButtonText = 'Choose';
+    const confirmButtonText = 'Choose';
     final List<String> directoryPaths = await FileSelectorPlatform.instance
-        .getDirectoryPaths(confirmButtonText: confirmButtonText);
+        .getDirectoryPathsWithOptions(
+          const FileDialogOptions(confirmButtonText: confirmButtonText),
+        );
     if (directoryPaths.isEmpty) {
       // Operation was canceled by the user.
       return;
@@ -22,8 +24,7 @@ class GetMultipleDirectoriesPage extends StatelessWidget {
     if (context.mounted) {
       await showDialog<void>(
         context: context,
-        builder:
-            (BuildContext context) => TextDisplay(directoryPaths.join('\n')),
+        builder: (BuildContext context) => TextDisplay(directoryPaths.join('\n')),
       );
     }
   }
@@ -41,9 +42,7 @@ class GetMultipleDirectoriesPage extends StatelessWidget {
                 backgroundColor: Colors.blue,
                 foregroundColor: Colors.white,
               ),
-              child: const Text(
-                'Press to ask user to choose multiple directories',
-              ),
+              child: const Text('Press to ask user to choose multiple directories'),
               onPressed: () => _getDirectoryPaths(context),
             ),
           ],
@@ -65,14 +64,9 @@ class TextDisplay extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: const Text('Selected Directories'),
-      content: Scrollbar(
-        child: SingleChildScrollView(child: Text(directoriesPaths)),
-      ),
+      content: Scrollbar(child: SingleChildScrollView(child: Text(directoriesPaths))),
       actions: <Widget>[
-        TextButton(
-          child: const Text('Close'),
-          onPressed: () => Navigator.pop(context),
-        ),
+        TextButton(child: const Text('Close'), onPressed: () => Navigator.pop(context)),
       ],
     );
   }

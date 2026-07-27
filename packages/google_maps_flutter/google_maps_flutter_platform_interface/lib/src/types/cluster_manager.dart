@@ -46,7 +46,7 @@ class ClusterManager implements MapsObject<ClusterManager> {
   /// Converts this object to something serializable in JSON.
   @override
   Object toJson() {
-    final Map<String, Object> json = <String, Object>{};
+    final json = <String, Object>{};
 
     void addIfPresent(String fieldName, Object? value) {
       if (value != null) {
@@ -63,8 +63,7 @@ class ClusterManager implements MapsObject<ClusterManager> {
     if (other.runtimeType != runtimeType) {
       return false;
     }
-    return other is ClusterManager &&
-        clusterManagerId == other.clusterManagerId;
+    return other is ClusterManager && clusterManagerId == other.clusterManagerId;
   }
 
   @override

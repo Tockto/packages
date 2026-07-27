@@ -20,27 +20,24 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   bool isNewRouteAdded = false;
 
-  late final ValueNotifier<RoutingConfig> myConfig =
-      ValueNotifier<RoutingConfig>(_generateRoutingConfig());
+  late final ValueNotifier<RoutingConfig> myConfig = ValueNotifier<RoutingConfig>(
+    _generateRoutingConfig(),
+  );
 
   late final GoRouter router = GoRouter.routingConfig(
     routingConfig: myConfig,
-    errorBuilder:
-        (_, GoRouterState state) => Scaffold(
-          appBar: AppBar(title: const Text('Page not found')),
-          body: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Text('${state.uri} does not exist'),
-                ElevatedButton(
-                  onPressed: () => router.go('/'),
-                  child: const Text('Go to home'),
-                ),
-              ],
-            ),
-          ),
+    errorBuilder: (_, GoRouterState state) => Scaffold(
+      appBar: AppBar(title: const Text('Page not found')),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Text('${state.uri} does not exist'),
+            ElevatedButton(onPressed: () => router.go('/'), child: const Text('Go to home')),
+          ],
         ),
+      ),
+    ),
   );
 
   RoutingConfig _generateRoutingConfig() {
@@ -48,7 +45,7 @@ class _MyAppState extends State<MyApp> {
       routes: <RouteBase>[
         GoRoute(
           path: '/',
-          builder: (_, __) {
+          builder: (_, _) {
             return Scaffold(
               appBar: AppBar(title: const Text('Home')),
               body: Center(
@@ -56,20 +53,18 @@ class _MyAppState extends State<MyApp> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     ElevatedButton(
-                      onPressed:
-                          isNewRouteAdded
-                              ? null
-                              : () {
-                                setState(() {
-                                  isNewRouteAdded = true;
-                                  // Modify the routing config.
-                                  myConfig.value = _generateRoutingConfig();
-                                });
-                              },
-                      child:
-                          isNewRouteAdded
-                              ? const Text('A route has been added')
-                              : const Text('Add a new route'),
+                      onPressed: isNewRouteAdded
+                          ? null
+                          : () {
+                              setState(() {
+                                isNewRouteAdded = true;
+                                // Modify the routing config.
+                                myConfig.value = _generateRoutingConfig();
+                              });
+                            },
+                      child: isNewRouteAdded
+                          ? const Text('A route has been added')
+                          : const Text('Add a new route'),
                     ),
                     ElevatedButton(
                       onPressed: () {
@@ -86,7 +81,7 @@ class _MyAppState extends State<MyApp> {
         if (isNewRouteAdded)
           GoRoute(
             path: '/new-route',
-            builder: (_, __) {
+            builder: (_, _) {
               return Scaffold(
                 appBar: AppBar(title: const Text('A new Route')),
                 body: Center(

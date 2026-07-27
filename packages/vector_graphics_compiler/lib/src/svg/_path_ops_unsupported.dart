@@ -19,7 +19,7 @@ class Path implements PathProxy {
 
   /// Creates a copy of this path.
   factory Path.from(Path other) {
-    final Path result = Path(other.fillType);
+    final result = Path(other.fillType);
     other.replay(result);
     return result;
   }
@@ -41,14 +41,7 @@ class Path implements PathProxy {
   }
 
   @override
-  void cubicTo(
-    double x1,
-    double y1,
-    double x2,
-    double y2,
-    double x3,
-    double y3,
-  ) {
+  void cubicTo(double x1, double y1, double x2, double y2, double x3, double y3) {
     throw UnsupportedError('PathOps not supported on the web');
   }
 

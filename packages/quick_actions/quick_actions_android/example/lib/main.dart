@@ -38,7 +38,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
 
-    final QuickActionsAndroid quickActions = QuickActionsAndroid();
+    final quickActions = QuickActionsAndroid();
     quickActions.initialize((String shortcutType) {
       setState(() {
         shortcut = '$shortcutType has launched';
@@ -47,16 +47,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
     quickActions
         .setShortcutItems(<ShortcutItem>[
-          const ShortcutItem(
-            type: 'action_one',
-            localizedTitle: 'Action one',
-            icon: 'AppIcon',
-          ),
-          const ShortcutItem(
-            type: 'action_two',
-            localizedTitle: 'Action two',
-            icon: 'ic_launcher',
-          ),
+          const ShortcutItem(type: 'action_one', localizedTitle: 'Action one', icon: 'AppIcon'),
+          const ShortcutItem(type: 'action_two', localizedTitle: 'Action two', icon: 'ic_launcher'),
         ])
         .then((void _) {
           setState(() {

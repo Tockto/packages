@@ -27,8 +27,7 @@ class SharedPreferences {
 
   static Completer<SharedPreferences>? _completer;
 
-  static SharedPreferencesStorePlatform get _store =>
-      SharedPreferencesStorePlatform.instance;
+  static SharedPreferencesStorePlatform get _store => SharedPreferencesStorePlatform.instance;
 
   /// Sets the prefix that is attached to all keys for all shared preferences
   /// read or written via this class.
@@ -78,12 +77,10 @@ class SharedPreferences {
   /// performance-sensitive blocks.
   static Future<SharedPreferences> getInstance() async {
     if (_completer == null) {
-      final Completer<SharedPreferences> completer =
-          Completer<SharedPreferences>();
+      final completer = Completer<SharedPreferences>();
       _completer = completer;
       try {
-        final Map<String, Object> preferencesMap =
-            await _getSharedPreferencesMap();
+        final Map<String, Object> preferencesMap = await _getSharedPreferencesMap();
         completer.complete(SharedPreferences._(preferencesMap));
       } catch (e) {
         // If there's an error, explicitly return the future with an error.
@@ -135,7 +132,7 @@ class SharedPreferences {
   /// Reads a set of string values from persistent storage, throwing an
   /// exception if it's not a string list.
   List<String>? getStringList(String key) {
-    List<dynamic>? list = _preferenceCache[key] as List<dynamic>?;
+    var list = _preferenceCache[key] as List<dynamic>?;
     list = list?.cast<String>();
     // Make a copy of the list so that later mutations won't propagate
     return list?.toList() as List<String>?;
@@ -150,8 +147,7 @@ class SharedPreferences {
   /// Saves a double [value] to persistent storage in the background.
   ///
   /// Android doesn't support storing doubles, so it will be stored as a float.
-  Future<bool> setDouble(String key, double value) =>
-      _setValue('Double', key, value);
+  Future<bool> setDouble(String key, double value) => _setValue('Double', key, value);
 
   /// Saves a string [value] to persistent storage in the background.
   ///
@@ -161,23 +157,21 @@ class SharedPreferences {
   /// - 'VGhpcyBpcyB0aGUgcHJlZml4IGZvciBhIGxpc3Qu'
   /// - 'VGhpcyBpcyB0aGUgcHJlZml4IGZvciBCaWdJbnRlZ2Vy'
   /// - 'VGhpcyBpcyB0aGUgcHJlZml4IGZvciBEb3VibGUu'
-  Future<bool> setString(String key, String value) =>
-      _setValue('String', key, value);
+  Future<bool> setString(String key, String value) => _setValue('String', key, value);
 
   /// Saves a list of strings [value] to persistent storage in the background.
-  Future<bool> setStringList(String key, List<String> value) =>
-      _setValue('StringList', key, value);
+  Future<bool> setStringList(String key, List<String> value) => _setValue('StringList', key, value);
 
   /// Removes an entry from persistent storage.
   Future<bool> remove(String key) {
-    final String prefixedKey = '$_prefix$key';
+    final prefixedKey = '$_prefix$key';
     _preferenceCache.remove(key);
     return _store.remove(prefixedKey);
   }
 
   Future<bool> _setValue(String valueType, String key, Object value) {
     ArgumentError.checkNotNull(value, 'value');
-    final String prefixedKey = '$_prefix$key';
+    final prefixedKey = '$_prefix$key';
     if (value is List<String>) {
       // Make a copy of the list so that later mutations won't propagate
       _preferenceCache[key] = value.toList();
@@ -222,14 +216,13 @@ Either update the implementation to support setPrefix, or do not call setPrefix.
   /// Use this method to observe modifications that were made in native code
   /// (without using the plugin) while the app is running.
   Future<void> reload() async {
-    final Map<String, Object> preferences =
-        await SharedPreferences._getSharedPreferencesMap();
+    final Map<String, Object> preferences = await SharedPreferences._getSharedPreferencesMap();
     _preferenceCache.clear();
     _preferenceCache.addAll(preferences);
   }
 
   static Future<Map<String, Object>> _getSharedPreferencesMap() async {
-    final Map<String, Object> fromSystem = <String, Object>{};
+    final fromSystem = <String, Object>{};
     if (_prefixHasBeenChanged) {
       try {
         fromSystem.addAll(
@@ -258,7 +251,7 @@ Either update the implementation to support setPrefix, or do not call setPrefix.
       return fromSystem;
     }
     // Strip the prefix from the returned preferences.
-    final Map<String, Object> preferencesMap = <String, Object>{};
+    final preferencesMap = <String, Object>{};
     for (final String key in fromSystem.keys) {
       assert(key.startsWith(_prefix));
       preferencesMap[key.substring(_prefix.length)] = fromSystem[key]!;
@@ -271,18 +264,14 @@ Either update the implementation to support setPrefix, or do not call setPrefix.
   /// If the singleton instance has been initialized already, it is nullified.
   @visibleForTesting
   static void setMockInitialValues(Map<String, Object> values) {
-    final Map<String, Object> newValues = values.map<String, Object>((
-      String key,
-      Object value,
-    ) {
-      String newKey = key;
+    final Map<String, Object> newValues = values.map<String, Object>((String key, Object value) {
+      var newKey = key;
       if (!key.startsWith(_prefix)) {
         newKey = '$_prefix$key';
       }
       return MapEntry<String, Object>(newKey, value);
     });
-    SharedPreferencesStorePlatform
-        .instance = InMemorySharedPreferencesStore.withData(newValues);
+    SharedPreferencesStorePlatform.instance = InMemorySharedPreferencesStore.withData(newValues);
     _completer = null;
   }
 }
@@ -291,5 +280,4 @@ Either update the implementation to support setPrefix, or do not call setPrefix.
 // when running `flutter run -d chrome`.
 // Check this discussion for more info: https://github.com/flutter/packages/pull/6749/files/6eb1b4fdce1eba107294770d581713658ff971e9#discussion_r1755375409
 // ignore: unused_element
-final bool _fieldToKeepDevtoolsExtensionReachable =
-    fieldToKeepDevtoolsExtensionLibraryAlive;
+final bool _fieldToKeepDevtoolsExtensionReachable = fieldToKeepDevtoolsExtensionLibraryAlive;

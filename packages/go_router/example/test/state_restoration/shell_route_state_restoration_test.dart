@@ -8,15 +8,13 @@ import 'package:go_router_examples/state_restoration/shell_route_state_restorati
 
 void main() {
   testWidgets('ShellRoute navigation location and route state '
-      'is restored when restorationIds are provided', (
-    WidgetTester tester,
-  ) async {
-    const String homeTitle = 'Home';
-    const String welcomeTitle = 'Welcome';
-    const String setupTitle = 'Setup';
+      'is restored when restorationIds are provided', (WidgetTester tester) async {
+    const homeTitle = 'Home';
+    const welcomeTitle = 'Welcome';
+    const setupTitle = 'Setup';
 
-    const String homeText = 'homeText';
-    const String setupText = 'setupText';
+    const homeText = 'homeText';
+    const setupText = 'setupText';
 
     await tester.pumpWidget(const App());
     expect(find.text(homeTitle), findsOneWidget);

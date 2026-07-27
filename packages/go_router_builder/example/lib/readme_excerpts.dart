@@ -10,6 +10,7 @@ import 'shared/data.dart';
 import 'package:go_router/go_router.dart';
 
 part 'readme_excerpts.g.dart';
+
 // #enddocregion import
 
 void otherDoc(BuildContext context) {
@@ -30,11 +31,11 @@ void otherDoc(BuildContext context) {
   // #enddocregion GoWrong
 
   // #docregion GoRouter
-  final GoRouter router = GoRouter(routes: $appRoutes);
+  final router = GoRouter(routes: $appRoutes);
   // #enddocregion GoRouter
 
   // #docregion routerWithErrorBuilder
-  final GoRouter routerWithErrorBuilder = GoRouter(
+  final routerWithErrorBuilder = GoRouter(
     routes: $appRoutes,
     errorBuilder: (BuildContext context, GoRouterState state) {
       return ErrorRoute(error: state.error!).build(context, state);
@@ -55,20 +56,21 @@ void otherDoc(BuildContext context) {
   void tapWithExtra() {
     PersonRouteWithExtra(Person(id: 1, name: 'Marvin', age: 42)).go(context);
   }
+
   // #enddocregion tapWithExtra
 
   // #docregion goRelative
   void onTapRelative() => const DetailsRoute().goRelative(context);
   // #enddocregion goRelative
 
-  final LoginInfo loginInfo = LoginInfo();
+  final loginInfo = LoginInfo();
 
-  final GoRouter routerWithRedirect = GoRouter(
+  final routerWithRedirect = GoRouter(
     routes: $appRoutes,
     // #docregion redirect
     redirect: (BuildContext context, GoRouterState state) {
       final bool loggedIn = loginInfo.loggedIn;
-      final bool loggingIn = state.matchedLocation == LoginRoute().location;
+      final loggingIn = state.matchedLocation == LoginRoute().location;
       if (!loggedIn && !loggingIn) {
         return LoginRoute(from: state.matchedLocation).location;
       }
@@ -95,6 +97,7 @@ class HomeRoute extends GoRouteData with $HomeRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) => const HomeScreen();
 }
+
 // #enddocregion HomeRoute
 
 // #docregion RedirectRoute
@@ -105,6 +108,7 @@ class RedirectRoute extends GoRouteData {
     return const HomeRoute().location;
   }
 }
+
 // #enddocregion RedirectRoute
 
 // #docregion login
@@ -118,6 +122,7 @@ class LoginRoute extends GoRouteData with $LoginRoute {
     return LoginScreen(from: from);
   }
 }
+
 // #enddocregion login
 // #enddocregion TypedGoRouteHomeRoute
 
@@ -183,6 +188,7 @@ class ErrorRoute extends GoRouteData {
     return ErrorScreen(error: error);
   }
 }
+
 // #enddocregion ErrorRoute
 
 class ErrorScreen extends StatelessWidget {
@@ -220,6 +226,7 @@ class MyRoute extends GoRouteData with $MyRoute {
     return MyScreen(queryParameter: queryParameter);
   }
 }
+
 // #enddocregion MyRoute
 
 class MyScreen extends StatelessWidget {
@@ -243,6 +250,7 @@ class PersonRouteWithExtra extends GoRouteData with $PersonRouteWithExtra {
     return PersonScreen($extra);
   }
 }
+
 // #enddocregion PersonRouteWithExtra
 
 class PersonScreen extends StatelessWidget {
@@ -269,6 +277,7 @@ class HotdogRouteWithEverything extends GoRouteData
     return HotdogScreen(ketchup, mustard, $extra);
   }
 }
+
 // #enddocregion HotdogRouteWithEverything
 
 class Sauce {}
@@ -298,6 +307,7 @@ class BooksRoute extends GoRouteData with $BooksRoute {
     return BooksScreen(kind: kind);
   }
 }
+
 // #enddocregion BookKind
 
 class BooksScreen extends StatelessWidget {
@@ -320,6 +330,7 @@ class MyMaterialRouteWithKey extends GoRouteData with $MyMaterialRouteWithKey {
     return const MaterialPage<void>(key: _key, child: MyPage());
   }
 }
+
 // #enddocregion MyMaterialRouteWithKey
 
 class MyPage extends StatelessWidget {
@@ -356,17 +367,19 @@ class FancyRoute extends GoRouteData with $FancyRoute {
     return CustomTransitionPage<void>(
       key: state.pageKey,
       child: const MyPage(),
-      transitionsBuilder: (
-        BuildContext context,
-        Animation<double> animation,
-        Animation<double> secondaryAnimation,
-        Widget child,
-      ) {
-        return RotationTransition(turns: animation, child: child);
-      },
+      transitionsBuilder:
+          (
+            BuildContext context,
+            Animation<double> animation,
+            Animation<double> secondaryAnimation,
+            Widget child,
+          ) {
+            return RotationTransition(turns: animation, child: child);
+          },
     );
   }
 }
+
 // #enddocregion FancyRoute
 
 // #docregion MyShellRouteData
@@ -410,6 +423,7 @@ class DetailsRoute extends RelativeGoRouteData with $DetailsRoute {
   Widget build(BuildContext context, GoRouterState state) =>
       const DetailsScreen();
 }
+
 // #enddocregion relativeRoute
 
 class DetailsScreen extends StatelessWidget {

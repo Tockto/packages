@@ -13,31 +13,22 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 Future<GoRouter> createGoRouter(WidgetTester tester) async {
-  final GoRouter goRouter = GoRouter(
+  final goRouter = GoRouter(
     initialLocation: '/',
     routes: <GoRoute>[
-      GoRoute(path: '/', builder: (_, __) => const DummyStatefulWidget()),
-      GoRoute(
-        path: '/error',
-        builder: (_, __) => TestErrorScreen(TestFailure('Exception')),
-      ),
+      GoRoute(path: '/', builder: (_, _) => const DummyStatefulWidget()),
+      GoRoute(path: '/error', builder: (_, _) => TestErrorScreen(TestFailure('Exception'))),
     ],
   );
   await tester.pumpWidget(MaterialApp.router(routerConfig: goRouter));
   return goRouter;
 }
 
-Widget fakeNavigationBuilder(
-  BuildContext context,
-  GoRouterState state,
-  Widget child,
-) => child;
+Widget fakeNavigationBuilder(BuildContext context, GoRouterState state, Widget child) => child;
 
 class GoRouterNamedLocationSpy extends GoRouter {
   GoRouterNamedLocationSpy({required List<RouteBase> routes})
-    : super.routingConfig(
-        routingConfig: ConstantRoutingConfig(RoutingConfig(routes: routes)),
-      );
+    : super.routingConfig(routingConfig: ConstantRoutingConfig(RoutingConfig(routes: routes)));
 
   String? name;
   Map<String, String>? pathParameters;
@@ -61,9 +52,7 @@ class GoRouterNamedLocationSpy extends GoRouter {
 
 class GoRouterGoSpy extends GoRouter {
   GoRouterGoSpy({required List<RouteBase> routes})
-    : super.routingConfig(
-        routingConfig: ConstantRoutingConfig(RoutingConfig(routes: routes)),
-      );
+    : super.routingConfig(routingConfig: ConstantRoutingConfig(RoutingConfig(routes: routes)));
 
   String? myLocation;
   Object? extra;
@@ -77,9 +66,7 @@ class GoRouterGoSpy extends GoRouter {
 
 class GoRouterGoNamedSpy extends GoRouter {
   GoRouterGoNamedSpy({required List<RouteBase> routes})
-    : super.routingConfig(
-        routingConfig: ConstantRoutingConfig(RoutingConfig(routes: routes)),
-      );
+    : super.routingConfig(routingConfig: ConstantRoutingConfig(RoutingConfig(routes: routes)));
 
   String? name;
   Map<String, String>? pathParameters;
@@ -105,9 +92,7 @@ class GoRouterGoNamedSpy extends GoRouter {
 
 class GoRouterPushSpy extends GoRouter {
   GoRouterPushSpy({required List<RouteBase> routes})
-    : super.routingConfig(
-        routingConfig: ConstantRoutingConfig(RoutingConfig(routes: routes)),
-      );
+    : super.routingConfig(routingConfig: ConstantRoutingConfig(RoutingConfig(routes: routes)));
 
   String? myLocation;
   Object? extra;
@@ -122,9 +107,7 @@ class GoRouterPushSpy extends GoRouter {
 
 class GoRouterPushNamedSpy extends GoRouter {
   GoRouterPushNamedSpy({required List<RouteBase> routes})
-    : super.routingConfig(
-        routingConfig: ConstantRoutingConfig(RoutingConfig(routes: routes)),
-      );
+    : super.routingConfig(routingConfig: ConstantRoutingConfig(RoutingConfig(routes: routes)));
 
   String? name;
   Map<String, String>? pathParameters;
@@ -148,9 +131,7 @@ class GoRouterPushNamedSpy extends GoRouter {
 
 class GoRouterPopSpy extends GoRouter {
   GoRouterPopSpy({required List<RouteBase> routes})
-    : super.routingConfig(
-        routingConfig: ConstantRoutingConfig(RoutingConfig(routes: routes)),
-      );
+    : super.routingConfig(routingConfig: ConstantRoutingConfig(RoutingConfig(routes: routes)));
 
   bool popped = false;
   Object? poppedResult;
@@ -176,8 +157,9 @@ Future<GoRouter> createRouter(
   GoExceptionHandler? onException,
   bool requestFocus = true,
   bool overridePlatformDefaultLocation = false,
+  List<NavigatorObserver>? observers,
 }) async {
-  final GoRouter goRouter = GoRouter(
+  final goRouter = GoRouter(
     routes: routes,
     redirect: redirect,
     extraCodec: extraCodec,
@@ -190,12 +172,12 @@ Future<GoRouter> createRouter(
     restorationScopeId: restorationScopeId,
     requestFocus: requestFocus,
     overridePlatformDefaultLocation: overridePlatformDefaultLocation,
+    observers: observers,
   );
   addTearDown(goRouter.dispose);
   await tester.pumpWidget(
     MaterialApp.router(
-      restorationScopeId:
-          restorationScopeId != null ? '$restorationScopeId-root' : null,
+      restorationScopeId: restorationScopeId != null ? '$restorationScopeId-root' : null,
       routerConfig: goRouter,
     ),
   );
@@ -214,7 +196,7 @@ Future<GoRouter> createRouterWithRoutingConfig(
   bool requestFocus = true,
   bool overridePlatformDefaultLocation = false,
 }) async {
-  final GoRouter goRouter = GoRouter.routingConfig(
+  final goRouter = GoRouter.routingConfig(
     routingConfig: config,
     initialLocation: initialLocation,
     onException: onException,
@@ -228,8 +210,7 @@ Future<GoRouter> createRouterWithRoutingConfig(
   addTearDown(goRouter.dispose);
   await tester.pumpWidget(
     MaterialApp.router(
-      restorationScopeId:
-          restorationScopeId != null ? '$restorationScopeId-root' : null,
+      restorationScopeId: restorationScopeId != null ? '$restorationScopeId-root' : null,
       routerConfig: goRouter,
     ),
   );
@@ -278,10 +259,7 @@ class PersonScreen extends DummyScreen {
 }
 
 class DummyScreen extends StatelessWidget {
-  const DummyScreen({
-    this.queryParametersAll = const <String, dynamic>{},
-    super.key,
-  });
+  const DummyScreen({this.queryParametersAll = const <String, dynamic>{}, super.key});
 
   final Map<String, dynamic> queryParametersAll;
 
@@ -320,8 +298,7 @@ class DummyRestorableStatefulWidget extends StatefulWidget {
   State<StatefulWidget> createState() => DummyRestorableStatefulWidgetState();
 }
 
-class DummyRestorableStatefulWidgetState
-    extends State<DummyRestorableStatefulWidget>
+class DummyRestorableStatefulWidgetState extends State<DummyRestorableStatefulWidget>
     with RestorationMixin {
   final RestorableInt _counter = RestorableInt(0);
 
@@ -352,9 +329,7 @@ class DummyRestorableStatefulWidgetState
 }
 
 Future<void> simulateAndroidBackButton(WidgetTester tester) async {
-  final ByteData message = const JSONMethodCodec().encodeMethodCall(
-    const MethodCall('popRoute'),
-  );
+  final ByteData message = const JSONMethodCodec().encodeMethodCall(const MethodCall('popRoute'));
   await tester.binding.defaultBinaryMessenger.handlePlatformMessage(
     'flutter/navigation',
     message,
@@ -366,20 +341,14 @@ Future<void> simulateIosBackGesture(WidgetTester tester) async {
   await tester.dragFrom(const Offset(0, 300), const Offset(500, 300));
 }
 
-GoRouterPageBuilder createPageBuilder({
-  String? restorationId,
-  required Widget child,
-}) =>
+GoRouterPageBuilder createPageBuilder({String? restorationId, required Widget child}) =>
     (BuildContext context, GoRouterState state) =>
         MaterialPage<dynamic>(restorationId: restorationId, child: child);
 
-StatefulShellRouteBuilder mockStackedShellBuilder = (
-  BuildContext context,
-  GoRouterState state,
-  StatefulNavigationShell navigationShell,
-) {
-  return navigationShell;
-};
+StatefulShellRouteBuilder mockStackedShellBuilder =
+    (BuildContext context, GoRouterState state, StatefulNavigationShell navigationShell) {
+      return navigationShell;
+    };
 
 /// A routing config that is never going to change.
 class ConstantRoutingConfig extends ValueListenable<RoutingConfig> {
@@ -406,11 +375,7 @@ RouteConfiguration createRouteConfiguration({
 }) {
   return RouteConfiguration(
     ConstantRoutingConfig(
-      RoutingConfig(
-        routes: routes,
-        redirect: topRedirect,
-        redirectLimit: redirectLimit,
-      ),
+      RoutingConfig(routes: routes, redirect: topRedirect, redirectLimit: redirectLimit),
     ),
     navigatorKey: navigatorKey,
   );
@@ -424,8 +389,8 @@ class SimpleDependencyProvider extends InheritedNotifier<SimpleDependency> {
   }) : super(notifier: dependency);
 
   static SimpleDependency of(BuildContext context) {
-    final SimpleDependencyProvider result =
-        context.dependOnInheritedWidgetOfExactType<SimpleDependencyProvider>()!;
+    final SimpleDependencyProvider result = context
+        .dependOnInheritedWidgetOfExactType<SimpleDependencyProvider>()!;
     return result.notifier!;
   }
 }

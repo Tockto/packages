@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import 'package:analyzer/dart/element/element2.dart';
+import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/type.dart';
 import 'package:build/build.dart';
 import 'package:source_gen/source_gen.dart';
@@ -28,15 +28,13 @@ class GoRouterGenerator extends Generator {
   const GoRouterGenerator();
 
   TypeChecker get _typeChecker => TypeChecker.any(
-    _annotations.keys.map(
-      (String annotation) => TypeChecker.fromUrl('$_routeDataUrl#$annotation'),
-    ),
+    _annotations.keys.map((String annotation) => TypeChecker.fromUrl('$_routeDataUrl#$annotation')),
   );
 
   @override
   FutureOr<String> generate(LibraryReader library, BuildStep buildStep) async {
-    final Set<String> values = <String>{};
-    final Set<String> getters = <String>{};
+    final values = <String>{};
+    final getters = <String>{};
 
     generateForAnnotation(library, values, getters);
 
@@ -58,14 +56,8 @@ ${getters.map((String e) => "$e,").join('\n')}
   ///
   /// This public method is for testing purposes and should not be called
   /// directly.
-  void generateForAnnotation(
-    LibraryReader library,
-    Set<String> values,
-    Set<String> getters,
-  ) {
-    for (final AnnotatedElement annotatedElement in library.annotatedWith(
-      _typeChecker,
-    )) {
+  void generateForAnnotation(LibraryReader library, Set<String> values, Set<String> getters) {
+    for (final AnnotatedElement annotatedElement in library.annotatedWith(_typeChecker)) {
       final InfoIterable generatedValue = _generateForAnnotatedElement(
         annotatedElement.element,
         annotatedElement.annotation,
@@ -75,31 +67,21 @@ ${getters.map((String e) => "$e,").join('\n')}
     }
   }
 
-  InfoIterable _generateForAnnotatedElement(
-    Element2 element,
-    ConstantReader annotation,
-  ) {
+  InfoIterable _generateForAnnotatedElement(Element element, ConstantReader annotation) {
     final String typedAnnotation = withoutNullability(
       annotation.objectValue.type!.getDisplayString(),
     );
-    final String type = typedAnnotation.substring(
-      0,
-      typedAnnotation.indexOf('<'),
-    );
+    final String type = typedAnnotation.substring(0, typedAnnotation.indexOf('<'));
     final String routeData = _annotations[type]!;
-    if (element is! ClassElement2) {
+    if (element is! ClassElement) {
       throw InvalidGenerationSourceError(
         'The @$type annotation can only be applied to classes.',
         element: element,
       );
     }
 
-    final TypeChecker dataChecker = TypeChecker.fromUrl(
-      '$_routeDataUrl#$routeData',
-    );
-    if (!element.allSupertypes.any(
-      (InterfaceType element) => dataChecker.isExactlyType(element),
-    )) {
+    final dataChecker = TypeChecker.fromUrl('$_routeDataUrl#$routeData');
+    if (!element.allSupertypes.any((InterfaceType element) => dataChecker.isExactlyType(element))) {
       throw InvalidGenerationSourceError(
         'The @$type annotation can only be applied to classes that '
         'extend or implement `$routeData`.',
@@ -107,9 +89,6 @@ ${getters.map((String e) => "$e,").join('\n')}
       );
     }
 
-    return RouteBaseConfig.fromAnnotation(
-      annotation,
-      element,
-    ).generateMembers();
+    return RouteBaseConfig.fromAnnotation(annotation, element).generateMembers();
   }
 }

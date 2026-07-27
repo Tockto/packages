@@ -62,7 +62,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    const String toLaunch = 'https://www.cylog.org/headers/';
+    const toLaunch = 'https://www.cylog.org/headers/';
     return Scaffold(
       appBar: AppBar(title: Text(widget.title)),
       body: ListView(
@@ -70,15 +70,11 @@ class _MyHomePageState extends State<MyHomePage> {
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              const Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Text(toLaunch),
-              ),
+              const Padding(padding: EdgeInsets.all(16.0), child: Text(toLaunch)),
               ElevatedButton(
-                onPressed:
-                    () => setState(() {
-                      _launched = _launchInBrowser(toLaunch);
-                    }),
+                onPressed: () => setState(() {
+                  _launched = _launchInBrowser(toLaunch);
+                }),
                 child: const Text('Launch in browser'),
               ),
               const Padding(padding: EdgeInsets.all(16.0)),

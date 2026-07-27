@@ -18,44 +18,35 @@ void main() {
     imageCache.clearLiveImages();
   });
 
-  testWidgets(
-    'Does not reload identical bytes when forced to re-create state object',
-    (WidgetTester tester) async {
-      final TestAssetBundle testBundle = TestAssetBundle();
-      final GlobalKey key = GlobalKey();
-
-      await tester.pumpWidget(
-        DefaultAssetBundle(
-          key: UniqueKey(),
-          bundle: testBundle,
-          child: VectorGraphic(
-            key: key,
-            loader: const AssetBytesLoader('foo.svg'),
-          ),
-        ),
-      );
-
-      expect(testBundle.loadKeys.single, 'foo.svg');
-
-      await tester.pumpWidget(
-        DefaultAssetBundle(
-          key: UniqueKey(),
-          bundle: testBundle,
-          child: VectorGraphic(
-            key: key,
-            loader: const AssetBytesLoader('foo.svg'),
-          ),
-        ),
-      );
-
-      expect(testBundle.loadKeys, <String>['foo.svg']);
-    },
-  );
-
-  testWidgets('Only loads bytes once for a repeated vg', (
+  testWidgets('Does not reload identical bytes when forced to re-create state object', (
     WidgetTester tester,
   ) async {
-    final TestAssetBundle testBundle = TestAssetBundle();
+    final testBundle = TestAssetBundle();
+    final GlobalKey key = GlobalKey();
+
+    await tester.pumpWidget(
+      DefaultAssetBundle(
+        key: UniqueKey(),
+        bundle: testBundle,
+        child: VectorGraphic(key: key, loader: const AssetBytesLoader('foo.svg')),
+      ),
+    );
+
+    expect(testBundle.loadKeys.single, 'foo.svg');
+
+    await tester.pumpWidget(
+      DefaultAssetBundle(
+        key: UniqueKey(),
+        bundle: testBundle,
+        child: VectorGraphic(key: key, loader: const AssetBytesLoader('foo.svg')),
+      ),
+    );
+
+    expect(testBundle.loadKeys, <String>['foo.svg']);
+  });
+
+  testWidgets('Only loads bytes once for a repeated vg', (WidgetTester tester) async {
+    final testBundle = TestAssetBundle();
 
     await tester.pumpWidget(
       DefaultAssetBundle(
@@ -63,18 +54,9 @@ void main() {
         bundle: testBundle,
         child: Column(
           children: <Widget>[
-            VectorGraphic(
-              key: GlobalKey(),
-              loader: const AssetBytesLoader('foo.svg'),
-            ),
-            VectorGraphic(
-              key: GlobalKey(),
-              loader: const AssetBytesLoader('foo.svg'),
-            ),
-            VectorGraphic(
-              key: GlobalKey(),
-              loader: const AssetBytesLoader('foo.svg'),
-            ),
+            VectorGraphic(key: GlobalKey(), loader: const AssetBytesLoader('foo.svg')),
+            VectorGraphic(key: GlobalKey(), loader: const AssetBytesLoader('foo.svg')),
+            VectorGraphic(key: GlobalKey(), loader: const AssetBytesLoader('foo.svg')),
           ],
         ),
       ),
@@ -90,18 +72,9 @@ void main() {
         bundle: testBundle,
         child: Column(
           children: <Widget>[
-            VectorGraphic(
-              key: GlobalKey(),
-              loader: const AssetBytesLoader('foo.svg'),
-            ),
-            VectorGraphic(
-              key: GlobalKey(),
-              loader: const AssetBytesLoader('foo.svg'),
-            ),
-            VectorGraphic(
-              key: GlobalKey(),
-              loader: const AssetBytesLoader('foo.svg'),
-            ),
+            VectorGraphic(key: GlobalKey(), loader: const AssetBytesLoader('foo.svg')),
+            VectorGraphic(key: GlobalKey(), loader: const AssetBytesLoader('foo.svg')),
+            VectorGraphic(key: GlobalKey(), loader: const AssetBytesLoader('foo.svg')),
           ],
         ),
       ),
@@ -113,18 +86,15 @@ void main() {
   testWidgets('Does not cache bytes that come from different asset bundles', (
     WidgetTester tester,
   ) async {
-    final TestAssetBundle testBundleA = TestAssetBundle();
-    final TestAssetBundle testBundleB = TestAssetBundle();
+    final testBundleA = TestAssetBundle();
+    final testBundleB = TestAssetBundle();
     final GlobalKey key = GlobalKey();
 
     await tester.pumpWidget(
       DefaultAssetBundle(
         key: UniqueKey(),
         bundle: testBundleA,
-        child: VectorGraphic(
-          key: key,
-          loader: const AssetBytesLoader('foo.svg'),
-        ),
+        child: VectorGraphic(key: key, loader: const AssetBytesLoader('foo.svg')),
       ),
     );
 
@@ -135,10 +105,7 @@ void main() {
       DefaultAssetBundle(
         key: UniqueKey(),
         bundle: testBundleB,
-        child: VectorGraphic(
-          key: key,
-          loader: const AssetBytesLoader('foo.svg'),
-        ),
+        child: VectorGraphic(key: key, loader: const AssetBytesLoader('foo.svg')),
       ),
     );
 
@@ -147,21 +114,16 @@ void main() {
   });
 
   testWidgets('reload bytes when locale changes', (WidgetTester tester) async {
-    final TestAssetBundle testBundle = TestAssetBundle();
+    final testBundle = TestAssetBundle();
     final GlobalKey key = GlobalKey();
 
     await tester.pumpWidget(
       Localizations(
-        delegates: <LocalizationsDelegate<Object?>>[
-          TestLocalizationsDelegate(),
-        ],
+        delegates: <LocalizationsDelegate<Object?>>[TestLocalizationsDelegate()],
         locale: const Locale('fr', 'CH'),
         child: DefaultAssetBundle(
           bundle: testBundle,
-          child: VectorGraphic(
-            key: key,
-            loader: const AssetBytesLoader('foo.svg'),
-          ),
+          child: VectorGraphic(key: key, loader: const AssetBytesLoader('foo.svg')),
         ),
       ),
     );
@@ -172,16 +134,11 @@ void main() {
 
     await tester.pumpWidget(
       Localizations(
-        delegates: <LocalizationsDelegate<Object?>>[
-          TestLocalizationsDelegate(),
-        ],
+        delegates: <LocalizationsDelegate<Object?>>[TestLocalizationsDelegate()],
         locale: const Locale('ab', 'cd'),
         child: DefaultAssetBundle(
           bundle: testBundle,
-          child: VectorGraphic(
-            key: key,
-            loader: const AssetBytesLoader('foo.svg'),
-          ),
+          child: VectorGraphic(key: key, loader: const AssetBytesLoader('foo.svg')),
         ),
       ),
     );
@@ -191,10 +148,8 @@ void main() {
     expect(testBundle.loadKeys, <String>['foo.svg', 'foo.svg']);
   });
 
-  testWidgets('reload bytes when text direction changes', (
-    WidgetTester tester,
-  ) async {
-    final TestAssetBundle testBundle = TestAssetBundle();
+  testWidgets('reload bytes when text direction changes', (WidgetTester tester) async {
+    final testBundle = TestAssetBundle();
     final GlobalKey key = GlobalKey();
 
     await tester.pumpWidget(
@@ -202,10 +157,7 @@ void main() {
         textDirection: TextDirection.ltr,
         child: DefaultAssetBundle(
           bundle: testBundle,
-          child: VectorGraphic(
-            key: key,
-            loader: const AssetBytesLoader('foo.svg'),
-          ),
+          child: VectorGraphic(key: key, loader: const AssetBytesLoader('foo.svg')),
         ),
       ),
     );
@@ -217,10 +169,7 @@ void main() {
         textDirection: TextDirection.rtl,
         child: DefaultAssetBundle(
           bundle: testBundle,
-          child: VectorGraphic(
-            key: key,
-            loader: const AssetBytesLoader('foo.svg'),
-          ),
+          child: VectorGraphic(key: key, loader: const AssetBytesLoader('foo.svg')),
         ),
       ),
     );
@@ -228,40 +177,33 @@ void main() {
     expect(testBundle.loadKeys, <String>['foo.svg', 'foo.svg']);
   });
 
-  testWidgets(
-    'Cache is purged immediately after last VectorGraphic removed from tree',
-    (WidgetTester tester) async {
-      final TestAssetBundle testBundle = TestAssetBundle();
-      final GlobalKey key = GlobalKey();
+  testWidgets('Cache is purged immediately after last VectorGraphic removed from tree', (
+    WidgetTester tester,
+  ) async {
+    final testBundle = TestAssetBundle();
+    final GlobalKey key = GlobalKey();
 
-      await tester.pumpWidget(
-        DefaultAssetBundle(
-          bundle: testBundle,
-          child: VectorGraphic(
-            key: key,
-            loader: const AssetBytesLoader('foo.svg'),
-          ),
-        ),
-      );
+    await tester.pumpWidget(
+      DefaultAssetBundle(
+        bundle: testBundle,
+        child: VectorGraphic(key: key, loader: const AssetBytesLoader('foo.svg')),
+      ),
+    );
 
-      expect(testBundle.loadKeys.single, 'foo.svg');
+    expect(testBundle.loadKeys.single, 'foo.svg');
 
-      // Force VectorGraphic removed from tree.
-      await tester.pumpWidget(const SizedBox());
+    // Force VectorGraphic removed from tree.
+    await tester.pumpWidget(const SizedBox());
 
-      await tester.pumpWidget(
-        DefaultAssetBundle(
-          bundle: testBundle,
-          child: VectorGraphic(
-            key: key,
-            loader: const AssetBytesLoader('foo.svg'),
-          ),
-        ),
-      );
+    await tester.pumpWidget(
+      DefaultAssetBundle(
+        bundle: testBundle,
+        child: VectorGraphic(key: key, loader: const AssetBytesLoader('foo.svg')),
+      ),
+    );
 
-      expect(testBundle.loadKeys, <String>['foo.svg', 'foo.svg']);
-    },
-  );
+    expect(testBundle.loadKeys, <String>['foo.svg', 'foo.svg']);
+  });
 
   // For this test we evaluate an edge case where asset loading starts, but then a new
   // asset is requested before the first can load. We want to ensure that first asset does
@@ -269,11 +211,9 @@ void main() {
   testWidgets('Bytes loading that becomes stale does not populate the cache', (
     WidgetTester tester,
   ) async {
-    final TestAssetBundle testBundle = TestAssetBundle();
+    final testBundle = TestAssetBundle();
     final GlobalKey key = GlobalKey();
-    final ControlledAssetBytesLoader loader = ControlledAssetBytesLoader(
-      'foo.svg',
-    );
+    final loader = ControlledAssetBytesLoader('foo.svg');
 
     await tester.pumpWidget(
       DefaultAssetBundle(
@@ -287,10 +227,7 @@ void main() {
     await tester.pumpWidget(
       DefaultAssetBundle(
         bundle: testBundle,
-        child: VectorGraphic(
-          key: key,
-          loader: const AssetBytesLoader('bar.svg'),
-        ),
+        child: VectorGraphic(key: key, loader: const AssetBytesLoader('bar.svg')),
       ),
     );
 
@@ -306,10 +243,7 @@ void main() {
     await tester.pumpWidget(
       DefaultAssetBundle(
         bundle: testBundle,
-        child: VectorGraphic(
-          key: key,
-          loader: const AssetBytesLoader('foo.svg'),
-        ),
+        child: VectorGraphic(key: key, loader: const AssetBytesLoader('foo.svg')),
       ),
     );
 
@@ -323,7 +257,7 @@ class TestAssetBundle extends Fake implements AssetBundle {
   @override
   Future<ByteData> load(String key) async {
     loadKeys.add(key);
-    final VectorGraphicsBuffer buffer = VectorGraphicsBuffer();
+    final buffer = VectorGraphicsBuffer();
     codec.writeSize(buffer, 100, 200);
     return buffer.done();
   }
@@ -341,8 +275,7 @@ class ControlledAssetBytesLoader extends AssetBytesLoader {
   }
 }
 
-class TestLocalizationsDelegate
-    extends LocalizationsDelegate<WidgetsLocalizations> {
+class TestLocalizationsDelegate extends LocalizationsDelegate<WidgetsLocalizations> {
   @override
   bool isSupported(Locale locale) {
     return true;

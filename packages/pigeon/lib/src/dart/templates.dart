@@ -8,15 +8,13 @@ import '../generator_tools.dart';
 ///
 /// This lowers the chances of variable name collisions with user defined
 /// parameters.
-const String dartInstanceManagerClassName =
-    '${proxyApiClassNamePrefix}InstanceManager';
+const String dartInstanceManagerClassName = '${proxyApiClassNamePrefix}InstanceManager';
 
 /// Name for the generated InstanceManager API.
 ///
 /// This lowers the chances of variable name collisions with user defined
 /// parameters.
-const String dartInstanceManagerApiClassName =
-    '_${classNamePrefix}InstanceManagerApi';
+const String dartInstanceManagerApiClassName = '_${classNamePrefix}InstanceManagerApi';
 
 /// Creates the `InstanceManager` with the passed string values.
 String instanceManagerTemplate({required Iterable<String> allProxyApiNames}) {
@@ -235,7 +233,8 @@ class $dartInstanceManagerClassName {
 /// The base class for all Dart proxy classes.
 ///
 /// All Dart proxy classes generated as a part of a ProxyApi extends this one.
-const String proxyApiBaseClass = '''
+const String proxyApiBaseClass =
+    '''
 /// An immutable object that serves as the base class for all Dart proxy classes
 /// and can provide functional copies of itself.
 ///
@@ -277,7 +276,8 @@ abstract class $proxyApiBaseClassName {
 /// All generated Dart proxy classes should use this codec or extend it. This
 /// codec adds support to convert instances to their corresponding identifier
 /// from an `InstanceManager` and vice versa.
-const String proxyApiBaseCodec = '''
+const String proxyApiBaseCodec =
+    '''
 class $_proxyApiCodecName extends _PigeonCodec {
  const $_proxyApiCodecName(this.instanceManager);
  final $dartInstanceManagerClassName instanceManager;
@@ -305,8 +305,6 @@ class $_proxyApiCodecName extends _PigeonCodec {
 
 /// Name of the base class of all Dart proxy classes.
 const String proxyApiBaseClassName = '${classNamePrefix}ProxyApiBaseClass';
-const String _proxyApiBaseClassMessengerVarName =
-    '${classMemberNamePrefix}binaryMessenger';
-const String _proxyApiBaseClassInstanceManagerVarName =
-    '${classMemberNamePrefix}instanceManager';
+const String _proxyApiBaseClassMessengerVarName = '${classMemberNamePrefix}binaryMessenger';
+const String _proxyApiBaseClassInstanceManagerVarName = '${classMemberNamePrefix}instanceManager';
 const String _proxyApiCodecName = '_${classNamePrefix}ProxyApiBaseCodec';

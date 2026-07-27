@@ -11,6 +11,7 @@ import 'package:flutter_plugin_tools/src/create_all_packages_app_command.dart';
 import 'package:platform/platform.dart';
 import 'package:pubspec_parse/pubspec_parse.dart';
 import 'package:test/test.dart';
+import 'package:yaml/yaml.dart';
 
 import 'mocks.dart';
 import 'util.dart';
@@ -25,8 +26,9 @@ void main() {
 
   setUp(() {
     mockPlatform = MockPlatform(isMacOS: true);
-    (:packagesDir, :processRunner, gitProcessRunner: _, gitDir: _) =
-        configureBaseCommandMocks(platform: mockPlatform);
+    (:packagesDir, :processRunner, gitProcessRunner: _, gitDir: _) = configureBaseCommandMocks(
+      platform: mockPlatform,
+    );
     testRoot = packagesDir.parent;
 
     command = CreateAllPackagesAppCommand(
@@ -34,8 +36,7 @@ void main() {
       processRunner: processRunner,
       platform: mockPlatform,
     );
-    runner = CommandRunner<void>(
-        'create_all_test', 'Test for $CreateAllPackagesAppCommand');
+    runner = CommandRunner<void>('create_all_test', 'Test for $CreateAllPackagesAppCommand');
     runner.addCommand(command);
   });
 
@@ -47,11 +48,11 @@ void main() {
     String? appBuildGradleDependencies,
     bool androidOnly = false,
   }) {
-    final RepositoryPackage package = RepositoryPackage(
-        outputDirectory.childDirectory(allPackagesProjectName));
+    final package = RepositoryPackage(outputDirectory.childDirectory(allPackagesProjectName));
 
     // Android
-    final String dependencies = appBuildGradleDependencies ??
+    final String dependencies =
+        appBuildGradleDependencies ??
         r'''
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
@@ -157,8 +158,7 @@ project 'Runner', {
         processRunner: processRunner,
         platform: mockPlatform,
       );
-      runner = CommandRunner<void>(
-          'create_all_test', 'Test for $CreateAllPackagesAppCommand');
+      runner = CommandRunner<void>('create_all_test', 'Test for $CreateAllPackagesAppCommand');
       runner.addCommand(command);
     });
 
@@ -169,16 +169,16 @@ project 'Runner', {
       await runCapturingPrint(runner, <String>['create-all-packages-app']);
 
       expect(
-          processRunner.recordedCalls,
-          contains(ProcessCall(
-              getFlutterCommand(mockPlatform),
-              <String>[
-                'create',
-                '--template=app',
-                '--project-name=$allPackagesProjectName',
-                testRoot.childDirectory(allPackagesProjectName).path,
-              ],
-              null)));
+        processRunner.recordedCalls,
+        contains(
+          ProcessCall(getFlutterCommand(mockPlatform), <String>[
+            'create',
+            '--template=app',
+            '--project-name=$allPackagesProjectName',
+            testRoot.childDirectory(allPackagesProjectName).path,
+          ], null),
+        ),
+      );
     });
 
     test('pubspec includes all plugins', () async {
@@ -191,12 +191,13 @@ project 'Runner', {
       final List<String> pubspec = command.app.pubspecFile.readAsLinesSync();
 
       expect(
-          pubspec,
-          containsAll(<Matcher>[
-            contains(RegExp('path: .*/packages/plugina')),
-            contains(RegExp('path: .*/packages/pluginb')),
-            contains(RegExp('path: .*/packages/pluginc')),
-          ]));
+        pubspec,
+        containsAll(<Matcher>[
+          contains(RegExp('path: .*/packages/plugina')),
+          contains(RegExp('path: .*/packages/pluginb')),
+          contains(RegExp('path: .*/packages/pluginc')),
+        ]),
+      );
     });
 
     test('pubspec has overrides for all plugins', () async {
@@ -209,46 +210,49 @@ project 'Runner', {
       final List<String> pubspec = command.app.pubspecFile.readAsLinesSync();
 
       expect(
-          pubspec,
-          containsAllInOrder(<Matcher>[
-            contains('dependency_overrides:'),
-            contains(RegExp('path: .*/packages/plugina')),
-            contains(RegExp('path: .*/packages/pluginb')),
-            contains(RegExp('path: .*/packages/pluginc')),
-          ]));
+        pubspec,
+        containsAllInOrder(<Matcher>[
+          contains('dependency_overrides:'),
+          contains(RegExp('path: .*/packages/plugina')),
+          contains(RegExp('path: .*/packages/pluginb')),
+          contains(RegExp('path: .*/packages/pluginc')),
+        ]),
+      );
     });
 
     test(
-        'pubspec special-cases camera_android_camerax to remove it from deps but not overrides',
-        () async {
-      writeFakeFlutterCreateOutput(testRoot);
-      final Directory cameraDir = packagesDir.childDirectory('camera');
-      createFakePlugin('camera', cameraDir);
-      createFakePlugin('camera_android', cameraDir);
-      createFakePlugin('camera_android_camerax', cameraDir);
+      'pubspec special-cases camera_android_camerax to remove it from deps but not overrides',
+      () async {
+        writeFakeFlutterCreateOutput(testRoot);
+        final Directory cameraDir = packagesDir.childDirectory('camera');
+        createFakePlugin('camera', cameraDir);
+        createFakePlugin('camera_android', cameraDir);
+        createFakePlugin('camera_android_camerax', cameraDir);
 
-      await runCapturingPrint(runner, <String>['create-all-packages-app']);
-      final Pubspec pubspec = command.app.parsePubspec();
+        await runCapturingPrint(runner, <String>['create-all-packages-app']);
+        final Pubspec pubspec = command.app.parsePubspec();
 
-      final Dependency? cameraDependency = pubspec.dependencies['camera'];
-      final Dependency? cameraAndroidDependency =
-          pubspec.dependencies['camera_android'];
-      final Dependency? cameraCameraXDependency =
-          pubspec.dependencies['camera_android_camerax'];
-      expect(cameraDependency, isA<PathDependency>());
-      expect((cameraDependency! as PathDependency).path,
-          endsWith('/packages/camera/camera'));
-      expect(cameraAndroidDependency, isA<PathDependency>());
-      expect((cameraAndroidDependency! as PathDependency).path,
-          endsWith('/packages/camera/camera_android'));
-      expect(cameraCameraXDependency, null);
+        final Dependency? cameraDependency = pubspec.dependencies['camera'];
+        final Dependency? cameraAndroidDependency = pubspec.dependencies['camera_android'];
+        final Dependency? cameraCameraXDependency = pubspec.dependencies['camera_android_camerax'];
+        expect(cameraDependency, isA<PathDependency>());
+        expect((cameraDependency! as PathDependency).path, endsWith('/packages/camera/camera'));
+        expect(cameraAndroidDependency, isA<PathDependency>());
+        expect(
+          (cameraAndroidDependency! as PathDependency).path,
+          endsWith('/packages/camera/camera_android'),
+        );
+        expect(cameraCameraXDependency, null);
 
-      final Dependency? cameraCameraXOverride =
-          pubspec.dependencyOverrides['camera_android_camerax'];
-      expect(cameraCameraXOverride, isA<PathDependency>());
-      expect((cameraCameraXOverride! as PathDependency).path,
-          endsWith('/packages/camera/camera_android_camerax'));
-    });
+        final Dependency? cameraCameraXOverride =
+            pubspec.dependencyOverrides['camera_android_camerax'];
+        expect(cameraCameraXOverride, isA<PathDependency>());
+        expect(
+          (cameraCameraXOverride! as PathDependency).path,
+          endsWith('/packages/camera/camera_android_camerax'),
+        );
+      },
+    );
 
     test('legacy files are copied when requested', () async {
       writeFakeFlutterCreateOutput(testRoot);
@@ -256,10 +260,9 @@ project 'Runner', {
       // Make a fake legacy source with all the necessary files, replacing one
       // of them.
       final Directory legacyDir = testRoot.childDirectory('legacy');
-      final RepositoryPackage legacySource =
-          RepositoryPackage(legacyDir.childDirectory(allPackagesProjectName));
+      final legacySource = RepositoryPackage(legacyDir.childDirectory(allPackagesProjectName));
       writeFakeFlutterCreateOutput(legacyDir, androidOnly: true);
-      const String legacyAppBuildGradleContents = 'Fake legacy content';
+      const legacyAppBuildGradleContents = 'Fake legacy content';
       final File legacyGradleFile = legacySource
           .platformDirectory(FlutterPlatform.android)
           .childFile('build.gradle');
@@ -280,16 +283,14 @@ project 'Runner', {
     test('legacy directory replaces, rather than overlaying', () async {
       writeFakeFlutterCreateOutput(testRoot);
       createFakePlugin('plugina', packagesDir);
-      final File extraFile =
-          RepositoryPackage(testRoot.childDirectory(allPackagesProjectName))
-              .platformDirectory(FlutterPlatform.android)
-              .childFile('extra_file');
+      final File extraFile = RepositoryPackage(
+        testRoot.childDirectory(allPackagesProjectName),
+      ).platformDirectory(FlutterPlatform.android).childFile('extra_file');
       extraFile.createSync(recursive: true);
       // Make a fake legacy source with all the necessary files, but not
       // including the extra file.
       final Directory legacyDir = testRoot.childDirectory('legacy');
-      final RepositoryPackage legacySource =
-          RepositoryPackage(legacyDir.childDirectory(allPackagesProjectName));
+      final legacySource = RepositoryPackage(legacyDir.childDirectory(allPackagesProjectName));
       writeFakeFlutterCreateOutput(legacyDir, androidOnly: true);
 
       await runCapturingPrint(runner, <String>[
@@ -306,10 +307,9 @@ project 'Runner', {
       // Make a fake legacy source with all the necessary files, replacing one
       // of them.
       final Directory legacyDir = testRoot.childDirectory('legacy');
-      final RepositoryPackage legacySource =
-          RepositoryPackage(legacyDir.childDirectory(allPackagesProjectName));
+      final legacySource = RepositoryPackage(legacyDir.childDirectory(allPackagesProjectName));
       writeFakeFlutterCreateOutput(legacyDir, androidOnly: true);
-      const String legacyAppBuildGradleContents = '''
+      const legacyAppBuildGradleContents = '''
 # This is the legacy file
 android {
     compileSdk flutter.compileSdkVersion
@@ -336,25 +336,21 @@ android {
           .readAsLinesSync();
 
       expect(
-          buildGradle,
-          containsAll(<Matcher>[
-            contains('This is the legacy file'),
-            contains('compileSdk 36'),
-          ]));
+        buildGradle,
+        containsAll(<Matcher>[contains('This is the legacy file'), contains('compileSdk 36')]),
+      );
     });
 
     test('pubspec preserves existing Dart SDK version', () async {
-      const String existingSdkConstraint = '>=1.0.0 <99.0.0';
-      writeFakeFlutterCreateOutput(testRoot,
-          dartSdkConstraint: existingSdkConstraint);
+      const existingSdkConstraint = '>=1.0.0 <99.0.0';
+      writeFakeFlutterCreateOutput(testRoot, dartSdkConstraint: existingSdkConstraint);
       createFakePlugin('plugina', packagesDir);
 
       await runCapturingPrint(runner, <String>['create-all-packages-app']);
       final Pubspec generatedPubspec = command.app.parsePubspec();
 
-      const String dartSdkKey = 'sdk';
-      expect(generatedPubspec.environment[dartSdkKey].toString(),
-          existingSdkConstraint);
+      const dartSdkKey = 'sdk';
+      expect(generatedPubspec.environment[dartSdkKey].toString(), existingSdkConstraint);
     });
 
     test('Android app gradle is modified as expected', () async {
@@ -370,11 +366,12 @@ android {
           .readAsLinesSync();
 
       expect(
-          buildGradle,
-          containsAll(<Matcher>[
-            contains('compileSdk 36'),
-            contains('androidx.lifecycle:lifecycle-runtime'),
-          ]));
+        buildGradle,
+        containsAll(<Matcher>[
+          contains('compileSdk 36'),
+          contains('androidx.lifecycle:lifecycle-runtime'),
+        ]),
+      );
     });
 
     // The template's app/build.gradle does not always have a dependencies
@@ -392,20 +389,19 @@ android {
           .readAsLinesSync();
 
       expect(
-          buildGradle,
-          containsAllInOrder(<Matcher>[
-            equals('dependencies {'),
-            contains('androidx.lifecycle:lifecycle-runtime'),
-            equals('}'),
-          ]));
+        buildGradle,
+        containsAllInOrder(<Matcher>[
+          equals('dependencies {'),
+          contains('androidx.lifecycle:lifecycle-runtime'),
+          equals('}'),
+        ]),
+      );
     });
 
     // Some versions of the template's app/build.gradle has an empty
     // dependencies section; ensure that the dependency is added in that case.
-    test('Android lifecyle dependency is added with empty dependencies',
-        () async {
-      writeFakeFlutterCreateOutput(testRoot,
-          appBuildGradleDependencies: 'dependencies {}');
+    test('Android lifecyle dependency is added with empty dependencies', () async {
+      writeFakeFlutterCreateOutput(testRoot, appBuildGradleDependencies: 'dependencies {}');
       createFakePlugin('plugina', packagesDir);
 
       await runCapturingPrint(runner, <String>['create-all-packages-app']);
@@ -417,12 +413,13 @@ android {
           .readAsLinesSync();
 
       expect(
-          buildGradle,
-          containsAllInOrder(<Matcher>[
-            equals('dependencies {'),
-            contains('androidx.lifecycle:lifecycle-runtime'),
-            equals('}'),
-          ]));
+        buildGradle,
+        containsAllInOrder(<Matcher>[
+          equals('dependencies {'),
+          contains('androidx.lifecycle:lifecycle-runtime'),
+          equals('}'),
+        ]),
+      );
     });
 
     test('macOS deployment target is modified in pbxproj', () async {
@@ -437,10 +434,11 @@ android {
           .readAsLinesSync();
 
       expect(
-          pbxproj,
-          everyElement((String line) =>
-              !line.contains('MACOSX_DEPLOYMENT_TARGET') ||
-              line.contains('10.15')));
+        pbxproj,
+        everyElement(
+          (String line) => !line.contains('MACOSX_DEPLOYMENT_TARGET') || line.contains('10.15'),
+        ),
+      );
     });
 
     test('iOS deployment target is modified in pbxproj', () async {
@@ -455,10 +453,39 @@ android {
           .readAsLinesSync();
 
       expect(
-          pbxproj,
-          everyElement((String line) =>
-              !line.contains('IPHONEOS_DEPLOYMENT_TARGET') ||
-              line.contains('14.0')));
+        pbxproj,
+        everyElement(
+          (String line) => !line.contains('IPHONEOS_DEPLOYMENT_TARGET') || line.contains('15.0'),
+        ),
+      );
+    });
+
+    test('disables Swift Package Manager if requested', () async {
+      writeFakeFlutterCreateOutput(testRoot);
+      createFakePlugin('plugina', packagesDir);
+
+      await runCapturingPrint(runner, <String>[
+        'create-all-packages-app',
+        '--no-swift-package-manager',
+      ]);
+
+      final Pubspec pubspec = command.app.parsePubspec();
+      final flutterConfig = pubspec.flutter?['config'] as YamlMap?;
+      expect(flutterConfig?['enable-swift-package-manager'], false);
+    });
+
+    test('enables Swift Package Manager if requested', () async {
+      writeFakeFlutterCreateOutput(testRoot);
+      createFakePlugin('plugina', packagesDir);
+
+      await runCapturingPrint(runner, <String>[
+        'create-all-packages-app',
+        '--swift-package-manager',
+      ]);
+
+      final Pubspec pubspec = command.app.parsePubspec();
+      final flutterConfig = pubspec.flutter?['config'] as YamlMap?;
+      expect(flutterConfig?['enable-swift-package-manager'], true);
     });
 
     test('calls flutter pub get', () async {
@@ -468,76 +495,80 @@ android {
       await runCapturingPrint(runner, <String>['create-all-packages-app']);
 
       expect(
-          processRunner.recordedCalls,
-          contains(ProcessCall(
-              getFlutterCommand(mockPlatform),
-              const <String>['pub', 'get'],
-              testRoot.childDirectory(allPackagesProjectName).path)));
+        processRunner.recordedCalls,
+        contains(
+          ProcessCall(getFlutterCommand(mockPlatform), const <String>[
+            'pub',
+            'get',
+          ], testRoot.childDirectory(allPackagesProjectName).path),
+        ),
+      );
     });
 
     test('fails if flutter create fails', () async {
       writeFakeFlutterCreateOutput(testRoot);
       createFakePlugin('plugina', packagesDir);
 
-      processRunner
-              .mockProcessesForExecutable[getFlutterCommand(mockPlatform)] =
-          <FakeProcessInfo>[
-        FakeProcessInfo(MockProcess(exitCode: 1), <String>['create'])
+      processRunner.mockProcessesForExecutable[getFlutterCommand(mockPlatform)] = <FakeProcessInfo>[
+        FakeProcessInfo(MockProcess(exitCode: 1), <String>['create']),
       ];
       Error? commandError;
       final List<String> output = await runCapturingPrint(
-          runner, <String>['create-all-packages-app'], errorHandler: (Error e) {
-        commandError = e;
-      });
+        runner,
+        <String>['create-all-packages-app'],
+        errorHandler: (Error e) {
+          commandError = e;
+        },
+      );
 
       expect(commandError, isA<ToolExit>());
-      expect(
-          output,
-          containsAllInOrder(<Matcher>[
-            contains('Failed to `flutter create`'),
-          ]));
+      expect(output, containsAllInOrder(<Matcher>[contains('Failed to `flutter create`')]));
     });
 
-    test('fails if flutter pub get fails', () async {
-      writeFakeFlutterCreateOutput(testRoot);
-      createFakePlugin('plugina', packagesDir);
+    test(
+      'fails if flutter pub get fails',
+      () async {
+        writeFakeFlutterCreateOutput(testRoot);
+        createFakePlugin('plugina', packagesDir);
 
-      processRunner
-              .mockProcessesForExecutable[getFlutterCommand(mockPlatform)] =
-          <FakeProcessInfo>[
-        FakeProcessInfo(MockProcess(), <String>['create']),
-        FakeProcessInfo(MockProcess(exitCode: 1), <String>['pub', 'get'])
-      ];
-      Error? commandError;
-      final List<String> output = await runCapturingPrint(
-          runner, <String>['create-all-packages-app'], errorHandler: (Error e) {
-        commandError = e;
-      });
+        processRunner.mockProcessesForExecutable[getFlutterCommand(
+          mockPlatform,
+        )] = <FakeProcessInfo>[
+          FakeProcessInfo(MockProcess(), <String>['create']),
+          FakeProcessInfo(MockProcess(exitCode: 1), <String>['pub', 'get']),
+        ];
+        Error? commandError;
+        final List<String> output = await runCapturingPrint(
+          runner,
+          <String>['create-all-packages-app'],
+          errorHandler: (Error e) {
+            commandError = e;
+          },
+        );
 
-      expect(commandError, isA<ToolExit>());
-      expect(
+        expect(commandError, isA<ToolExit>());
+        expect(
           output,
           containsAllInOrder(<Matcher>[
-            contains(
-                "Failed to generate native build files via 'flutter pub get'"),
-          ]));
-    },
-        // See comment about Windows in create_all_packages_app_command.dart
-        skip: io.Platform.isWindows);
+            contains("Failed to generate native build files via 'flutter pub get'"),
+          ]),
+        );
+      },
+      // See comment about Windows in create_all_packages_app_command.dart
+      skip: io.Platform.isWindows,
+    );
 
     test('handles --output-dir', () async {
-      final Directory customOutputDir =
-          testRoot.fileSystem.systemTempDirectory.createTempSync();
+      final Directory customOutputDir = testRoot.fileSystem.systemTempDirectory.createTempSync();
       writeFakeFlutterCreateOutput(customOutputDir);
       createFakePlugin('plugina', packagesDir);
 
       await runCapturingPrint(runner, <String>[
         'create-all-packages-app',
-        '--output-dir=${customOutputDir.path}'
+        '--output-dir=${customOutputDir.path}',
       ]);
 
-      expect(command.app.path,
-          customOutputDir.childDirectory(allPackagesProjectName).path);
+      expect(command.app.path, customOutputDir.childDirectory(allPackagesProjectName).path);
     });
 
     test('logs exclusions', () async {
@@ -546,16 +577,19 @@ android {
       createFakePlugin('pluginb', packagesDir);
       createFakePlugin('pluginc', packagesDir);
 
-      final List<String> output = await runCapturingPrint(runner,
-          <String>['create-all-packages-app', '--exclude=pluginb,pluginc']);
+      final List<String> output = await runCapturingPrint(runner, <String>[
+        'create-all-packages-app',
+        '--exclude=pluginb,pluginc',
+      ]);
 
       expect(
-          output,
-          containsAllInOrder(<String>[
-            'Exluding the following plugins from the combined build:',
-            '  pluginb',
-            '  pluginc',
-          ]));
+        output,
+        containsAllInOrder(<String>[
+          'Exluding the following plugins from the combined build:',
+          '  pluginb',
+          '  pluginc',
+        ]),
+      );
     });
   });
 
@@ -566,37 +600,61 @@ android {
         processRunner: processRunner,
         platform: MockPlatform(isMacOS: true),
       );
-      runner = CommandRunner<void>(
-          'create_all_test', 'Test for $CreateAllPackagesAppCommand');
+      runner = CommandRunner<void>('create_all_test', 'Test for $CreateAllPackagesAppCommand');
       runner.addCommand(command);
     });
 
-    test('macOS deployment target is modified in Podfile', () async {
-      writeFakeFlutterCreateOutput(testRoot);
-      createFakePlugin('plugina', packagesDir);
+    test(
+      'macOS deployment target is modified in Podfile',
+      () async {
+        writeFakeFlutterCreateOutput(testRoot);
+        createFakePlugin('plugina', packagesDir);
 
-      final File podfileFile = RepositoryPackage(
-              command.packagesDir.parent.childDirectory(allPackagesProjectName))
-          .platformDirectory(FlutterPlatform.macos)
-          .childFile('Podfile');
-      podfileFile.createSync(recursive: true);
-      podfileFile.writeAsStringSync("""
+        final File podfileFile = RepositoryPackage(
+          command.packagesDir.parent.childDirectory(allPackagesProjectName),
+        ).platformDirectory(FlutterPlatform.macos).childFile('Podfile');
+        podfileFile.createSync(recursive: true);
+        podfileFile.writeAsStringSync("""
 platform :osx, '10.11'
 # some other line
 """);
 
-      await runCapturingPrint(runner, <String>['create-all-packages-app']);
-      final List<String> podfile = command.app
-          .platformDirectory(FlutterPlatform.macos)
-          .childFile('Podfile')
-          .readAsLinesSync();
+        await runCapturingPrint(runner, <String>['create-all-packages-app']);
+        final List<String> podfile = command.app
+            .platformDirectory(FlutterPlatform.macos)
+            .childFile('Podfile')
+            .readAsLinesSync();
 
-      expect(
+        expect(
           podfile,
-          everyElement((String line) =>
-              !line.contains('platform :osx') || line.contains("'10.15'")));
-    },
-        // Podfile is only generated (and thus only edited) on macOS.
-        skip: !io.Platform.isMacOS);
+          everyElement(
+            (String line) => !line.contains('platform :osx') || line.contains("'10.15'"),
+          ),
+        );
+      },
+      // Podfile is only generated (and thus only edited) on macOS.
+      skip: !io.Platform.isMacOS,
+    );
+
+    test(
+      'macOS skips change to Podfile if file does not exist',
+      () async {
+        writeFakeFlutterCreateOutput(testRoot);
+        createFakePlugin('plugina', packagesDir);
+
+        final File podfileFile = RepositoryPackage(
+          command.packagesDir.parent.childDirectory(allPackagesProjectName),
+        ).platformDirectory(FlutterPlatform.macos).childFile('Podfile');
+        podfileFile.deleteSync();
+        expect(podfileFile.existsSync(), isFalse);
+
+        final List<String> prints = await runCapturingPrint(runner, <String>[
+          'create-all-packages-app',
+        ]);
+        expect(prints, contains('Unable to find ${podfileFile.path} for updating. Skipping.'));
+      },
+      // Podfile is only generated (and thus only edited) on macOS.
+      skip: !io.Platform.isMacOS,
+    );
   });
 }

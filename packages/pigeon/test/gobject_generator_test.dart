@@ -11,7 +11,7 @@ const String DEFAULT_PACKAGE_NAME = 'test_package';
 
 void main() {
   test('gen one api', () {
-    final Class inputClass = Class(
+    final inputClass = Class(
       name: 'Input',
       fields: <NamedType>[
         NamedType(
@@ -20,7 +20,7 @@ void main() {
         ),
       ],
     );
-    final Class outputClass = Class(
+    final outputClass = Class(
       name: 'Output',
       fields: <NamedType>[
         NamedType(
@@ -29,7 +29,7 @@ void main() {
         ),
       ],
     );
-    final Root root = Root(
+    final root = Root(
       apis: <Api>[
         AstHostApi(
           name: 'Api',
@@ -60,24 +60,18 @@ void main() {
       enums: <Enum>[],
     );
     {
-      final StringBuffer sink = StringBuffer();
-      const GObjectGenerator generator = GObjectGenerator();
-      final OutputFileOptions<InternalGObjectOptions> generatorOptions =
-          OutputFileOptions<InternalGObjectOptions>(
-            fileType: FileType.header,
-            languageOptions: const InternalGObjectOptions(
-              headerIncludePath: '',
-              gobjectHeaderOut: '',
-              gobjectSourceOut: '',
-            ),
-          );
-      generator.generate(
-        generatorOptions,
-        root,
-        sink,
-        dartPackageName: DEFAULT_PACKAGE_NAME,
+      final sink = StringBuffer();
+      const generator = GObjectGenerator();
+      final generatorOptions = OutputFileOptions<InternalGObjectOptions>(
+        fileType: FileType.header,
+        languageOptions: const InternalGObjectOptions(
+          headerIncludePath: '',
+          gobjectHeaderOut: '',
+          gobjectSourceOut: '',
+        ),
       );
-      final String code = sink.toString();
+      generator.generate(generatorOptions, root, sink, dartPackageName: DEFAULT_PACKAGE_NAME);
+      final code = sink.toString();
       expect(
         code,
         contains(
@@ -92,40 +86,21 @@ void main() {
       );
     }
     {
-      final StringBuffer sink = StringBuffer();
-      const GObjectGenerator generator = GObjectGenerator();
-      final OutputFileOptions<InternalGObjectOptions> generatorOptions =
-          OutputFileOptions<InternalGObjectOptions>(
-            fileType: FileType.source,
-            languageOptions: const InternalGObjectOptions(
-              headerIncludePath: '',
-              gobjectHeaderOut: '',
-              gobjectSourceOut: '',
-            ),
-          );
-      generator.generate(
-        generatorOptions,
-        root,
-        sink,
-        dartPackageName: DEFAULT_PACKAGE_NAME,
-      );
-      final String code = sink.toString();
-      expect(
-        code,
-        contains(
-          'static void test_package_input_init(TestPackageInput* self) {',
+      final sink = StringBuffer();
+      const generator = GObjectGenerator();
+      final generatorOptions = OutputFileOptions<InternalGObjectOptions>(
+        fileType: FileType.source,
+        languageOptions: const InternalGObjectOptions(
+          headerIncludePath: '',
+          gobjectHeaderOut: '',
+          gobjectSourceOut: '',
         ),
       );
-      expect(
-        code,
-        contains(
-          'static void test_package_output_init(TestPackageOutput* self) {',
-        ),
-      );
-      expect(
-        code,
-        contains('static void test_package_api_init(TestPackageApi* self) {'),
-      );
+      generator.generate(generatorOptions, root, sink, dartPackageName: DEFAULT_PACKAGE_NAME);
+      final code = sink.toString();
+      expect(code, contains('static void test_package_input_init(TestPackageInput* self) {'));
+      expect(code, contains('static void test_package_output_init(TestPackageOutput* self) {'));
+      expect(code, contains('static void test_package_api_init(TestPackageApi* self) {'));
       // See https://github.com/flutter/flutter/issues/153083. If a private type
       // is ever needed, this should be updated to ensure that any type declared
       // in the implementation file has a corresponding _IS_ call in the file.
@@ -134,7 +109,7 @@ void main() {
   });
 
   test('naming follows style', () {
-    final Class inputClass = Class(
+    final inputClass = Class(
       name: 'Input',
       fields: <NamedType>[
         NamedType(
@@ -143,7 +118,7 @@ void main() {
         ),
       ],
     );
-    final Class outputClass = Class(
+    final outputClass = Class(
       name: 'Output',
       fields: <NamedType>[
         NamedType(
@@ -152,7 +127,7 @@ void main() {
         ),
       ],
     );
-    final Root root = Root(
+    final root = Root(
       apis: <Api>[
         AstHostApi(
           name: 'Api',
@@ -183,24 +158,18 @@ void main() {
       enums: <Enum>[],
     );
     {
-      final StringBuffer sink = StringBuffer();
-      const GObjectGenerator generator = GObjectGenerator();
-      final OutputFileOptions<InternalGObjectOptions> generatorOptions =
-          OutputFileOptions<InternalGObjectOptions>(
-            fileType: FileType.header,
-            languageOptions: const InternalGObjectOptions(
-              headerIncludePath: '',
-              gobjectHeaderOut: '',
-              gobjectSourceOut: '',
-            ),
-          );
-      generator.generate(
-        generatorOptions,
-        root,
-        sink,
-        dartPackageName: DEFAULT_PACKAGE_NAME,
+      final sink = StringBuffer();
+      const generator = GObjectGenerator();
+      final generatorOptions = OutputFileOptions<InternalGObjectOptions>(
+        fileType: FileType.header,
+        languageOptions: const InternalGObjectOptions(
+          headerIncludePath: '',
+          gobjectHeaderOut: '',
+          gobjectSourceOut: '',
+        ),
       );
-      final String code = sink.toString();
+      generator.generate(generatorOptions, root, sink, dartPackageName: DEFAULT_PACKAGE_NAME);
+      final code = sink.toString();
       expect(
         code,
         contains(
@@ -209,53 +178,39 @@ void main() {
       );
       expect(
         code,
-        contains(
-          'gboolean test_package_input_get_input_field(TestPackageInput* object);',
-        ),
+        contains('gboolean test_package_input_get_input_field(TestPackageInput* object);'),
       );
       expect(
         code,
-        contains(
-          'gboolean test_package_output_get_output_field(TestPackageOutput* object);',
-        ),
+        contains('gboolean test_package_output_get_output_field(TestPackageOutput* object);'),
       );
     }
     {
-      final StringBuffer sink = StringBuffer();
-      const GObjectGenerator generator = GObjectGenerator();
-      final OutputFileOptions<InternalGObjectOptions> generatorOptions =
-          OutputFileOptions<InternalGObjectOptions>(
-            fileType: FileType.source,
-            languageOptions: const InternalGObjectOptions(
-              headerIncludePath: '',
-              gobjectHeaderOut: '',
-              gobjectSourceOut: '',
-            ),
-          );
-      generator.generate(
-        generatorOptions,
-        root,
-        sink,
-        dartPackageName: DEFAULT_PACKAGE_NAME,
+      final sink = StringBuffer();
+      const generator = GObjectGenerator();
+      final generatorOptions = OutputFileOptions<InternalGObjectOptions>(
+        fileType: FileType.source,
+        languageOptions: const InternalGObjectOptions(
+          headerIncludePath: '',
+          gobjectHeaderOut: '',
+          gobjectSourceOut: '',
+        ),
       );
-      final String code = sink.toString();
+      generator.generate(generatorOptions, root, sink, dartPackageName: DEFAULT_PACKAGE_NAME);
+      final code = sink.toString();
       expect(
         code,
-        contains(
-          'gboolean test_package_input_get_input_field(TestPackageInput* self) {',
-        ),
+        contains('gboolean test_package_input_get_input_field(TestPackageInput* self) {'),
       );
       expect(
         code,
-        contains(
-          'gboolean test_package_output_get_output_field(TestPackageOutput* self) {',
-        ),
+        contains('gboolean test_package_output_get_output_field(TestPackageOutput* self) {'),
       );
     }
   });
 
   test('Spaces before {', () {
-    final Class inputClass = Class(
+    final inputClass = Class(
       name: 'Input',
       fields: <NamedType>[
         NamedType(
@@ -264,7 +219,7 @@ void main() {
         ),
       ],
     );
-    final Class outputClass = Class(
+    final outputClass = Class(
       name: 'Output',
       fields: <NamedType>[
         NamedType(
@@ -273,7 +228,7 @@ void main() {
         ),
       ],
     );
-    final Root root = Root(
+    final root = Root(
       apis: <Api>[
         AstHostApi(
           name: 'Api',
@@ -304,53 +259,41 @@ void main() {
       enums: <Enum>[],
     );
     {
-      final StringBuffer sink = StringBuffer();
-      const GObjectGenerator generator = GObjectGenerator();
-      final OutputFileOptions<InternalGObjectOptions> generatorOptions =
-          OutputFileOptions<InternalGObjectOptions>(
-            fileType: FileType.header,
-            languageOptions: const InternalGObjectOptions(
-              headerIncludePath: '',
-              gobjectHeaderOut: '',
-              gobjectSourceOut: '',
-            ),
-          );
-      generator.generate(
-        generatorOptions,
-        root,
-        sink,
-        dartPackageName: DEFAULT_PACKAGE_NAME,
+      final sink = StringBuffer();
+      const generator = GObjectGenerator();
+      final generatorOptions = OutputFileOptions<InternalGObjectOptions>(
+        fileType: FileType.header,
+        languageOptions: const InternalGObjectOptions(
+          headerIncludePath: '',
+          gobjectHeaderOut: '',
+          gobjectSourceOut: '',
+        ),
       );
-      final String code = sink.toString();
+      generator.generate(generatorOptions, root, sink, dartPackageName: DEFAULT_PACKAGE_NAME);
+      final code = sink.toString();
       expect(code, isNot(contains('){')));
       expect(code, isNot(contains('const{')));
     }
     {
-      final StringBuffer sink = StringBuffer();
-      const GObjectGenerator generator = GObjectGenerator();
-      final OutputFileOptions<InternalGObjectOptions> generatorOptions =
-          OutputFileOptions<InternalGObjectOptions>(
-            fileType: FileType.source,
-            languageOptions: const InternalGObjectOptions(
-              headerIncludePath: '',
-              gobjectHeaderOut: '',
-              gobjectSourceOut: '',
-            ),
-          );
-      generator.generate(
-        generatorOptions,
-        root,
-        sink,
-        dartPackageName: DEFAULT_PACKAGE_NAME,
+      final sink = StringBuffer();
+      const generator = GObjectGenerator();
+      final generatorOptions = OutputFileOptions<InternalGObjectOptions>(
+        fileType: FileType.source,
+        languageOptions: const InternalGObjectOptions(
+          headerIncludePath: '',
+          gobjectHeaderOut: '',
+          gobjectSourceOut: '',
+        ),
       );
-      final String code = sink.toString();
+      generator.generate(generatorOptions, root, sink, dartPackageName: DEFAULT_PACKAGE_NAME);
+      final code = sink.toString();
       expect(code, isNot(contains('){')));
       expect(code, isNot(contains('const{')));
     }
   });
 
   test('include blocks follow style', () {
-    final Root root = Root(
+    final root = Root(
       apis: <Api>[
         AstHostApi(
           name: 'Api',
@@ -360,17 +303,11 @@ void main() {
               location: ApiLocation.host,
               parameters: <Parameter>[
                 Parameter(
-                  type: const TypeDeclaration(
-                    baseName: 'String',
-                    isNullable: true,
-                  ),
+                  type: const TypeDeclaration(baseName: 'String', isNullable: true),
                   name: 'input',
                 ),
               ],
-              returnType: const TypeDeclaration(
-                baseName: 'int',
-                isNullable: false,
-              ),
+              returnType: const TypeDeclaration(baseName: 'int', isNullable: false),
             ),
           ],
         ),
@@ -379,24 +316,18 @@ void main() {
       enums: <Enum>[],
     );
     {
-      final StringBuffer sink = StringBuffer();
-      const GObjectGenerator generator = GObjectGenerator();
-      final OutputFileOptions<InternalGObjectOptions> generatorOptions =
-          OutputFileOptions<InternalGObjectOptions>(
-            fileType: FileType.header,
-            languageOptions: const InternalGObjectOptions(
-              headerIncludePath: '',
-              gobjectHeaderOut: '',
-              gobjectSourceOut: '',
-            ),
-          );
-      generator.generate(
-        generatorOptions,
-        root,
-        sink,
-        dartPackageName: DEFAULT_PACKAGE_NAME,
+      final sink = StringBuffer();
+      const generator = GObjectGenerator();
+      final generatorOptions = OutputFileOptions<InternalGObjectOptions>(
+        fileType: FileType.header,
+        languageOptions: const InternalGObjectOptions(
+          headerIncludePath: '',
+          gobjectHeaderOut: '',
+          gobjectSourceOut: '',
+        ),
       );
-      final String code = sink.toString();
+      generator.generate(generatorOptions, root, sink, dartPackageName: DEFAULT_PACKAGE_NAME);
+      final code = sink.toString();
       expect(
         code,
         contains('''
@@ -405,24 +336,18 @@ void main() {
       );
     }
     {
-      final StringBuffer sink = StringBuffer();
-      const GObjectGenerator generator = GObjectGenerator();
-      final OutputFileOptions<InternalGObjectOptions> generatorOptions =
-          OutputFileOptions<InternalGObjectOptions>(
-            fileType: FileType.source,
-            languageOptions: const InternalGObjectOptions(
-              headerIncludePath: 'a_header.h',
-              gobjectHeaderOut: '',
-              gobjectSourceOut: '',
-            ),
-          );
-      generator.generate(
-        generatorOptions,
-        root,
-        sink,
-        dartPackageName: DEFAULT_PACKAGE_NAME,
+      final sink = StringBuffer();
+      const generator = GObjectGenerator();
+      final generatorOptions = OutputFileOptions<InternalGObjectOptions>(
+        fileType: FileType.source,
+        languageOptions: const InternalGObjectOptions(
+          headerIncludePath: 'a_header.h',
+          gobjectHeaderOut: '',
+          gobjectSourceOut: '',
+        ),
       );
-      final String code = sink.toString();
+      generator.generate(generatorOptions, root, sink, dartPackageName: DEFAULT_PACKAGE_NAME);
+      final code = sink.toString();
       expect(
         code,
         contains('''
@@ -433,7 +358,7 @@ void main() {
   });
 
   test('data classes handle non-nullable fields', () {
-    final Class nestedClass = Class(
+    final nestedClass = Class(
       name: 'Nested',
       fields: <NamedType>[
         NamedType(
@@ -442,7 +367,7 @@ void main() {
         ),
       ],
     );
-    final Class inputClass = Class(
+    final inputClass = Class(
       name: 'Input',
       fields: <NamedType>[
         NamedType(
@@ -467,7 +392,7 @@ void main() {
         ),
       ],
     );
-    final Root root = Root(
+    final root = Root(
       apis: <Api>[
         AstHostApi(
           name: 'Api',
@@ -494,63 +419,41 @@ void main() {
       enums: <Enum>[],
     );
     {
-      final StringBuffer sink = StringBuffer();
-      const GObjectGenerator generator = GObjectGenerator();
-      final OutputFileOptions<InternalGObjectOptions> generatorOptions =
-          OutputFileOptions<InternalGObjectOptions>(
-            fileType: FileType.header,
-            languageOptions: const InternalGObjectOptions(
-              headerIncludePath: '',
-              gobjectHeaderOut: '',
-              gobjectSourceOut: '',
-            ),
-          );
-      generator.generate(
-        generatorOptions,
-        root,
-        sink,
-        dartPackageName: DEFAULT_PACKAGE_NAME,
-      );
-      final String code = sink.toString();
-
-      expect(
-        code,
-        contains(
-          'TestPackageNested* test_package_nested_new(gboolean nested_value);',
+      final sink = StringBuffer();
+      const generator = GObjectGenerator();
+      final generatorOptions = OutputFileOptions<InternalGObjectOptions>(
+        fileType: FileType.header,
+        languageOptions: const InternalGObjectOptions(
+          headerIncludePath: '',
+          gobjectHeaderOut: '',
+          gobjectSourceOut: '',
         ),
       );
+      generator.generate(generatorOptions, root, sink, dartPackageName: DEFAULT_PACKAGE_NAME);
+      final code = sink.toString();
+
+      expect(code, contains('TestPackageNested* test_package_nested_new(gboolean nested_value);'));
     }
     {
-      final StringBuffer sink = StringBuffer();
-      const GObjectGenerator generator = GObjectGenerator();
-      final OutputFileOptions<InternalGObjectOptions> generatorOptions =
-          OutputFileOptions<InternalGObjectOptions>(
-            fileType: FileType.source,
-            languageOptions: const InternalGObjectOptions(
-              headerIncludePath: '',
-              gobjectHeaderOut: '',
-              gobjectSourceOut: '',
-            ),
-          );
-      generator.generate(
-        generatorOptions,
-        root,
-        sink,
-        dartPackageName: DEFAULT_PACKAGE_NAME,
-      );
-      final String code = sink.toString();
-
-      expect(
-        code,
-        contains(
-          'TestPackageNested* test_package_nested_new(gboolean nested_value) {',
+      final sink = StringBuffer();
+      const generator = GObjectGenerator();
+      final generatorOptions = OutputFileOptions<InternalGObjectOptions>(
+        fileType: FileType.source,
+        languageOptions: const InternalGObjectOptions(
+          headerIncludePath: '',
+          gobjectHeaderOut: '',
+          gobjectSourceOut: '',
         ),
       );
+      generator.generate(generatorOptions, root, sink, dartPackageName: DEFAULT_PACKAGE_NAME);
+      final code = sink.toString();
+
+      expect(code, contains('TestPackageNested* test_package_nested_new(gboolean nested_value) {'));
     }
   });
 
   test('host non-nullable return types map correctly', () {
-    final Class returnDataClass = Class(
+    final returnDataClass = Class(
       name: 'ReturnData',
       fields: <NamedType>[
         NamedType(
@@ -559,7 +462,7 @@ void main() {
         ),
       ],
     );
-    final Root root = Root(
+    final root = Root(
       apis: <Api>[
         AstHostApi(
           name: 'Api',
@@ -568,28 +471,19 @@ void main() {
               name: 'returnBool',
               location: ApiLocation.host,
               parameters: <Parameter>[],
-              returnType: const TypeDeclaration(
-                baseName: 'bool',
-                isNullable: false,
-              ),
+              returnType: const TypeDeclaration(baseName: 'bool', isNullable: false),
             ),
             Method(
               name: 'returnInt',
               location: ApiLocation.host,
               parameters: <Parameter>[],
-              returnType: const TypeDeclaration(
-                baseName: 'int',
-                isNullable: false,
-              ),
+              returnType: const TypeDeclaration(baseName: 'int', isNullable: false),
             ),
             Method(
               name: 'returnString',
               location: ApiLocation.host,
               parameters: <Parameter>[],
-              returnType: const TypeDeclaration(
-                baseName: 'String',
-                isNullable: false,
-              ),
+              returnType: const TypeDeclaration(baseName: 'String', isNullable: false),
             ),
             Method(
               name: 'returnList',
@@ -633,53 +527,37 @@ void main() {
       enums: <Enum>[],
     );
     {
-      final StringBuffer sink = StringBuffer();
-      const GObjectGenerator generator = GObjectGenerator();
-      final OutputFileOptions<InternalGObjectOptions> generatorOptions =
-          OutputFileOptions<InternalGObjectOptions>(
-            fileType: FileType.header,
-            languageOptions: const InternalGObjectOptions(
-              headerIncludePath: '',
-              gobjectHeaderOut: '',
-              gobjectSourceOut: '',
-            ),
-          );
-      generator.generate(
-        generatorOptions,
-        root,
-        sink,
-        dartPackageName: DEFAULT_PACKAGE_NAME,
+      final sink = StringBuffer();
+      const generator = GObjectGenerator();
+      final generatorOptions = OutputFileOptions<InternalGObjectOptions>(
+        fileType: FileType.header,
+        languageOptions: const InternalGObjectOptions(
+          headerIncludePath: '',
+          gobjectHeaderOut: '',
+          gobjectSourceOut: '',
+        ),
       );
-      final String code = sink.toString();
+      generator.generate(generatorOptions, root, sink, dartPackageName: DEFAULT_PACKAGE_NAME);
+      final code = sink.toString();
       expect(
         code,
-        contains(
-          '  TestPackageApiReturnBoolResponse* (*return_bool)(gpointer user_data);',
-        ),
+        contains('  TestPackageApiReturnBoolResponse* (*return_bool)(gpointer user_data);'),
       );
       expect(
         code,
-        contains(
-          '  TestPackageApiReturnIntResponse* (*return_int)(gpointer user_data);',
-        ),
+        contains('  TestPackageApiReturnIntResponse* (*return_int)(gpointer user_data);'),
       );
       expect(
         code,
-        contains(
-          '  TestPackageApiReturnStringResponse* (*return_string)(gpointer user_data);',
-        ),
+        contains('  TestPackageApiReturnStringResponse* (*return_string)(gpointer user_data);'),
       );
       expect(
         code,
-        contains(
-          '  TestPackageApiReturnListResponse* (*return_list)(gpointer user_data);',
-        ),
+        contains('  TestPackageApiReturnListResponse* (*return_list)(gpointer user_data);'),
       );
       expect(
         code,
-        contains(
-          '  TestPackageApiReturnMapResponse* (*return_map)(gpointer user_data);',
-        ),
+        contains('  TestPackageApiReturnMapResponse* (*return_map)(gpointer user_data);'),
       );
       expect(
         code,
@@ -691,7 +569,7 @@ void main() {
   });
 
   test('host non-nullable arguments map correctly', () {
-    final Class parameterObjectClass = Class(
+    final parameterObjectClass = Class(
       name: 'ParameterObject',
       fields: <NamedType>[
         NamedType(
@@ -700,8 +578,8 @@ void main() {
         ),
       ],
     );
-    final Class objectClass = Class(name: 'Object', fields: <NamedType>[]);
-    final Root root = Root(
+    final objectClass = Class(name: 'Object', fields: <NamedType>[]);
+    final root = Root(
       apis: <Api>[
         AstHostApi(
           name: 'Api',
@@ -712,24 +590,15 @@ void main() {
               parameters: <Parameter>[
                 Parameter(
                   name: 'aBool',
-                  type: const TypeDeclaration(
-                    baseName: 'bool',
-                    isNullable: false,
-                  ),
+                  type: const TypeDeclaration(baseName: 'bool', isNullable: false),
                 ),
                 Parameter(
                   name: 'anInt',
-                  type: const TypeDeclaration(
-                    baseName: 'int',
-                    isNullable: false,
-                  ),
+                  type: const TypeDeclaration(baseName: 'int', isNullable: false),
                 ),
                 Parameter(
                   name: 'aString',
-                  type: const TypeDeclaration(
-                    baseName: 'String',
-                    isNullable: false,
-                  ),
+                  type: const TypeDeclaration(baseName: 'String', isNullable: false),
                 ),
                 Parameter(
                   name: 'aList',
@@ -750,10 +619,7 @@ void main() {
                   type: TypeDeclaration(
                     baseName: 'Map',
                     typeArguments: <TypeDeclaration>[
-                      const TypeDeclaration(
-                        baseName: 'String',
-                        isNullable: true,
-                      ),
+                      const TypeDeclaration(baseName: 'String', isNullable: true),
                       TypeDeclaration(
                         baseName: 'Object',
                         isNullable: true,
@@ -789,24 +655,18 @@ void main() {
       enums: <Enum>[],
     );
     {
-      final StringBuffer sink = StringBuffer();
-      const GObjectGenerator generator = GObjectGenerator();
-      final OutputFileOptions<InternalGObjectOptions> generatorOptions =
-          OutputFileOptions<InternalGObjectOptions>(
-            fileType: FileType.header,
-            languageOptions: const InternalGObjectOptions(
-              headerIncludePath: '',
-              gobjectHeaderOut: '',
-              gobjectSourceOut: '',
-            ),
-          );
-      generator.generate(
-        generatorOptions,
-        root,
-        sink,
-        dartPackageName: DEFAULT_PACKAGE_NAME,
+      final sink = StringBuffer();
+      const generator = GObjectGenerator();
+      final generatorOptions = OutputFileOptions<InternalGObjectOptions>(
+        fileType: FileType.header,
+        languageOptions: const InternalGObjectOptions(
+          headerIncludePath: '',
+          gobjectHeaderOut: '',
+          gobjectSourceOut: '',
+        ),
       );
-      final String code = sink.toString();
+      generator.generate(generatorOptions, root, sink, dartPackageName: DEFAULT_PACKAGE_NAME);
+      final code = sink.toString();
       expect(
         code,
         contains(
@@ -815,24 +675,18 @@ void main() {
       );
     }
     {
-      final StringBuffer sink = StringBuffer();
-      const GObjectGenerator generator = GObjectGenerator();
-      final OutputFileOptions<InternalGObjectOptions> generatorOptions =
-          OutputFileOptions<InternalGObjectOptions>(
-            fileType: FileType.source,
-            languageOptions: const InternalGObjectOptions(
-              headerIncludePath: '',
-              gobjectHeaderOut: '',
-              gobjectSourceOut: '',
-            ),
-          );
-      generator.generate(
-        generatorOptions,
-        root,
-        sink,
-        dartPackageName: DEFAULT_PACKAGE_NAME,
+      final sink = StringBuffer();
+      const generator = GObjectGenerator();
+      final generatorOptions = OutputFileOptions<InternalGObjectOptions>(
+        fileType: FileType.source,
+        languageOptions: const InternalGObjectOptions(
+          headerIncludePath: '',
+          gobjectHeaderOut: '',
+          gobjectSourceOut: '',
+        ),
       );
-      final String code = sink.toString();
+      generator.generate(generatorOptions, root, sink, dartPackageName: DEFAULT_PACKAGE_NAME);
+      final code = sink.toString();
       expect(
         code,
         contains(
@@ -843,7 +697,7 @@ void main() {
   });
 
   test('transfers documentation comments', () {
-    final List<String> comments = <String>[
+    final comments = <String>[
       ' api comment',
       ' api method comment',
       ' class comment',
@@ -851,12 +705,12 @@ void main() {
       ' enum comment',
       ' enum member comment',
     ];
-    int count = 0;
+    var count = 0;
 
-    final List<String> unspacedComments = <String>['////////'];
-    int unspacedCount = 0;
+    final unspacedComments = <String>['////////'];
+    var unspacedCount = 0;
 
-    final Root root = Root(
+    final root = Root(
       apis: <Api>[
         AstFlutterApi(
           name: 'Api',
@@ -870,10 +724,7 @@ void main() {
               parameters: <Parameter>[
                 Parameter(
                   name: 'field',
-                  type: const TypeDeclaration(
-                    baseName: 'int',
-                    isNullable: true,
-                  ),
+                  type: const TypeDeclaration(baseName: 'int', isNullable: true),
                 ),
               ],
             ),
@@ -903,46 +754,34 @@ void main() {
       enums: <Enum>[
         Enum(
           name: 'enum',
-          documentationComments: <String>[
-            comments[count++],
-            unspacedComments[unspacedCount++],
-          ],
+          documentationComments: <String>[comments[count++], unspacedComments[unspacedCount++]],
           members: <EnumMember>[
-            EnumMember(
-              name: 'one',
-              documentationComments: <String>[comments[count++]],
-            ),
+            EnumMember(name: 'one', documentationComments: <String>[comments[count++]]),
             EnumMember(name: 'two'),
           ],
         ),
       ],
     );
-    final StringBuffer sink = StringBuffer();
-    const GObjectGenerator generator = GObjectGenerator();
-    final OutputFileOptions<InternalGObjectOptions> generatorOptions =
-        OutputFileOptions<InternalGObjectOptions>(
-          fileType: FileType.header,
-          languageOptions: const InternalGObjectOptions(
-            headerIncludePath: 'foo',
-            gobjectHeaderOut: '',
-            gobjectSourceOut: '',
-          ),
-        );
-    generator.generate(
-      generatorOptions,
-      root,
-      sink,
-      dartPackageName: DEFAULT_PACKAGE_NAME,
+    final sink = StringBuffer();
+    const generator = GObjectGenerator();
+    final generatorOptions = OutputFileOptions<InternalGObjectOptions>(
+      fileType: FileType.header,
+      languageOptions: const InternalGObjectOptions(
+        headerIncludePath: 'foo',
+        gobjectHeaderOut: '',
+        gobjectSourceOut: '',
+      ),
     );
-    final String code = sink.toString();
-    for (final String comment in comments) {
+    generator.generate(generatorOptions, root, sink, dartPackageName: DEFAULT_PACKAGE_NAME);
+    final code = sink.toString();
+    for (final comment in comments) {
       expect(code, contains(' *$comment'));
     }
     expect(code, contains(' * ///'));
   });
 
   test('generates custom class id constants', () {
-    final Class parameterObjectClass = Class(
+    final parameterObjectClass = Class(
       name: 'ParameterObject',
       fields: <NamedType>[
         NamedType(
@@ -951,12 +790,15 @@ void main() {
         ),
       ],
     );
-    final Class objectClass = Class(name: 'Object', fields: <NamedType>[]);
-    final Enum anEnum = Enum(
+    final objectClass = Class(name: 'Object', fields: <NamedType>[]);
+    final anEnum = Enum(
       name: 'enum',
-      members: <EnumMember>[EnumMember(name: 'one'), EnumMember(name: 'two')],
+      members: <EnumMember>[
+        EnumMember(name: 'one'),
+        EnumMember(name: 'two'),
+      ],
     );
-    final Root root = Root(
+    final root = Root(
       apis: <Api>[
         AstHostApi(
           name: 'Api',
@@ -995,57 +837,149 @@ void main() {
       enums: <Enum>[anEnum],
     );
     {
-      final StringBuffer sink = StringBuffer();
-      const GObjectGenerator generator = GObjectGenerator();
-      final OutputFileOptions<InternalGObjectOptions> generatorOptions =
-          OutputFileOptions<InternalGObjectOptions>(
-            fileType: FileType.header,
-            languageOptions: const InternalGObjectOptions(
-              headerIncludePath: '',
-              gobjectHeaderOut: '',
-              gobjectSourceOut: '',
-            ),
-          );
-      generator.generate(
-        generatorOptions,
-        root,
-        sink,
-        dartPackageName: DEFAULT_PACKAGE_NAME,
+      final sink = StringBuffer();
+      const generator = GObjectGenerator();
+      final generatorOptions = OutputFileOptions<InternalGObjectOptions>(
+        fileType: FileType.header,
+        languageOptions: const InternalGObjectOptions(
+          headerIncludePath: '',
+          gobjectHeaderOut: '',
+          gobjectSourceOut: '',
+        ),
       );
-      final String code = sink.toString();
+      generator.generate(generatorOptions, root, sink, dartPackageName: DEFAULT_PACKAGE_NAME);
+      final code = sink.toString();
       expect(code, contains('extern const int test_packageenum_type_id;'));
-      expect(
-        code,
-        contains('extern const int test_package_parameter_object_type_id;'),
-      );
+      expect(code, contains('extern const int test_package_parameter_object_type_id;'));
       expect(code, contains('extern const int test_package_object_type_id;'));
     }
     {
-      final StringBuffer sink = StringBuffer();
-      const GObjectGenerator generator = GObjectGenerator();
-      final OutputFileOptions<InternalGObjectOptions> generatorOptions =
-          OutputFileOptions<InternalGObjectOptions>(
-            fileType: FileType.source,
-            languageOptions: const InternalGObjectOptions(
-              headerIncludePath: '',
-              gobjectHeaderOut: '',
-              gobjectSourceOut: '',
-            ),
-          );
-      generator.generate(
-        generatorOptions,
-        root,
-        sink,
-        dartPackageName: DEFAULT_PACKAGE_NAME,
+      final sink = StringBuffer();
+      const generator = GObjectGenerator();
+      final generatorOptions = OutputFileOptions<InternalGObjectOptions>(
+        fileType: FileType.source,
+        languageOptions: const InternalGObjectOptions(
+          headerIncludePath: '',
+          gobjectHeaderOut: '',
+          gobjectSourceOut: '',
+        ),
       );
-      final String code = sink.toString();
+      generator.generate(generatorOptions, root, sink, dartPackageName: DEFAULT_PACKAGE_NAME);
+      final code = sink.toString();
 
       expect(code, contains('const int test_packageenum_type_id = 129;'));
-      expect(
-        code,
-        contains('const int test_package_parameter_object_type_id = 130;'),
-      );
+      expect(code, contains('const int test_package_parameter_object_type_id = 130;'));
       expect(code, contains('const int test_package_object_type_id = 131;'));
     }
+  });
+
+  test('data classes handle equality and hashing', () {
+    final inputClass = Class(
+      name: 'Input',
+      fields: <NamedType>[
+        NamedType(
+          type: const TypeDeclaration(baseName: 'String', isNullable: true),
+          name: 'input',
+        ),
+        NamedType(
+          type: const TypeDeclaration(baseName: 'double', isNullable: false),
+          name: 'someDouble',
+        ),
+        NamedType(
+          type: const TypeDeclaration(baseName: 'Uint8List', isNullable: false),
+          name: 'someBytes',
+        ),
+      ],
+    );
+    final root = Root(apis: <Api>[], classes: <Class>[inputClass], enums: <Enum>[]);
+    {
+      final sink = StringBuffer();
+      const generator = GObjectGenerator();
+      final generatorOptions = OutputFileOptions<InternalGObjectOptions>(
+        fileType: FileType.source,
+        languageOptions: const InternalGObjectOptions(
+          headerIncludePath: '',
+          gobjectHeaderOut: '',
+          gobjectSourceOut: '',
+        ),
+      );
+      generator.generate(generatorOptions, root, sink, dartPackageName: DEFAULT_PACKAGE_NAME);
+      final code = sink.toString();
+      expect(code, contains('gboolean test_package_input_equals('));
+      expect(code, contains('guint test_package_input_hash('));
+    }
+  });
+
+  test('data classes handle to_string', () {
+    final inputClass = Class(
+      name: 'Input',
+      fields: <NamedType>[
+        NamedType(
+          type: const TypeDeclaration(baseName: 'String', isNullable: true),
+          name: 'input',
+        ),
+      ],
+    );
+    final root = Root(apis: <Api>[], classes: <Class>[inputClass], enums: <Enum>[]);
+    final sink = StringBuffer();
+    const generator = GObjectGenerator();
+    final generatorOptions = OutputFileOptions<InternalGObjectOptions>(
+      fileType: FileType.source,
+      languageOptions: const InternalGObjectOptions(
+        headerIncludePath: '',
+        gobjectHeaderOut: '',
+        gobjectSourceOut: '',
+      ),
+    );
+    generator.generate(generatorOptions, root, sink, dartPackageName: DEFAULT_PACKAGE_NAME);
+    final code = sink.toString();
+    expect(code, contains('gchar* test_package_input_to_string('));
+    expect(code, contains('g_string_new("Input(");'));
+  });
+
+  test('gen constants', () {
+    final root = Root(
+      apis: <Api>[],
+      classes: <Class>[],
+      enums: <Enum>[],
+      constants: <Constant>[
+        Constant(
+          name: 'stringConst',
+          type: const TypeDeclaration(baseName: 'String', isNullable: false),
+          value: 'hello',
+        ),
+        Constant(
+          name: 'intConst',
+          type: const TypeDeclaration(baseName: 'int', isNullable: false),
+          value: 42,
+        ),
+        Constant(
+          name: 'doubleConst',
+          type: const TypeDeclaration(baseName: 'double', isNullable: false),
+          value: 3.14,
+        ),
+        Constant(
+          name: 'boolConst',
+          type: const TypeDeclaration(baseName: 'bool', isNullable: false),
+          value: true,
+        ),
+      ],
+    );
+    final sink = StringBuffer();
+    const generator = GObjectGenerator();
+    final generatorOptions = OutputFileOptions<InternalGObjectOptions>(
+      fileType: FileType.header,
+      languageOptions: const InternalGObjectOptions(
+        headerIncludePath: 'foo.h',
+        gobjectHeaderOut: '',
+        gobjectSourceOut: '',
+      ),
+    );
+    generator.generate(generatorOptions, root, sink, dartPackageName: DEFAULT_PACKAGE_NAME);
+    final code = sink.toString();
+    expect(code, contains('#define TEST_PACKAGE_STRING_CONST "hello"'));
+    expect(code, contains('#define TEST_PACKAGE_INT_CONST 42'));
+    expect(code, contains('#define TEST_PACKAGE_DOUBLE_CONST 3.14'));
+    expect(code, contains('#define TEST_PACKAGE_BOOL_CONST TRUE'));
   });
 }

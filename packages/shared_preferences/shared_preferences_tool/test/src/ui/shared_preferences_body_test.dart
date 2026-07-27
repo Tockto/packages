@@ -21,16 +21,12 @@ void main() {
   group('group name', () {
     setupDummies();
 
-    testWidgets('should show keys and data panels', (
-      WidgetTester tester,
-    ) async {
-      final MockSharedPreferencesStateNotifier notifier =
-          MockSharedPreferencesStateNotifier();
+    testWidgets('should show keys and data panels', (WidgetTester tester) async {
+      final notifier = MockSharedPreferencesStateNotifier();
       when(notifier.value).thenReturn(const SharedPreferencesState());
 
       await tester.pumpWidget(
         DevToolsExtension(
-          requiresRunningApplication: false,
           child: InnerSharedPreferencesStateProvider(
             notifier: notifier,
             child: const SharedPreferencesBody(),

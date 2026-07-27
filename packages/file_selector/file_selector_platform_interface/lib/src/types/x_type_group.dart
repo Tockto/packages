@@ -71,7 +71,5 @@ class XTypeGroup {
   List<String>? get macUTIs => uniformTypeIdentifiers;
 
   static List<String>? _removeLeadingDots(List<String>? exts) =>
-      exts
-          ?.map((String ext) => ext.startsWith('.') ? ext.substring(1) : ext)
-          .toList();
+      exts?.map((String ext) => ext.startsWith('.') ? ext.substring(1) : ext).toList();
 }

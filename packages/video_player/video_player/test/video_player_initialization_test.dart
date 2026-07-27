@@ -15,26 +15,23 @@ void main() {
   late FakeVideoPlayerPlatform fakeVideoPlayerPlatform;
 
   setUp(() {
-    VideoPlayerPlatform.instance =
-        fakeVideoPlayerPlatform = FakeVideoPlayerPlatform();
+    VideoPlayerPlatform.instance = fakeVideoPlayerPlatform = FakeVideoPlayerPlatform();
   });
 
   test('plugin initialized', () async {
-    final VideoPlayerController controller = VideoPlayerController.networkUrl(
-      Uri.parse('https://127.0.0.1'),
-    );
+    final controller = VideoPlayerController.networkUrl(Uri.parse('https://127.0.0.1'));
     await controller.initialize();
     expect(fakeVideoPlayerPlatform.calls.first, 'init');
   });
 
   test('web configuration is applied (web only)', () async {
-    const VideoPlayerWebOptions expected = VideoPlayerWebOptions(
+    const expected = VideoPlayerWebOptions(
       allowContextMenu: false,
       allowRemotePlayback: false,
       controls: VideoPlayerWebOptionsControls.enabled(),
     );
 
-    final VideoPlayerController controller = VideoPlayerController.networkUrl(
+    final controller = VideoPlayerController.networkUrl(
       Uri.parse('https://127.0.0.1'),
       videoPlayerOptions: VideoPlayerOptions(webOptions: expected),
     );
@@ -42,9 +39,7 @@ void main() {
 
     expect(
       () {
-        fakeVideoPlayerPlatform.calls.singleWhere(
-          (String call) => call == 'setWebOptions',
-        );
+        fakeVideoPlayerPlatform.calls.singleWhere((String call) => call == 'setWebOptions');
       },
       returnsNormally,
       reason: 'setWebOptions must be called exactly once.',
@@ -59,7 +54,7 @@ void main() {
   test('video view type is applied', () async {
     const VideoViewType expected = VideoViewType.platformView;
 
-    final VideoPlayerController controller = VideoPlayerController.networkUrl(
+    final controller = VideoPlayerController.networkUrl(
       Uri.parse('https://127.0.0.1'),
       viewType: expected,
     );
@@ -67,9 +62,7 @@ void main() {
 
     expect(
       () {
-        fakeVideoPlayerPlatform.calls.singleWhere(
-          (String call) => call == 'createWithOptions',
-        );
+        fakeVideoPlayerPlatform.calls.singleWhere((String call) => call == 'createWithOptions');
       },
       returnsNormally,
       reason: 'createWithOptions must be called exactly once.',
@@ -78,6 +71,24 @@ void main() {
       fakeVideoPlayerPlatform.viewTypes[controller.playerId],
       expected,
       reason: 'view type must be passed to the platform',
+    );
+  });
+
+  test('back buffer duration is forwarded to platform', () async {
+    const expectedBackBufferDurationMs = 20000;
+
+    final controller = VideoPlayerController.networkUrl(
+      Uri.parse('https://127.0.0.1'),
+      videoPlayerOptions: VideoPlayerOptions(backBufferDurationMs: expectedBackBufferDurationMs),
+    );
+
+    await controller.initialize();
+
+    expect(
+      fakeVideoPlayerPlatform.videoPlayerOptions.last?.backBufferDurationMs,
+      expectedBackBufferDurationMs,
+      reason:
+          'backBufferDurationMs must be forwarded to the platform via VideoCreationOptions.videoPlayerOptions',
     );
   });
 }

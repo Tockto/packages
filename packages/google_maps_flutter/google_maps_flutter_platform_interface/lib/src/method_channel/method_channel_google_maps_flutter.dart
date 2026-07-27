@@ -71,9 +71,7 @@ class MethodChannelGoogleMapsFlutter extends GoogleMapsFlutterPlatform {
     MethodChannel? channel = _channels[mapId];
     if (channel == null) {
       channel = MethodChannel('plugins.flutter.io/google_maps_$mapId');
-      channel.setMethodCallHandler(
-        (MethodCall call) => _handleMethodCall(call, mapId),
-      );
+      channel.setMethodCallHandler((MethodCall call) => _handleMethodCall(call, mapId));
       _channels[mapId] = channel;
     }
     return channel;
@@ -99,9 +97,8 @@ class MethodChannelGoogleMapsFlutter extends GoogleMapsFlutterPlatform {
       StreamController<MapEvent<Object?>>.broadcast();
 
   // Returns a filtered view of the events in the _controller, by mapId.
-  Stream<MapEvent<Object?>> _events(int mapId) => _mapEventStreamController
-      .stream
-      .where((MapEvent<Object?> event) => event.mapId == mapId);
+  Stream<MapEvent<Object?>> _events(int mapId) =>
+      _mapEventStreamController.stream.where((MapEvent<Object?> event) => event.mapId == mapId);
 
   @override
   Stream<CameraMoveStartedEvent> onCameraMoveStarted({required int mapId}) {
@@ -180,10 +177,7 @@ class MethodChannelGoogleMapsFlutter extends GoogleMapsFlutterPlatform {
       case 'camera#onMove':
         final Map<String, Object?> arguments = _getArgumentDictionary(call);
         _mapEventStreamController.add(
-          CameraMoveEvent(
-            mapId,
-            CameraPosition.fromMap(arguments['position'])!,
-          ),
+          CameraMoveEvent(mapId, CameraPosition.fromMap(arguments['position'])!),
         );
       case 'camera#onIdle':
         _mapEventStreamController.add(CameraIdleEvent(mapId));
@@ -227,10 +221,7 @@ class MethodChannelGoogleMapsFlutter extends GoogleMapsFlutterPlatform {
       case 'polyline#onTap':
         final Map<String, Object?> arguments = _getArgumentDictionary(call);
         _mapEventStreamController.add(
-          PolylineTapEvent(
-            mapId,
-            PolylineId(arguments['polylineId']! as String),
-          ),
+          PolylineTapEvent(mapId, PolylineId(arguments['polylineId']! as String)),
         );
       case 'polygon#onTap':
         final Map<String, Object?> arguments = _getArgumentDictionary(call);
@@ -244,9 +235,7 @@ class MethodChannelGoogleMapsFlutter extends GoogleMapsFlutterPlatform {
         );
       case 'map#onTap':
         final Map<String, Object?> arguments = _getArgumentDictionary(call);
-        _mapEventStreamController.add(
-          MapTapEvent(mapId, LatLng.fromJson(arguments['position'])!),
-        );
+        _mapEventStreamController.add(MapTapEvent(mapId, LatLng.fromJson(arguments['position'])!));
       case 'map#onLongPress':
         final Map<String, Object?> arguments = _getArgumentDictionary(call);
         _mapEventStreamController.add(
@@ -254,11 +243,9 @@ class MethodChannelGoogleMapsFlutter extends GoogleMapsFlutterPlatform {
         );
       case 'tileOverlay#getTile':
         final Map<String, Object?> arguments = _getArgumentDictionary(call);
-        final Map<TileOverlayId, TileOverlay>? tileOverlaysForThisMap =
-            _tileOverlays[mapId];
-        final String tileOverlayId = arguments['tileOverlayId']! as String;
-        final TileOverlay? tileOverlay =
-            tileOverlaysForThisMap?[TileOverlayId(tileOverlayId)];
+        final Map<TileOverlayId, TileOverlay>? tileOverlaysForThisMap = _tileOverlays[mapId];
+        final tileOverlayId = arguments['tileOverlayId']! as String;
+        final TileOverlay? tileOverlay = tileOverlaysForThisMap?[TileOverlayId(tileOverlayId)];
         final TileProvider? tileProvider = tileOverlay?.tileProvider;
         if (tileProvider == null) {
           return TileProvider.noTile.toJson();
@@ -271,38 +258,28 @@ class MethodChannelGoogleMapsFlutter extends GoogleMapsFlutterPlatform {
         return tile.toJson();
       case 'cluster#onTap':
         final Map<String, Object?> arguments = _getArgumentDictionary(call);
-        final ClusterManagerId clusterManagerId = ClusterManagerId(
-          arguments['clusterManagerId']! as String,
-        );
+        final clusterManagerId = ClusterManagerId(arguments['clusterManagerId']! as String);
         final LatLng position = LatLng.fromJson(arguments['position'])!;
 
         final Map<String, List<dynamic>> latLngData =
             (arguments['bounds']! as Map<dynamic, dynamic>).map(
-              (dynamic key, dynamic object) => MapEntry<String, List<dynamic>>(
-                key as String,
-                object as List<dynamic>,
-              ),
+              (dynamic key, dynamic object) =>
+                  MapEntry<String, List<dynamic>>(key as String, object as List<dynamic>),
             );
 
-        final LatLngBounds bounds = LatLngBounds(
+        final bounds = LatLngBounds(
           northeast: LatLng.fromJson(latLngData['northeast'])!,
           southwest: LatLng.fromJson(latLngData['southwest'])!,
         );
 
-        final List<MarkerId> markerIds =
-            (arguments['markerIds']! as List<dynamic>)
-                .map((dynamic markerId) => MarkerId(markerId as String))
-                .toList();
+        final List<MarkerId> markerIds = (arguments['markerIds']! as List<dynamic>)
+            .map((dynamic markerId) => MarkerId(markerId as String))
+            .toList();
 
         _mapEventStreamController.add(
           ClusterTapEvent(
             mapId,
-            Cluster(
-              clusterManagerId,
-              markerIds,
-              position: position,
-              bounds: bounds,
-            ),
+            Cluster(clusterManagerId, markerIds, position: position, bounds: bounds),
           ),
         );
       default:
@@ -319,60 +296,34 @@ class MethodChannelGoogleMapsFlutter extends GoogleMapsFlutterPlatform {
   }
 
   @override
-  Future<void> updateMapOptions(
-    Map<String, dynamic> optionsUpdate, {
-    required int mapId,
-  }) {
-    return channel(mapId).invokeMethod<void>('map#update', <String, dynamic>{
-      'options': optionsUpdate,
-    });
-  }
-
-  @override
-  Future<void> updateMarkers(
-    MarkerUpdates markerUpdates, {
-    required int mapId,
-  }) {
+  Future<void> updateMapOptions(Map<String, dynamic> optionsUpdate, {required int mapId}) {
     return channel(
       mapId,
-    ).invokeMethod<void>('markers#update', markerUpdates.toJson());
+    ).invokeMethod<void>('map#update', <String, dynamic>{'options': optionsUpdate});
   }
 
   @override
-  Future<void> updatePolygons(
-    PolygonUpdates polygonUpdates, {
-    required int mapId,
-  }) {
-    return channel(
-      mapId,
-    ).invokeMethod<void>('polygons#update', polygonUpdates.toJson());
+  Future<void> updateMarkers(MarkerUpdates markerUpdates, {required int mapId}) {
+    return channel(mapId).invokeMethod<void>('markers#update', markerUpdates.toJson());
   }
 
   @override
-  Future<void> updatePolylines(
-    PolylineUpdates polylineUpdates, {
-    required int mapId,
-  }) {
-    return channel(
-      mapId,
-    ).invokeMethod<void>('polylines#update', polylineUpdates.toJson());
+  Future<void> updatePolygons(PolygonUpdates polygonUpdates, {required int mapId}) {
+    return channel(mapId).invokeMethod<void>('polygons#update', polygonUpdates.toJson());
   }
 
   @override
-  Future<void> updateCircles(
-    CircleUpdates circleUpdates, {
-    required int mapId,
-  }) {
-    return channel(
-      mapId,
-    ).invokeMethod<void>('circles#update', circleUpdates.toJson());
+  Future<void> updatePolylines(PolylineUpdates polylineUpdates, {required int mapId}) {
+    return channel(mapId).invokeMethod<void>('polylines#update', polylineUpdates.toJson());
   }
 
   @override
-  Future<void> updateHeatmaps(
-    HeatmapUpdates heatmapUpdates, {
-    required int mapId,
-  }) {
+  Future<void> updateCircles(CircleUpdates circleUpdates, {required int mapId}) {
+    return channel(mapId).invokeMethod<void>('circles#update', circleUpdates.toJson());
+  }
+
+  @override
+  Future<void> updateHeatmaps(HeatmapUpdates heatmapUpdates, {required int mapId}) {
     return channel(mapId).invokeMethod<void>(
       'heatmaps#update',
       serializeMapsObjectUpdates(heatmapUpdates, serializeHeatmap),
@@ -380,24 +331,14 @@ class MethodChannelGoogleMapsFlutter extends GoogleMapsFlutterPlatform {
   }
 
   @override
-  Future<void> updateTileOverlays({
-    required Set<TileOverlay> newTileOverlays,
-    required int mapId,
-  }) {
-    final Map<TileOverlayId, TileOverlay>? currentTileOverlays =
-        _tileOverlays[mapId];
-    final Set<TileOverlay> previousSet =
-        currentTileOverlays != null
-            ? currentTileOverlays.values.toSet()
-            : <TileOverlay>{};
-    final TileOverlayUpdates updates = TileOverlayUpdates.from(
-      previousSet,
-      newTileOverlays,
-    );
+  Future<void> updateTileOverlays({required Set<TileOverlay> newTileOverlays, required int mapId}) {
+    final Map<TileOverlayId, TileOverlay>? currentTileOverlays = _tileOverlays[mapId];
+    final Set<TileOverlay> previousSet = currentTileOverlays != null
+        ? currentTileOverlays.values.toSet()
+        : <TileOverlay>{};
+    final updates = TileOverlayUpdates.from(previousSet, newTileOverlays);
     _tileOverlays[mapId] = keyTileOverlayId(newTileOverlays);
-    return channel(
-      mapId,
-    ).invokeMethod<void>('tileOverlays#update', updates.toJson());
+    return channel(mapId).invokeMethod<void>('tileOverlays#update', updates.toJson());
   }
 
   @override
@@ -405,44 +346,38 @@ class MethodChannelGoogleMapsFlutter extends GoogleMapsFlutterPlatform {
     ClusterManagerUpdates clusterManagerUpdates, {
     required int mapId,
   }) {
-    return channel(mapId).invokeMethod<void>(
-      'clusterManagers#update',
-      clusterManagerUpdates.toJson(),
-    );
+    return channel(
+      mapId,
+    ).invokeMethod<void>('clusterManagers#update', clusterManagerUpdates.toJson());
   }
 
   @override
-  Future<void> clearTileCache(
-    TileOverlayId tileOverlayId, {
-    required int mapId,
-  }) {
-    return channel(mapId).invokeMethod<void>(
-      'tileOverlays#clearTileCache',
-      <String, Object>{'tileOverlayId': tileOverlayId.value},
-    );
+  Future<void> clearTileCache(TileOverlayId tileOverlayId, {required int mapId}) {
+    return channel(mapId).invokeMethod<void>('tileOverlays#clearTileCache', <String, Object>{
+      'tileOverlayId': tileOverlayId.value,
+    });
   }
 
   @override
   Future<void> animateCamera(CameraUpdate cameraUpdate, {required int mapId}) {
-    return channel(mapId).invokeMethod<void>('camera#animate', <String, Object>{
-      'cameraUpdate': cameraUpdate.toJson(),
-    });
+    return channel(
+      mapId,
+    ).invokeMethod<void>('camera#animate', <String, Object>{'cameraUpdate': cameraUpdate.toJson()});
   }
 
   @override
   Future<void> moveCamera(CameraUpdate cameraUpdate, {required int mapId}) {
-    return channel(mapId).invokeMethod<void>('camera#move', <String, dynamic>{
-      'cameraUpdate': cameraUpdate.toJson(),
-    });
+    return channel(
+      mapId,
+    ).invokeMethod<void>('camera#move', <String, dynamic>{'cameraUpdate': cameraUpdate.toJson()});
   }
 
   @override
   Future<void> setMapStyle(String? mapStyle, {required int mapId}) async {
-    final List<dynamic> successAndError =
-        (await channel(
-          mapId,
-        ).invokeMethod<List<dynamic>>('map#setStyle', mapStyle))!;
-    final bool success = successAndError[0] as bool;
+    final List<dynamic> successAndError = (await channel(
+      mapId,
+    ).invokeMethod<List<dynamic>>('map#setStyle', mapStyle))!;
+    final success = successAndError[0] as bool;
     if (!success) {
       throw MapStyleException(successAndError[1] as String);
     }
@@ -450,10 +385,9 @@ class MethodChannelGoogleMapsFlutter extends GoogleMapsFlutterPlatform {
 
   @override
   Future<LatLngBounds> getVisibleRegion({required int mapId}) async {
-    final Map<String, dynamic> latLngBounds =
-        (await channel(
-          mapId,
-        ).invokeMapMethod<String, dynamic>('map#getVisibleRegion'))!;
+    final Map<String, dynamic> latLngBounds = (await channel(
+      mapId,
+    ).invokeMapMethod<String, dynamic>('map#getVisibleRegion'))!;
     final LatLng southwest = LatLng.fromJson(latLngBounds['southwest'])!;
     final LatLng northeast = LatLng.fromJson(latLngBounds['northeast'])!;
 
@@ -461,57 +395,41 @@ class MethodChannelGoogleMapsFlutter extends GoogleMapsFlutterPlatform {
   }
 
   @override
-  Future<ScreenCoordinate> getScreenCoordinate(
-    LatLng latLng, {
-    required int mapId,
-  }) async {
-    final Map<String, int> point =
-        (await channel(mapId).invokeMapMethod<String, int>(
-          'map#getScreenCoordinate',
-          latLng.toJson(),
-        ))!;
+  Future<ScreenCoordinate> getScreenCoordinate(LatLng latLng, {required int mapId}) async {
+    final Map<String, int> point = (await channel(
+      mapId,
+    ).invokeMapMethod<String, int>('map#getScreenCoordinate', latLng.toJson()))!;
 
     return ScreenCoordinate(x: point['x']!, y: point['y']!);
   }
 
   @override
-  Future<LatLng> getLatLng(
-    ScreenCoordinate screenCoordinate, {
-    required int mapId,
-  }) async {
-    final List<dynamic> latLng =
-        (await channel(mapId).invokeMethod<List<dynamic>>(
-          'map#getLatLng',
-          screenCoordinate.toJson(),
-        ))!;
+  Future<LatLng> getLatLng(ScreenCoordinate screenCoordinate, {required int mapId}) async {
+    final List<dynamic> latLng = (await channel(
+      mapId,
+    ).invokeMethod<List<dynamic>>('map#getLatLng', screenCoordinate.toJson()))!;
     return LatLng(latLng[0] as double, latLng[1] as double);
   }
 
   @override
   Future<void> showMarkerInfoWindow(MarkerId markerId, {required int mapId}) {
-    return channel(mapId).invokeMethod<void>(
-      'markers#showInfoWindow',
-      <String, String>{'markerId': markerId.value},
-    );
+    return channel(
+      mapId,
+    ).invokeMethod<void>('markers#showInfoWindow', <String, String>{'markerId': markerId.value});
   }
 
   @override
   Future<void> hideMarkerInfoWindow(MarkerId markerId, {required int mapId}) {
-    return channel(mapId).invokeMethod<void>(
-      'markers#hideInfoWindow',
-      <String, String>{'markerId': markerId.value},
-    );
+    return channel(
+      mapId,
+    ).invokeMethod<void>('markers#hideInfoWindow', <String, String>{'markerId': markerId.value});
   }
 
   @override
-  Future<bool> isMarkerInfoWindowShown(
-    MarkerId markerId, {
-    required int mapId,
-  }) async {
-    return (await channel(mapId).invokeMethod<bool>(
-      'markers#isInfoWindowShown',
-      <String, String>{'markerId': markerId.value},
-    ))!;
+  Future<bool> isMarkerInfoWindowShown(MarkerId markerId, {required int mapId}) async {
+    return (await channel(mapId).invokeMethod<bool>('markers#isInfoWindowShown', <String, String>{
+      'markerId': markerId.value,
+    }))!;
   }
 
   @override
@@ -545,9 +463,8 @@ class MethodChannelGoogleMapsFlutter extends GoogleMapsFlutterPlatform {
     MapObjects mapObjects = const MapObjects(),
     Map<String, dynamic> mapOptions = const <String, dynamic>{},
   }) {
-    final Map<String, dynamic> creationParams = <String, dynamic>{
-      'initialCameraPosition':
-          widgetConfiguration.initialCameraPosition.toMap(),
+    final creationParams = <String, dynamic>{
+      'initialCameraPosition': widgetConfiguration.initialCameraPosition.toMap(),
       'options': mapOptions,
       'markersToAdd': serializeMarkerSet(mapObjects.markers),
       'polygonsToAdd': serializePolygonSet(mapObjects.polygons),
@@ -561,10 +478,7 @@ class MethodChannelGoogleMapsFlutter extends GoogleMapsFlutterPlatform {
       if (useAndroidViewSurface) {
         return PlatformViewLink(
           viewType: 'plugins.flutter.io/google_maps',
-          surfaceFactory: (
-            BuildContext context,
-            PlatformViewController controller,
-          ) {
+          surfaceFactory: (BuildContext context, PlatformViewController controller) {
             return AndroidViewSurface(
               controller: controller as AndroidViewController,
               gestureRecognizers: widgetConfiguration.gestureRecognizers,
@@ -581,9 +495,7 @@ class MethodChannelGoogleMapsFlutter extends GoogleMapsFlutterPlatform {
                   creationParamsCodec: const StandardMessageCodec(),
                   onFocus: () => params.onFocusChanged(true),
                 );
-            controller.addOnPlatformViewCreatedListener(
-              params.onPlatformViewCreated,
-            );
+            controller.addOnPlatformViewCreatedListener(params.onPlatformViewCreated);
             controller.addOnPlatformViewCreatedListener(onPlatformViewCreated);
 
             controller.create();
@@ -609,9 +521,7 @@ class MethodChannelGoogleMapsFlutter extends GoogleMapsFlutterPlatform {
       );
     }
 
-    return Text(
-      '$defaultTargetPlatform is not yet supported by the maps plugin',
-    );
+    return Text('$defaultTargetPlatform is not yet supported by the maps plugin');
   }
 
   @override

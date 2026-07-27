@@ -107,19 +107,13 @@ class VideoPlayer {
 
     _videoElement.onPlay.listen((dynamic _) {
       _eventController.add(
-        VideoEvent(
-          eventType: VideoEventType.isPlayingStateUpdate,
-          isPlaying: true,
-        ),
+        VideoEvent(eventType: VideoEventType.isPlayingStateUpdate, isPlaying: true),
       );
     });
 
     _videoElement.onPause.listen((dynamic _) {
       _eventController.add(
-        VideoEvent(
-          eventType: VideoEventType.isPlayingStateUpdate,
-          isPlaying: false,
-        ),
+        VideoEvent(eventType: VideoEventType.isPlayingStateUpdate, isPlaying: false),
       );
     });
 
@@ -153,7 +147,7 @@ class VideoPlayer {
       // playback for any reason, such as permission issues.
       // The rejection handler is called with a DOMException.
       // See: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/play
-      final web.DOMException exception = e as web.DOMException;
+      final exception = e as web.DOMException;
       _eventController.addError(
         PlatformException(code: exception.name, message: exception.message),
       );
@@ -309,24 +303,14 @@ class VideoPlayer {
 
   // Sends an [VideoEventType.initialized] [VideoEvent] with info about the wrapped video.
   void _sendInitialized() {
-    final Duration? duration = convertNumVideoDurationToPluginDuration(
-      _videoElement.duration,
-    );
+    final Duration? duration = convertNumVideoDurationToPluginDuration(_videoElement.duration);
 
-    final Size? size =
-        _videoElement.videoHeight.isFinite
-            ? Size(
-              _videoElement.videoWidth.toDouble(),
-              _videoElement.videoHeight.toDouble(),
-            )
-            : null;
+    final Size? size = _videoElement.videoHeight.isFinite
+        ? Size(_videoElement.videoWidth.toDouble(), _videoElement.videoHeight.toDouble())
+        : null;
 
     _eventController.add(
-      VideoEvent(
-        eventType: VideoEventType.initialized,
-        duration: duration,
-        size: size,
-      ),
+      VideoEvent(eventType: VideoEventType.initialized, duration: duration, size: size),
     );
   }
 
@@ -340,10 +324,7 @@ class VideoPlayer {
       _isBuffering = buffering;
       _eventController.add(
         VideoEvent(
-          eventType:
-              _isBuffering
-                  ? VideoEventType.bufferingStart
-                  : VideoEventType.bufferingEnd,
+          eventType: _isBuffering ? VideoEventType.bufferingStart : VideoEventType.bufferingEnd,
         ),
       );
     }
@@ -361,8 +342,8 @@ class VideoPlayer {
 
   // Converts from [html.TimeRanges] to our own List<DurationRange>.
   List<DurationRange> _toDurationRange(web.TimeRanges buffered) {
-    final List<DurationRange> durationRange = <DurationRange>[];
-    for (int i = 0; i < buffered.length; i++) {
+    final durationRange = <DurationRange>[];
+    for (var i = 0; i < buffered.length; i++) {
       durationRange.add(
         DurationRange(
           Duration(milliseconds: (buffered.start(i) * 1000).round()),

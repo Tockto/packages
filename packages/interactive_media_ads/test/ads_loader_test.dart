@@ -11,7 +11,7 @@ import 'test_stubs.dart';
 
 void main() {
   test('contentComplete', () async {
-    final TestPlatformAdsLoader adsLoader = TestPlatformAdsLoader(
+    final adsLoader = TestPlatformAdsLoader(
       PlatformAdsLoaderCreationParams(
         container: createTestAdDisplayContainer(),
         settings: TestImaSettings(const PlatformImaSettingsCreationParams()),
@@ -22,12 +22,12 @@ void main() {
       onRequestAds: (PlatformAdsRequest request) async {},
     );
 
-    final AdsLoader loader = AdsLoader.fromPlatform(adsLoader);
+    final loader = AdsLoader.fromPlatform(adsLoader);
     await loader.contentComplete();
   });
 
   test('requestAds', () async {
-    final PlatformAdsRequest platformRequest = PlatformAdsRequest.withAdTagUrl(
+    final platformRequest = PlatformAdsRequest.withAdTagUrl(
       adTagUrl: 'adTagUrl',
       adWillAutoPlay: true,
       adWillPlayMuted: false,
@@ -42,7 +42,7 @@ void main() {
       ),
     );
 
-    final TestPlatformAdsLoader adsLoader = TestPlatformAdsLoader(
+    final adsLoader = TestPlatformAdsLoader(
       PlatformAdsLoaderCreationParams(
         container: createTestAdDisplayContainer(),
         settings: TestImaSettings(const PlatformImaSettingsCreationParams()),
@@ -65,15 +65,12 @@ void main() {
           platformRequest.liveStreamPrefetchMaxWaitTime,
         );
         expect(request.vastLoadTimeout, platformRequest.vastLoadTimeout);
-        expect(
-          request.contentProgressProvider,
-          platformRequest.contentProgressProvider,
-        );
+        expect(request.contentProgressProvider, platformRequest.contentProgressProvider);
       }),
       onContentComplete: () async {},
     );
 
-    final AdsLoader loader = AdsLoader.fromPlatform(adsLoader);
+    final loader = AdsLoader.fromPlatform(adsLoader);
     await loader.requestAds(
       AdsRequest(
         adTagUrl: (platformRequest as PlatformAdsRequestWithAdTagUrl).adTagUrl,
@@ -83,8 +80,7 @@ void main() {
         contentDuration: platformRequest.contentDuration,
         contentKeywords: platformRequest.contentKeywords,
         contentTitle: platformRequest.contentTitle,
-        liveStreamPrefetchMaxWaitTime:
-            platformRequest.liveStreamPrefetchMaxWaitTime,
+        liveStreamPrefetchMaxWaitTime: platformRequest.liveStreamPrefetchMaxWaitTime,
         vastLoadTimeout: platformRequest.vastLoadTimeout,
         contentProgressProvider: ContentProgressProvider.fromPlatform(
           platformRequest.contentProgressProvider!,

@@ -39,11 +39,28 @@ public class ImageCaptureTest {
     final long targetResolution = Surface.ROTATION_0;
     final ImageCapture imageCapture =
         api.pigeon_defaultConstructor(
-            mockResolutionSelector, targetResolution, CameraXFlashMode.OFF);
+            mockResolutionSelector, targetResolution, CameraXFlashMode.OFF, null);
 
     assertEquals(imageCapture.getResolutionSelector(), mockResolutionSelector);
     assertEquals(imageCapture.getTargetRotation(), Surface.ROTATION_0);
     assertEquals(imageCapture.getFlashMode(), ImageCapture.FLASH_MODE_OFF);
+  }
+
+  @Test
+  public void pigeon_defaultConstructor_setsJpegQualityWhenProvided() {
+    final PigeonApiImageCapture api = new TestProxyApiRegistrar().getPigeonApiImageCapture();
+
+    final ResolutionSelector mockResolutionSelector = new ResolutionSelector.Builder().build();
+    final long targetRotation = Surface.ROTATION_0;
+    final long jpegQuality = 75;
+    final ImageCapture imageCapture =
+        api.pigeon_defaultConstructor(
+            mockResolutionSelector, targetRotation, CameraXFlashMode.OFF, jpegQuality);
+
+    assertEquals(imageCapture.getResolutionSelector(), mockResolutionSelector);
+    assertEquals(imageCapture.getTargetRotation(), Surface.ROTATION_0);
+    assertEquals(imageCapture.getFlashMode(), ImageCapture.FLASH_MODE_OFF);
+    assertEquals(imageCapture.getJpegQuality(), 75);
   }
 
   @Test
@@ -88,11 +105,13 @@ public class ImageCaptureTest {
           @NonNull
           @Override
           ImageCapture.OnImageSavedCallback createOnImageSavedCallback(
-              @NonNull File file, @NonNull Function1<? super Result<String>, Unit> callback) {
+              @NonNull File file,
+              @NonNull SystemServicesManager systemServicesManager,
+              @NonNull Function1<? super Result<String>, Unit> callback) {
             final File mockFile = mock(File.class);
             when(mockFile.getAbsolutePath()).thenReturn(filename);
             final ImageCapture.OnImageSavedCallback imageSavedCallback =
-                super.createOnImageSavedCallback(mockFile, callback);
+                super.createOnImageSavedCallback(mockFile, systemServicesManager, callback);
             imageSavedCallback.onImageSaved(mock(ImageCapture.OutputFileResults.class));
             return imageSavedCallback;
           }
@@ -114,6 +133,7 @@ public class ImageCaptureTest {
       final String[] result = {null};
       api.takePicture(
           instance,
+          mock(SystemServicesManager.class),
           ResultCompat.asCompatCallback(
               reply -> {
                 result[0] = reply.getOrNull();
@@ -155,6 +175,7 @@ public class ImageCaptureTest {
       final Throwable[] result = {null};
       api.takePicture(
           instance,
+          mock(SystemServicesManager.class),
           ResultCompat.asCompatCallback(
               reply -> {
                 result[0] = reply.exceptionOrNull();
@@ -167,14 +188,16 @@ public class ImageCaptureTest {
   }
 
   @Test
-  public void takePicture_onImageSavedCallbackCanSendsError() {
+  public void takePicture_onImageSavedCallbackSendsErrorAndReportsException() {
     final ProxyApiRegistrar mockApiRegistrar = mock(ProxyApiRegistrar.class);
     final Context mockContext = mock(Context.class);
     final File mockOutputDir = mock(File.class);
+    final SystemServicesManager mockSystemServicesManager = mock(SystemServicesManager.class);
     when(mockContext.getCacheDir()).thenReturn(mockOutputDir);
     when(mockApiRegistrar.getContext()).thenReturn(mockContext);
 
     final ImageCaptureException captureException = mock(ImageCaptureException.class);
+    when(captureException.getImageCaptureError()).thenReturn(ImageCapture.ERROR_CAPTURE_FAILED);
     final ImageCaptureProxyApi api =
         new ImageCaptureProxyApi(mockApiRegistrar) {
           @Override
@@ -185,9 +208,11 @@ public class ImageCaptureTest {
           @NonNull
           @Override
           ImageCapture.OnImageSavedCallback createOnImageSavedCallback(
-              @NonNull File file, @NonNull Function1<? super Result<String>, Unit> callback) {
+              @NonNull File file,
+              @NonNull SystemServicesManager systemServicesManager,
+              @NonNull Function1<? super Result<String>, Unit> callback) {
             final ImageCapture.OnImageSavedCallback imageSavedCallback =
-                super.createOnImageSavedCallback(mock(File.class), callback);
+                super.createOnImageSavedCallback(mock(File.class), systemServicesManager, callback);
             imageSavedCallback.onError(captureException);
             return imageSavedCallback;
           }
@@ -209,6 +234,7 @@ public class ImageCaptureTest {
       final Throwable[] result = {null};
       api.takePicture(
           instance,
+          mockSystemServicesManager,
           ResultCompat.asCompatCallback(
               reply -> {
                 result[0] = reply.exceptionOrNull();
@@ -220,6 +246,8 @@ public class ImageCaptureTest {
               any(ImageCapture.OutputFileOptions.class),
               any(Executor.class),
               any(ImageCapture.OnImageSavedCallback.class));
+      verify(mockSystemServicesManager)
+          .onCameraError("The camera framework failed to fulfill the image capture request.");
       assertEquals(result[0], captureException);
     }
   }

@@ -47,9 +47,7 @@ void main() {
       controller = MiniController.asset(_videoAssetKey);
     });
 
-    testWidgets('registers expected implementation', (
-      WidgetTester tester,
-    ) async {
+    testWidgets('registers expected implementation', (WidgetTester tester) async {
       AVFoundationVideoPlayer.registerWith();
       expect(VideoPlayerPlatform.instance, isA<AVFoundationVideoPlayer>());
     });
@@ -59,10 +57,7 @@ void main() {
 
       expect(controller.value.isInitialized, true);
       expect(await controller.position, Duration.zero);
-      expect(
-        controller.value.duration,
-        const Duration(seconds: 7, milliseconds: 540),
-      );
+      expect(controller.value.duration, const Duration(seconds: 7, milliseconds: 540));
     });
 
     testWidgets('can be played', (WidgetTester tester) async {
@@ -103,11 +98,8 @@ void main() {
       // Verify that we stopped playing after the pause.
       // TODO(stuartmorgan): Investigate why this has a slight discrepency, and
       // fix it if possible. Is AVPlayer's pause method internally async?
-      const Duration allowableDelta = Duration(milliseconds: 10);
-      expect(
-        await controller.position,
-        lessThan(pausedPosition + allowableDelta),
-      );
+      const allowableDelta = Duration(milliseconds: 10);
+      expect(await controller.position, lessThan(pausedPosition + allowableDelta));
     });
   });
 
@@ -119,7 +111,7 @@ void main() {
 
       // Write it to a file to use as a source.
       final String filename = _videoAssetKey.split('/').last;
-      final File file = File('$tempDir/$filename');
+      final file = File('$tempDir/$filename');
       await file.writeAsBytes(bytes.buffer.asInt8List());
 
       controller = MiniController.file(file);
@@ -148,15 +140,13 @@ void main() {
       (WidgetTester tester) async {
         await controller.initialize();
 
-        final Completer<void> started = Completer<void>();
-        final Completer<void> ended = Completer<void>();
+        final started = Completer<void>();
+        final ended = Completer<void>();
         controller.addListener(() {
           if (!started.isCompleted && controller.value.isBuffering) {
             started.complete();
           }
-          if (started.isCompleted &&
-              !controller.value.isBuffering &&
-              !ended.isCompleted) {
+          if (started.isCompleted && !controller.value.isBuffering && !ended.isCompleted) {
             ended.complete();
           }
         });
@@ -180,7 +170,7 @@ void main() {
     );
 
     testWidgets('live stream duration != 0', (WidgetTester tester) async {
-      final MiniController livestreamController = MiniController.network(
+      final livestreamController = MiniController.network(
         'https://flutter.github.io/assets-for-api-docs/assets/videos/hls/bee.m3u8',
       );
       await livestreamController.initialize();
@@ -188,18 +178,13 @@ void main() {
       expect(livestreamController.value.isInitialized, true);
       // Live streams should have either a positive duration or C.TIME_UNSET if the duration is unknown
       // See https://exoplayer.dev/doc/reference/com/google/android/exoplayer2/Player.html#getDuration--
-      expect(
-        livestreamController.value.duration,
-        (Duration duration) => duration != Duration.zero,
-      );
+      expect(livestreamController.value.duration, (Duration duration) => duration != Duration.zero);
     });
 
-    testWidgets('rotated m3u8 has correct aspect ratio', (
-      WidgetTester tester,
-    ) async {
+    testWidgets('rotated m3u8 has correct aspect ratio', (WidgetTester tester) async {
       // Some m3u8 files contain rotation data that may incorrectly invert the aspect ratio.
       // More info [here](https://github.com/flutter/flutter/issues/109116).
-      final MiniController livestreamController = MiniController.network(
+      final livestreamController = MiniController.network(
         'https://flutter.github.io/assets-for-api-docs/assets/videos/hls/rotated_nail_manifest.m3u8',
       );
       await livestreamController.initialize();

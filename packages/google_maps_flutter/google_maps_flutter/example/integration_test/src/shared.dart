@@ -22,14 +22,13 @@ const CameraPosition kInitialCameraPosition = CameraPosition(
 );
 
 // Dummy map ID
-const String kCloudMapId = '000000000000000'; // Dummy map ID.
+const String kMapId = '000000000000000'; // Dummy map ID.
 
 /// True if the test is running in an iOS device
 final bool isIOS = defaultTargetPlatform == TargetPlatform.iOS;
 
 /// True if the test is running in an Android device
-final bool isAndroid =
-    defaultTargetPlatform == TargetPlatform.android && !kIsWeb;
+final bool isAndroid = defaultTargetPlatform == TargetPlatform.android && !kIsWeb;
 
 /// True if the test is running in a web browser.
 const bool isWeb = kIsWeb;
@@ -50,7 +49,9 @@ Future<void> pumpMap(
 Widget wrapMap(GoogleMap map, [Size size = const Size.square(200)]) {
   return MaterialApp(
     home: Scaffold(
-      body: Center(child: SizedBox.fromSize(size: size, child: map)),
+      body: Center(
+        child: SizedBox.fromSize(size: size, child: map),
+      ),
     ),
   );
 }

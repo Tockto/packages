@@ -37,7 +37,7 @@ String instanceManagerTemplate(InternalKotlinOptions options) {
  */
 @Suppress("UNCHECKED_CAST", "MemberVisibilityCanBePrivate")
 class ${kotlinInstanceManagerClassName(options)}(private val finalizationListener: $_finalizationListenerClassName) {
-  /** Interface for listening when a weak reference of an instance is removed from the manager.  */
+  /** Interface for listening when a weak reference of an instance is removed from the manager. */
   interface $_finalizationListenerClassName {
     fun onFinalize(identifier: Long)
   }
@@ -180,7 +180,7 @@ class ${kotlinInstanceManagerClassName(options)}(private val finalizationListene
   }
 
   /** Retrieves the instance associated with identifier, if present, otherwise `null`. */
-  fun <T> getInstance(identifier: Long): T? {
+  fun <T : Any> getInstance(identifier: Long): T? {
     logWarningIfFinalizationListenerHasStopped()
     val instance = weakInstances[identifier] as IdentityWeakReference<T>?
     return instance?.get()
@@ -266,5 +266,4 @@ class ${kotlinInstanceManagerClassName(options)}(private val finalizationListene
 ''';
 }
 
-const String _finalizationListenerClassName =
-    '${proxyApiClassNamePrefix}FinalizationListener';
+const String _finalizationListenerClassName = '${proxyApiClassNamePrefix}FinalizationListener';

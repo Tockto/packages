@@ -32,11 +32,11 @@ WidgetTesterCallback testClickingTheButtonRedirectsToRoot({
   Widget Function(GoRouter router) appRouterBuilder = materialAppRouterBuilder,
 }) {
   return (WidgetTester tester) async {
-    final GoRouter router = GoRouter(
+    final router = GoRouter(
       initialLocation: '/error',
       routes: <GoRoute>[
-        GoRoute(path: '/', builder: (_, __) => const DummyStatefulWidget()),
-        GoRoute(path: '/error', builder: (_, __) => widget),
+        GoRoute(path: '/', builder: (_, _) => const DummyStatefulWidget()),
+        GoRoute(path: '/error', builder: (_, _) => widget),
       ],
     );
     addTearDown(router.dispose);

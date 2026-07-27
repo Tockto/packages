@@ -2,8 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:flutter/foundation.dart'
-    show immutable, objectRuntimeType, setEquals;
+import 'package:flutter/foundation.dart' show immutable, objectRuntimeType, setEquals;
 
 import 'maps_object.dart';
 import 'utils/maps_object.dart';
@@ -16,11 +15,7 @@ class MapsObjectUpdates<T extends MapsObject<T>> {
   /// [objectName] is the prefix to use when serializing the updates into a JSON
   /// dictionary. E.g., 'circle' will give 'circlesToAdd', 'circlesToUpdate',
   /// 'circleIdsToRemove'.
-  MapsObjectUpdates.from(
-    Set<T> previous,
-    Set<T> current, {
-    required this.objectName,
-  }) {
+  MapsObjectUpdates.from(Set<T> previous, Set<T> current, {required this.objectName}) {
     final Map<MapsObjectId<T>, T> previousObjects = keyByMapsObjectId(previous);
     final Map<MapsObjectId<T>, T> currentObjects = keyByMapsObjectId(current);
 
@@ -37,11 +32,7 @@ class MapsObjectUpdates<T extends MapsObject<T>> {
 
     _objectIdsToRemove = previousObjectIds.difference(currentObjectIds);
 
-    _objectsToAdd =
-        currentObjectIds
-            .difference(previousObjectIds)
-            .map(idToCurrentObject)
-            .toSet();
+    _objectsToAdd = currentObjectIds.difference(previousObjectIds).map(idToCurrentObject).toSet();
 
     // Returns `true` if [current] is not equals to previous one with the
     // same id.
@@ -50,12 +41,11 @@ class MapsObjectUpdates<T extends MapsObject<T>> {
       return current != previous;
     }
 
-    _objectsToChange =
-        currentObjectIds
-            .intersection(previousObjectIds)
-            .map(idToCurrentObject)
-            .where(hasChanged)
-            .toSet();
+    _objectsToChange = currentObjectIds
+        .intersection(previousObjectIds)
+        .map(idToCurrentObject)
+        .where(hasChanged)
+        .toSet();
   }
 
   /// The name of the objects being updated, for use in serialization.
@@ -84,7 +74,7 @@ class MapsObjectUpdates<T extends MapsObject<T>> {
 
   /// Converts this object to JSON.
   Object toJson() {
-    final Map<String, Object> updateMap = <String, Object>{};
+    final updateMap = <String, Object>{};
 
     void addIfNonNull(String fieldName, Object? value) {
       if (value != null) {
@@ -93,10 +83,7 @@ class MapsObjectUpdates<T extends MapsObject<T>> {
     }
 
     addIfNonNull('${objectName}sToAdd', serializeMapsObjectSet(_objectsToAdd));
-    addIfNonNull(
-      '${objectName}sToChange',
-      serializeMapsObjectSet(_objectsToChange),
-    );
+    addIfNonNull('${objectName}sToChange', serializeMapsObjectSet(_objectsToChange));
     addIfNonNull(
       '${objectName}IdsToRemove',
       _objectIdsToRemove.map<String>((MapsObjectId<T> m) => m.value).toList(),

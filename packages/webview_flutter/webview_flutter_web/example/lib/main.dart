@@ -57,24 +57,20 @@ class _SampleMenu extends StatelessWidget {
             _onDoPostRequest(controller);
         }
       },
-      itemBuilder:
-          (BuildContext context) => <PopupMenuItem<_MenuOptions>>[
-            const PopupMenuItem<_MenuOptions>(
-              value: _MenuOptions.doPostRequest,
-              child: Text('Post Request'),
-            ),
-          ],
+      itemBuilder: (BuildContext context) => <PopupMenuItem<_MenuOptions>>[
+        const PopupMenuItem<_MenuOptions>(
+          value: _MenuOptions.doPostRequest,
+          child: Text('Post Request'),
+        ),
+      ],
     );
   }
 
   Future<void> _onDoPostRequest(PlatformWebViewController controller) async {
-    final LoadRequestParams params = LoadRequestParams(
+    final params = LoadRequestParams(
       uri: Uri.parse('https://httpbin.org/post'),
       method: LoadRequestMethod.post,
-      headers: const <String, String>{
-        'foo': 'bar',
-        'Content-Type': 'text/plain',
-      },
+      headers: const <String, String>{'foo': 'bar', 'Content-Type': 'text/plain'},
       body: Uint8List.fromList('Test Body'.codeUnits),
     );
     await controller.loadRequest(params);

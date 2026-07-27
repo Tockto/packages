@@ -30,14 +30,8 @@ List<TreeViewNode<String>> simpleNodeSet = <TreeViewNode<String>>[
 void main() {
   group('TreeViewNode', () {
     test('getters, toString', () {
-      final List<TreeViewNode<String>> children = <TreeViewNode<String>>[
-        TreeViewNode<String>('child'),
-      ];
-      final TreeViewNode<String> node = TreeViewNode<String>(
-        'parent',
-        children: children,
-        expanded: true,
-      );
+      final children = <TreeViewNode<String>>[TreeViewNode<String>('child')];
+      final node = TreeViewNode<String>('parent', children: children, expanded: true);
       expect(node.content, 'parent');
       expect(node.children, children);
       expect(node.isExpanded, isTrue);
@@ -50,27 +44,13 @@ void main() {
       expect(node.children.first.depth, isNull);
       expect(node.children.first.parent, isNull);
 
-      expect(
-        node.toString(),
-        'TreeViewNode: parent, depth: null, parent, expanded: true',
-      );
-      expect(
-        node.children.first.toString(),
-        'TreeViewNode: child, depth: null, leaf',
-      );
+      expect(node.toString(), 'TreeViewNode: parent, depth: null, parent, expanded: true');
+      expect(node.children.first.toString(), 'TreeViewNode: child, depth: null, leaf');
     });
 
-    testWidgets('TreeView sets ups parent and depth properties', (
-      WidgetTester tester,
-    ) async {
-      final List<TreeViewNode<String>> children = <TreeViewNode<String>>[
-        TreeViewNode<String>('child'),
-      ];
-      final TreeViewNode<String> node = TreeViewNode<String>(
-        'parent',
-        children: children,
-        expanded: true,
-      );
+    testWidgets('TreeView sets ups parent and depth properties', (WidgetTester tester) async {
+      final children = <TreeViewNode<String>>[TreeViewNode<String>('child')];
+      final node = TreeViewNode<String>('parent', children: children, expanded: true);
       await tester.pumpWidget(
         MaterialApp(home: TreeView<String>(tree: <TreeViewNode<String>>[node])),
       );
@@ -86,14 +66,8 @@ void main() {
       expect(node.children.first.depth, 1);
       expect(node.children.first.parent, node);
 
-      expect(
-        node.toString(),
-        'TreeViewNode: parent, depth: root, parent, expanded: true',
-      );
-      expect(
-        node.children.first.toString(),
-        'TreeViewNode: child, depth: 1, leaf',
-      );
+      expect(node.toString(), 'TreeViewNode: parent, depth: root, parent, expanded: true');
+      expect(node.children.first.toString(), 'TreeViewNode: child, depth: 1, leaf');
     });
   });
 
@@ -121,61 +95,51 @@ void main() {
       ];
     });
     testWidgets('Can set controller on TreeView', (WidgetTester tester) async {
-      final TreeViewController controller = TreeViewController();
+      final controller = TreeViewController();
       TreeViewController? returnedController;
       await tester.pumpWidget(
         MaterialApp(
           home: TreeView<String>(
             tree: simpleNodeSet,
             controller: controller,
-            treeNodeBuilder: (
-              BuildContext context,
-              TreeViewNode<String> node,
-              AnimationStyle toggleAnimationStyle,
-            ) {
-              returnedController ??= TreeViewController.of(context);
-              return TreeView.defaultTreeNodeBuilder(
-                context,
-                node,
-                toggleAnimationStyle,
-              );
-            },
+            treeNodeBuilder:
+                (
+                  BuildContext context,
+                  TreeViewNode<String> node,
+                  AnimationStyle toggleAnimationStyle,
+                ) {
+                  returnedController ??= TreeViewController.of(context);
+                  return TreeView.defaultTreeNodeBuilder(context, node, toggleAnimationStyle);
+                },
           ),
         ),
       );
       expect(controller, returnedController);
     });
 
-    testWidgets('Can get default controller on TreeView', (
-      WidgetTester tester,
-    ) async {
+    testWidgets('Can get default controller on TreeView', (WidgetTester tester) async {
       TreeViewController? returnedController;
       await tester.pumpWidget(
         MaterialApp(
           home: TreeView<String>(
             tree: simpleNodeSet,
-            treeNodeBuilder: (
-              BuildContext context,
-              TreeViewNode<String> node,
-              AnimationStyle toggleAnimationStyle,
-            ) {
-              returnedController ??= TreeViewController.maybeOf(context);
-              return TreeView.defaultTreeNodeBuilder(
-                context,
-                node,
-                toggleAnimationStyle,
-              );
-            },
+            treeNodeBuilder:
+                (
+                  BuildContext context,
+                  TreeViewNode<String> node,
+                  AnimationStyle toggleAnimationStyle,
+                ) {
+                  returnedController ??= TreeViewController.maybeOf(context);
+                  return TreeView.defaultTreeNodeBuilder(context, node, toggleAnimationStyle);
+                },
           ),
         ),
       );
       expect(returnedController, isNotNull);
     });
 
-    testWidgets('Can get node for TreeViewNode.content', (
-      WidgetTester tester,
-    ) async {
-      final TreeViewController controller = TreeViewController();
+    testWidgets('Can get node for TreeViewNode.content', (WidgetTester tester) async {
+      final controller = TreeViewController();
       await tester.pumpWidget(
         MaterialApp(
           home: TreeView<String>(tree: simpleNodeSet, controller: controller),
@@ -186,7 +150,7 @@ void main() {
     });
 
     testWidgets('Can get isExpanded for a node', (WidgetTester tester) async {
-      final TreeViewController controller = TreeViewController();
+      final controller = TreeViewController();
       await tester.pumpWidget(
         MaterialApp(
           home: TreeView<String>(tree: simpleNodeSet, controller: controller),
@@ -197,7 +161,7 @@ void main() {
     });
 
     testWidgets('Can get isActive for a node', (WidgetTester tester) async {
-      final TreeViewController controller = TreeViewController();
+      final controller = TreeViewController();
       await tester.pumpWidget(
         MaterialApp(
           home: TreeView<String>(tree: simpleNodeSet, controller: controller),
@@ -210,10 +174,8 @@ void main() {
       expect(controller.isActive(simpleNodeSet[2].children[0]), isFalse);
     });
 
-    testWidgets('Can toggleNode, to collapse or expand', (
-      WidgetTester tester,
-    ) async {
-      final TreeViewController controller = TreeViewController();
+    testWidgets('Can toggleNode, to collapse or expand', (WidgetTester tester) async {
+      final controller = TreeViewController();
       await tester.pumpWidget(
         MaterialApp(
           home: TreeView<String>(tree: simpleNodeSet, controller: controller),
@@ -243,10 +205,8 @@ void main() {
       expect(controller.isActive(simpleNodeSet[1].children[0]), isFalse);
     });
 
-    testWidgets('Can expandNode, then collapseAll', (
-      WidgetTester tester,
-    ) async {
-      final TreeViewController controller = TreeViewController();
+    testWidgets('Can expandNode, then collapseAll', (WidgetTester tester) async {
+      final controller = TreeViewController();
       await tester.pumpWidget(
         MaterialApp(
           home: TreeView<String>(tree: simpleNodeSet, controller: controller),
@@ -276,10 +236,8 @@ void main() {
       expect(controller.isExpanded(simpleNodeSet[2]), isFalse);
     });
 
-    testWidgets('Can collapseNode, then expandAll', (
-      WidgetTester tester,
-    ) async {
-      final TreeViewController controller = TreeViewController();
+    testWidgets('Can collapseNode, then expandAll', (WidgetTester tester) async {
+      final controller = TreeViewController();
       await tester.pumpWidget(
         MaterialApp(
           home: TreeView<String>(tree: simpleNodeSet, controller: controller),
@@ -357,9 +315,7 @@ void main() {
         () {
           treeView = TreeView<String>(
             tree: simpleNodeSet,
-            horizontalDetails: const ScrollableDetails.horizontal(
-              reverse: true,
-            ),
+            horizontalDetails: const ScrollableDetails.horizontal(reverse: true),
           );
         },
         throwsA(
@@ -374,9 +330,9 @@ void main() {
     });
 
     testWidgets('.toggleNodeWith, onNodeToggle', (WidgetTester tester) async {
-      final TreeViewController controller = TreeViewController();
+      final controller = TreeViewController();
       // The default node builder wraps the leading icon with toggleNodeWith.
-      bool toggled = false;
+      var toggled = false;
       TreeViewNode<String>? toggledNode;
       await tester.pumpWidget(
         MaterialApp(
@@ -411,45 +367,44 @@ void main() {
               toggled = true;
               toggledNode = node;
             },
-            treeNodeBuilder: (
-              BuildContext context,
-              TreeViewNode<String> node,
-              AnimationStyle toggleAnimationStyle,
-            ) {
-              final Duration animationDuration =
-                  toggleAnimationStyle.duration ??
-                  TreeView.defaultAnimationDuration;
-              final Curve animationCurve =
-                  toggleAnimationStyle.curve ?? TreeView.defaultAnimationCurve;
-              // This makes the whole row trigger toggling.
-              return TreeView.wrapChildToToggleNode(
-                node: node,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    children: <Widget>[
-                      // Icon for parent nodes
-                      SizedBox.square(
-                        dimension: 30.0,
-                        child:
-                            node.children.isNotEmpty
+            treeNodeBuilder:
+                (
+                  BuildContext context,
+                  TreeViewNode<String> node,
+                  AnimationStyle toggleAnimationStyle,
+                ) {
+                  final Duration animationDuration =
+                      toggleAnimationStyle.duration ?? TreeView.defaultAnimationDuration;
+                  final Curve animationCurve =
+                      toggleAnimationStyle.curve ?? TreeView.defaultAnimationCurve;
+                  // This makes the whole row trigger toggling.
+                  return TreeView.wrapChildToToggleNode(
+                    node: node,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        children: <Widget>[
+                          // Icon for parent nodes
+                          SizedBox.square(
+                            dimension: 30.0,
+                            child: node.children.isNotEmpty
                                 ? AnimatedRotation(
-                                  turns: node.isExpanded ? 0.25 : 0.0,
-                                  duration: animationDuration,
-                                  curve: animationCurve,
-                                  child: const Icon(IconData(0x25BA), size: 14),
-                                )
+                                    turns: node.isExpanded ? 0.25 : 0.0,
+                                    duration: animationDuration,
+                                    curve: animationCurve,
+                                    child: const Icon(IconData(0x25BA), size: 14),
+                                  )
                                 : null,
+                          ),
+                          // Spacer
+                          const SizedBox(width: 8.0),
+                          // Content
+                          Text(node.content),
+                        ],
                       ),
-                      // Spacer
-                      const SizedBox(width: 8.0),
-                      // Content
-                      Text(node.content),
-                    ],
-                  ),
-                ),
-              );
-            },
+                    ),
+                  );
+                },
           ),
         ),
       );
@@ -463,22 +418,21 @@ void main() {
       expect(toggledNode, simpleNodeSet[1]);
     });
 
-    testWidgets('AnimationStyle is piped through to node builder', (
-      WidgetTester tester,
-    ) async {
+    testWidgets('AnimationStyle is piped through to node builder', (WidgetTester tester) async {
       AnimationStyle? style;
       await tester.pumpWidget(
         MaterialApp(
           home: TreeView<String>(
             tree: simpleNodeSet,
-            treeNodeBuilder: (
-              BuildContext context,
-              TreeViewNode<String> node,
-              AnimationStyle toggleAnimationStyle,
-            ) {
-              style ??= toggleAnimationStyle;
-              return Text(node.content);
-            },
+            treeNodeBuilder:
+                (
+                  BuildContext context,
+                  TreeViewNode<String> node,
+                  AnimationStyle toggleAnimationStyle,
+                ) {
+                  style ??= toggleAnimationStyle;
+                  return Text(node.content);
+                },
           ),
         ),
       );
@@ -497,14 +451,15 @@ void main() {
           home: TreeView<String>(
             tree: simpleNodeSet,
             toggleAnimationStyle: AnimationStyle.noAnimation,
-            treeNodeBuilder: (
-              BuildContext context,
-              TreeViewNode<String> node,
-              AnimationStyle toggleAnimationStyle,
-            ) {
-              style = toggleAnimationStyle;
-              return Text(node.content);
-            },
+            treeNodeBuilder:
+                (
+                  BuildContext context,
+                  TreeViewNode<String> node,
+                  AnimationStyle toggleAnimationStyle,
+                ) {
+                  style = toggleAnimationStyle;
+                  return Text(node.content);
+                },
           ),
         ),
       );
@@ -522,14 +477,15 @@ void main() {
               curve: Curves.easeIn,
               duration: const Duration(milliseconds: 200),
             ),
-            treeNodeBuilder: (
-              BuildContext context,
-              TreeViewNode<String> node,
-              AnimationStyle toggleAnimationStyle,
-            ) {
-              style ??= toggleAnimationStyle;
-              return Text(node.content);
-            },
+            treeNodeBuilder:
+                (
+                  BuildContext context,
+                  TreeViewNode<String> node,
+                  AnimationStyle toggleAnimationStyle,
+                ) {
+                  style ??= toggleAnimationStyle;
+                  return Text(node.content);
+                },
           ),
         ),
       );
@@ -541,16 +497,13 @@ void main() {
     testWidgets('Adding more root TreeViewNodes are reflected in the tree', (
       WidgetTester tester,
     ) async {
-      final TreeViewController controller = TreeViewController();
+      final controller = TreeViewController();
       await tester.pumpWidget(
         MaterialApp(
           home: StatefulBuilder(
             builder: (BuildContext context, StateSetter setState) {
               return Scaffold(
-                body: TreeView<String>(
-                  tree: simpleNodeSet,
-                  controller: controller,
-                ),
+                body: TreeView<String>(tree: simpleNodeSet, controller: controller),
                 floatingActionButton: FloatingActionButton(
                   onPressed: () {
                     setState(() {
@@ -590,71 +543,62 @@ void main() {
       expect(find.text('Added root'), findsOneWidget);
     });
 
-    testWidgets(
-      'Adding more TreeViewNodes below the root are reflected in the tree',
-      (WidgetTester tester) async {
-        final TreeViewController controller = TreeViewController();
-        await tester.pumpWidget(
-          MaterialApp(
-            home: StatefulBuilder(
-              builder: (BuildContext context, StateSetter setState) {
-                return Scaffold(
-                  body: TreeView<String>(
-                    tree: simpleNodeSet,
-                    controller: controller,
-                  ),
-                  floatingActionButton: FloatingActionButton(
-                    onPressed: () {
-                      setState(() {
-                        simpleNodeSet[1].children.add(
-                          TreeViewNode<String>('Added child'),
-                        );
-                      });
-                    },
-                  ),
-                );
-              },
-            ),
+    testWidgets('Adding more TreeViewNodes below the root are reflected in the tree', (
+      WidgetTester tester,
+    ) async {
+      final controller = TreeViewController();
+      await tester.pumpWidget(
+        MaterialApp(
+          home: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+              return Scaffold(
+                body: TreeView<String>(tree: simpleNodeSet, controller: controller),
+                floatingActionButton: FloatingActionButton(
+                  onPressed: () {
+                    setState(() {
+                      simpleNodeSet[1].children.add(TreeViewNode<String>('Added child'));
+                    });
+                  },
+                ),
+              );
+            },
           ),
-        );
-        await tester.pump();
+        ),
+      );
+      await tester.pump();
 
-        expect(find.text('Root 0'), findsOneWidget);
-        expect(find.text('Root 1'), findsOneWidget);
-        expect(find.text('Child 1:0'), findsOneWidget);
-        expect(find.text('Child 1:1'), findsOneWidget);
-        expect(find.text('Added child'), findsNothing);
-        expect(find.text('Root 2'), findsOneWidget);
-        expect(find.text('Child 2:0'), findsNothing);
-        expect(find.text('Child 2:1'), findsNothing);
-        expect(find.text('Root 3'), findsOneWidget);
+      expect(find.text('Root 0'), findsOneWidget);
+      expect(find.text('Root 1'), findsOneWidget);
+      expect(find.text('Child 1:0'), findsOneWidget);
+      expect(find.text('Child 1:1'), findsOneWidget);
+      expect(find.text('Added child'), findsNothing);
+      expect(find.text('Root 2'), findsOneWidget);
+      expect(find.text('Child 2:0'), findsNothing);
+      expect(find.text('Child 2:1'), findsNothing);
+      expect(find.text('Root 3'), findsOneWidget);
 
-        await tester.tap(find.byType(FloatingActionButton));
-        await tester.pump();
+      await tester.tap(find.byType(FloatingActionButton));
+      await tester.pump();
 
-        expect(find.text('Root 0'), findsOneWidget);
-        expect(find.text('Root 1'), findsOneWidget);
-        expect(find.text('Child 1:0'), findsOneWidget);
-        expect(find.text('Child 1:1'), findsOneWidget);
-        // Child node was added
-        expect(find.text('Added child'), findsOneWidget);
-        expect(find.text('Root 2'), findsOneWidget);
-        expect(find.text('Child 2:0'), findsNothing);
-        expect(find.text('Child 2:1'), findsNothing);
-        expect(find.text('Root 3'), findsOneWidget);
-      },
-    );
+      expect(find.text('Root 0'), findsOneWidget);
+      expect(find.text('Root 1'), findsOneWidget);
+      expect(find.text('Child 1:0'), findsOneWidget);
+      expect(find.text('Child 1:1'), findsOneWidget);
+      // Child node was added
+      expect(find.text('Added child'), findsOneWidget);
+      expect(find.text('Root 2'), findsOneWidget);
+      expect(find.text('Child 2:0'), findsNothing);
+      expect(find.text('Child 2:1'), findsNothing);
+      expect(find.text('Root 3'), findsOneWidget);
+    });
 
     test('should use the generic type for callbacks and builders', () {
-      final TreeView<String> treeView = TreeView<String>(
+      final treeView = TreeView<String>(
         tree: simpleNodeSet,
-        treeNodeBuilder: (
-          BuildContext context,
-          TreeViewNode<String> node,
-          AnimationStyle animationStyle,
-        ) {
-          return TreeView.defaultTreeNodeBuilder(context, node, animationStyle);
-        },
+        treeNodeBuilder:
+            (BuildContext context, TreeViewNode<String> node, AnimationStyle animationStyle) {
+              return TreeView.defaultTreeNodeBuilder(context, node, animationStyle);
+            },
         treeRowBuilder: (TreeViewNode<String> node) {
           return TreeView.defaultTreeRowBuilder(node);
         },
@@ -670,8 +614,8 @@ void main() {
       'TreeViewNode should expand/collapse correctly when the animation duration is set to zero.',
       (WidgetTester tester) async {
         // Regression test for https://github.com/flutter/flutter/issues/154292
-        final TreeViewController controller = TreeViewController();
-        final List<TreeViewNode<String>> tree = <TreeViewNode<String>>[
+        final controller = TreeViewController();
+        final tree = <TreeViewNode<String>>[
           TreeViewNode<String>('First'),
           TreeViewNode<String>(
             'Second',
@@ -710,23 +654,20 @@ void main() {
                 curve: Curves.easeInOut,
                 duration: Duration.zero,
               ),
-              treeNodeBuilder: (
-                BuildContext context,
-                TreeViewNode<Object?> node,
-                AnimationStyle animationStyle,
-              ) {
-                final Widget child = GestureDetector(
-                  behavior: HitTestBehavior.translucent,
-                  onTap: () => controller.toggleNode(node),
-                  child: TreeView.defaultTreeNodeBuilder(
-                    context,
-                    node,
-                    animationStyle,
-                  ),
-                );
+              treeNodeBuilder:
+                  (
+                    BuildContext context,
+                    TreeViewNode<Object?> node,
+                    AnimationStyle animationStyle,
+                  ) {
+                    final Widget child = GestureDetector(
+                      behavior: HitTestBehavior.translucent,
+                      onTap: () => controller.toggleNode(node),
+                      child: TreeView.defaultTreeNodeBuilder(context, node, animationStyle),
+                    );
 
-                return child;
-              },
+                    return child;
+                  },
             ),
           ),
         );
@@ -769,8 +710,8 @@ void main() {
     testWidgets(
       'TreeViewNode should close all child nodes when collapsed, once the animation is completed',
       (WidgetTester tester) async {
-        final TreeViewController controller = TreeViewController();
-        final List<TreeViewNode<String>> tree = <TreeViewNode<String>>[
+        final controller = TreeViewController();
+        final tree = <TreeViewNode<String>>[
           TreeViewNode<String>(
             'First',
             expanded: true,
@@ -800,23 +741,20 @@ void main() {
                 curve: Curves.easeInOut,
                 duration: const Duration(milliseconds: 200),
               ),
-              treeNodeBuilder: (
-                BuildContext context,
-                TreeViewNode<Object?> node,
-                AnimationStyle animationStyle,
-              ) {
-                final Widget child = GestureDetector(
-                  behavior: HitTestBehavior.translucent,
-                  onTap: () => controller.toggleNode(node),
-                  child: TreeView.defaultTreeNodeBuilder(
-                    context,
-                    node,
-                    animationStyle,
-                  ),
-                );
+              treeNodeBuilder:
+                  (
+                    BuildContext context,
+                    TreeViewNode<Object?> node,
+                    AnimationStyle animationStyle,
+                  ) {
+                    final Widget child = GestureDetector(
+                      behavior: HitTestBehavior.translucent,
+                      onTap: () => controller.toggleNode(node),
+                      child: TreeView.defaultTreeNodeBuilder(context, node, animationStyle),
+                    );
 
-                return child;
-              },
+                    return child;
+                  },
             ),
           ),
         );
@@ -838,14 +776,12 @@ void main() {
       },
     );
 
-    testWidgets('Expand then collapse with offscreen nodes (top)', (
-      WidgetTester tester,
-    ) async {
-      final ScrollController verticalController = ScrollController();
-      final TreeViewController controller = TreeViewController();
+    testWidgets('Expand then collapse with offscreen nodes (top)', (WidgetTester tester) async {
+      final verticalController = ScrollController();
+      final controller = TreeViewController();
       addTearDown(verticalController.dispose);
 
-      final List<TreeViewNode<String>> tree = <TreeViewNode<String>>[
+      final tree = <TreeViewNode<String>>[
         TreeViewNode<String>(
           'alpha',
           children: <TreeViewNode<String>>[
@@ -886,22 +822,13 @@ void main() {
             tree: tree,
             controller: controller,
             toggleAnimationStyle: AnimationStyle.noAnimation,
-            verticalDetails: ScrollableDetails.vertical(
-              controller: verticalController,
-            ),
+            verticalDetails: ScrollableDetails.vertical(controller: verticalController),
             treeNodeBuilder:
-                (
-                  BuildContext context,
-                  TreeViewNode<Object?> node,
-                  AnimationStyle animationStyle,
-                ) => GestureDetector(
-                  onTap: () => controller.toggleNode(node),
-                  child: TreeView.defaultTreeNodeBuilder(
-                    context,
-                    node,
-                    animationStyle,
-                  ),
-                ),
+                (BuildContext context, TreeViewNode<Object?> node, AnimationStyle animationStyle) =>
+                    GestureDetector(
+                      onTap: () => controller.toggleNode(node),
+                      child: TreeView.defaultTreeNodeBuilder(context, node, animationStyle),
+                    ),
           ),
         ),
       );
@@ -944,9 +871,8 @@ void main() {
             horizontalAxisDirection: AxisDirection.right,
             delegate: TreeRowBuilderDelegate(
               rowCount: 0,
-              nodeBuilder: (_, __) => const SizedBox(),
-              rowBuilder:
-                  (_) => const TreeRow(extent: FixedTreeRowExtent(40.0)),
+              nodeBuilder: (_, _) => const SizedBox(),
+              rowBuilder: (_) => const TreeRow(extent: FixedTreeRowExtent(40.0)),
             ),
             activeAnimations: const <UniqueKey, TreeViewNodesAnimation>{},
             rowDepths: const <int, int>{},
@@ -970,9 +896,8 @@ void main() {
             horizontalAxisDirection: AxisDirection.left,
             delegate: TreeRowBuilderDelegate(
               rowCount: 0,
-              nodeBuilder: (_, __) => const SizedBox(),
-              rowBuilder:
-                  (_) => const TreeRow(extent: FixedTreeRowExtent(40.0)),
+              nodeBuilder: (_, _) => const SizedBox(),
+              rowBuilder: (_) => const TreeRow(extent: FixedTreeRowExtent(40.0)),
             ),
             activeAnimations: const <UniqueKey, TreeViewNodesAnimation>{},
             rowDepths: const <int, int>{},
@@ -999,11 +924,7 @@ class TestOffset extends ViewportOffset {
   bool get allowImplicitScrolling => throw UnimplementedError();
 
   @override
-  Future<void> animateTo(
-    double to, {
-    required Duration duration,
-    required Curve curve,
-  }) {
+  Future<void> animateTo(double to, {required Duration duration, required Curve curve}) {
     throw UnimplementedError();
   }
 

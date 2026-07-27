@@ -7,14 +7,13 @@
 import 'dart:io';
 import 'dart:mirrors';
 
-import 'package:analyzer/dart/analysis/analysis_context.dart'
-    show AnalysisContext;
+import 'package:analyzer/dart/analysis/analysis_context.dart' show AnalysisContext;
 import 'package:analyzer/dart/analysis/analysis_context_collection.dart'
     show AnalysisContextCollection;
 import 'package:analyzer/dart/analysis/results.dart' show ParsedUnitResult;
 import 'package:analyzer/dart/analysis/session.dart' show AnalysisSession;
 import 'package:analyzer/dart/ast/ast.dart' as dart_ast;
-import 'package:analyzer/error/error.dart' show AnalysisError;
+import 'package:analyzer/diagnostic/diagnostic.dart' show Diagnostic;
 import 'package:args/args.dart';
 import 'package:meta/meta.dart' show visibleForTesting;
 import 'package:path/path.dart' as path;
@@ -22,8 +21,8 @@ import 'package:path/path.dart' as path;
 import 'ast.dart';
 import 'cpp/cpp_generator.dart';
 import 'dart/dart_generator.dart';
-import 'generator_tools.dart';
 import 'generator_tools.dart' as generator_tools;
+import 'generator_tools.dart';
 import 'gobject/gobject_generator.dart';
 import 'java/java_generator.dart';
 import 'kotlin/kotlin_generator.dart';
@@ -96,7 +95,9 @@ class ConfigurePigeon {
 /// generated host-platform interface.
 class HostApi {
   /// Parametric constructor for [HostApi].
-  const HostApi({this.dartHostTestHandler});
+  const HostApi({
+    @Deprecated('Mock/fake the generated Dart API instead.') this.dartHostTestHandler,
+  });
 
   /// The name of an interface generated for tests. Implement this
   /// interface and invoke `[name of this handler].setup` to receive
@@ -107,10 +108,11 @@ class HostApi {
   /// to specify where to generate the test file.
   ///
   /// Prefer to use a mock of the real [HostApi] with a mocking library for unit
-  /// tests.  Generating this Dart handler is sometimes useful in integration
+  /// tests. Generating this Dart handler is sometimes useful in integration
   /// testing.
   ///
   /// Defaults to `null` in which case no handler will be generated.
+  @Deprecated('Mock/fake the generated Dart API instead.')
   final String? dartHostTestHandler;
 }
 
@@ -238,7 +240,7 @@ class PigeonOptions {
   const PigeonOptions({
     this.input,
     this.dartOut,
-    this.dartTestOut,
+    @Deprecated('Mock/fake the generated Dart API instead.') this.dartTestOut,
     this.objcHeaderOut,
     this.objcSourceOut,
     this.objcOptions,
@@ -260,6 +262,7 @@ class PigeonOptions {
     this.debugGenerators,
     this.basePath,
     String? dartPackageName,
+    this.ignoreLints = true,
   }) : _dartPackageName = dartPackageName;
 
   /// Path to the file which will be processed.
@@ -269,6 +272,7 @@ class PigeonOptions {
   final String? dartOut;
 
   /// Path to the Dart file that will be generated for test support classes.
+  @Deprecated('Mock/fake the generated Dart API instead.')
   final String? dartTestOut;
 
   /// Path to the ".h" Objective-C file will be generated.
@@ -334,6 +338,9 @@ class PigeonOptions {
   /// The name of the package the pigeon files will be used in.
   final String? _dartPackageName;
 
+  /// Whether to ignore lint violations in generated Dart code.
+  final bool ignoreLints;
+
   /// Creates a [PigeonOptions] from a Map representation where:
   /// `x = PigeonOptions.fromMap(x.toMap())`.
   static PigeonOptions fromMap(Map<String, Object> map) {
@@ -343,47 +350,34 @@ class PigeonOptions {
       dartTestOut: map['dartTestOut'] as String?,
       objcHeaderOut: map['objcHeaderOut'] as String?,
       objcSourceOut: map['objcSourceOut'] as String?,
-      objcOptions:
-          map.containsKey('objcOptions')
-              ? ObjcOptions.fromMap(map['objcOptions']! as Map<String, Object>)
-              : null,
+      objcOptions: map.containsKey('objcOptions')
+          ? ObjcOptions.fromMap(map['objcOptions']! as Map<String, Object>)
+          : null,
       javaOut: map['javaOut'] as String?,
-      javaOptions:
-          map.containsKey('javaOptions')
-              ? JavaOptions.fromMap(map['javaOptions']! as Map<String, Object>)
-              : null,
+      javaOptions: map.containsKey('javaOptions')
+          ? JavaOptions.fromMap(map['javaOptions']! as Map<String, Object>)
+          : null,
       swiftOut: map['swiftOut'] as String?,
-      swiftOptions:
-          map.containsKey('swiftOptions')
-              ? SwiftOptions.fromList(
-                map['swiftOptions']! as Map<String, Object>,
-              )
-              : null,
+      swiftOptions: map.containsKey('swiftOptions')
+          ? SwiftOptions.fromList(map['swiftOptions']! as Map<String, Object>)
+          : null,
       kotlinOut: map['kotlinOut'] as String?,
-      kotlinOptions:
-          map.containsKey('kotlinOptions')
-              ? KotlinOptions.fromMap(
-                map['kotlinOptions']! as Map<String, Object>,
-              )
-              : null,
+      kotlinOptions: map.containsKey('kotlinOptions')
+          ? KotlinOptions.fromMap(map['kotlinOptions']! as Map<String, Object>)
+          : null,
       cppHeaderOut: map['cppHeaderOut'] as String?,
       cppSourceOut: map['cppSourceOut'] as String?,
-      cppOptions:
-          map.containsKey('cppOptions')
-              ? CppOptions.fromMap(map['cppOptions']! as Map<String, Object>)
-              : null,
+      cppOptions: map.containsKey('cppOptions')
+          ? CppOptions.fromMap(map['cppOptions']! as Map<String, Object>)
+          : null,
       gobjectHeaderOut: map['gobjectHeaderOut'] as String?,
       gobjectSourceOut: map['gobjectSourceOut'] as String?,
-      gobjectOptions:
-          map.containsKey('gobjectOptions')
-              ? GObjectOptions.fromMap(
-                map['gobjectOptions']! as Map<String, Object>,
-              )
-              : null,
-      dartOptions:
-          map.containsKey('dartOptions')
-              ? DartOptions.fromMap(map['dartOptions']! as Map<String, Object>)
-              : null,
+      gobjectOptions: map.containsKey('gobjectOptions')
+          ? GObjectOptions.fromMap(map['gobjectOptions']! as Map<String, Object>)
+          : null,
+      dartOptions: map.containsKey('dartOptions')
+          ? DartOptions.fromMap(map['dartOptions']! as Map<String, Object>)
+          : null,
       copyrightHeader: map['copyrightHeader'] as String?,
       astOut: map['astOut'] as String?,
       debugGenerators: map['debugGenerators'] as bool?,
@@ -395,7 +389,7 @@ class PigeonOptions {
   /// Converts a [PigeonOptions] to a Map representation where:
   /// `x = PigeonOptions.fromMap(x.toMap())`.
   Map<String, Object> toMap() {
-    final Map<String, Object> result = <String, Object>{
+    final result = <String, Object>{
       if (input != null) 'input': input!,
       if (dartOut != null) 'dartOut': dartOut!,
       if (dartTestOut != null) 'dartTestOut': dartTestOut!,
@@ -456,36 +450,25 @@ class Pigeon {
   /// [sdkPath] for specifying the Dart SDK path for
   /// [AnalysisContextCollection].
   ParseResults parseFile(String inputPath, {String? sdkPath}) {
-    final List<String> includedPaths = <String>[
-      path.absolute(path.normalize(inputPath)),
-    ];
-    final AnalysisContextCollection collection = AnalysisContextCollection(
-      includedPaths: includedPaths,
-      sdkPath: sdkPath,
-    );
+    final includedPaths = <String>[path.absolute(path.normalize(inputPath))];
+    final collection = AnalysisContextCollection(includedPaths: includedPaths, sdkPath: sdkPath);
 
-    final List<Error> compilationErrors = <Error>[];
-    final RootBuilder rootBuilder = RootBuilder(
-      File(inputPath).readAsStringSync(),
-    );
+    final compilationErrors = <Error>[];
+    final rootBuilder = RootBuilder(File(inputPath).readAsStringSync());
     for (final AnalysisContext context in collection.contexts) {
       for (final String path in context.contextRoot.analyzedFiles()) {
         final AnalysisSession session = context.currentSession;
-        final ParsedUnitResult result =
-            session.getParsedUnit(path) as ParsedUnitResult;
-        if (result.errors.isEmpty) {
+        final result = session.getParsedUnit(path) as ParsedUnitResult;
+        if (result.diagnostics.isEmpty) {
           final dart_ast.CompilationUnit unit = result.unit;
           unit.accept(rootBuilder);
         } else {
-          for (final AnalysisError error in result.errors) {
+          for (final Diagnostic diagnostic in result.diagnostics) {
             compilationErrors.add(
               Error(
-                message: error.message,
-                filename: error.source.fullName,
-                lineNumber: calculateLineNumber(
-                  error.source.contents.data,
-                  error.offset,
-                ),
+                message: diagnostic.message,
+                filename: diagnostic.source.fullName,
+                lineNumber: calculateLineNumber(diagnostic.source.contents.data, diagnostic.offset),
               ),
             );
           }
@@ -496,11 +479,7 @@ class Pigeon {
     if (compilationErrors.isEmpty) {
       return rootBuilder.results();
     } else {
-      return ParseResults(
-        root: Root.makeEmpty(),
-        errors: compilationErrors,
-        pigeonOptions: null,
-      );
+      return ParseResults(root: Root.makeEmpty(), errors: compilationErrors, pigeonOptions: null);
     }
   }
 
@@ -516,125 +495,105 @@ options:
 ${_argParser.usage}''';
   }
 
-  static final ArgParser _argParser =
-      ArgParser()
-        ..addOption('input', help: 'REQUIRED: Path to pigeon file.')
-        ..addOption(
-          'dart_out',
-          help:
-              'Path to generated Dart source file (.dart). '
-              'Required if one_language is not specified.',
-        )
-        ..addOption(
-          'dart_test_out',
-          help:
-              'Path to generated library for Dart tests, when using '
-              '@HostApi(dartHostTestHandler:).',
-        )
-        ..addOption(
-          'objc_source_out',
-          help: 'Path to generated Objective-C source file (.m).',
-        )
-        ..addOption('java_out', help: 'Path to generated Java file (.java).')
-        ..addOption(
-          'java_package',
-          help: 'The package that generated Java code will be in.',
-        )
-        ..addFlag(
-          'java_use_generated_annotation',
-          help: 'Adds the java.annotation.Generated annotation to the output.',
-        )
-        ..addOption(
-          'swift_out',
-          help: 'Path to generated Swift file (.swift).',
-          aliases: const <String>['experimental_swift_out'],
-        )
-        ..addOption(
-          'kotlin_out',
-          help: 'Path to generated Kotlin file (.kt).',
-          aliases: const <String>['experimental_kotlin_out'],
-        )
-        ..addOption(
-          'kotlin_package',
-          help: 'The package that generated Kotlin code will be in.',
-          aliases: const <String>['experimental_kotlin_package'],
-        )
-        ..addOption(
-          'cpp_header_out',
-          help: 'Path to generated C++ header file (.h).',
-          aliases: const <String>['experimental_cpp_header_out'],
-        )
-        ..addOption(
-          'cpp_source_out',
-          help: 'Path to generated C++ classes file (.cpp).',
-          aliases: const <String>['experimental_cpp_source_out'],
-        )
-        ..addOption(
-          'cpp_namespace',
-          help: 'The namespace that generated C++ code will be in.',
-        )
-        ..addOption(
-          'gobject_header_out',
-          help: 'Path to generated GObject header file (.h).',
-          aliases: const <String>['experimental_gobject_header_out'],
-        )
-        ..addOption(
-          'gobject_source_out',
-          help: 'Path to generated GObject classes file (.cc).',
-          aliases: const <String>['experimental_gobject_source_out'],
-        )
-        ..addOption(
-          'gobject_module',
-          help: 'The module that generated GObject code will be in.',
-        )
-        ..addOption(
-          'objc_header_out',
-          help: 'Path to generated Objective-C header file (.h).',
-        )
-        ..addOption(
-          'objc_prefix',
-          help: 'Prefix for generated Objective-C classes and protocols.',
-        )
-        ..addOption(
-          'copyright_header',
-          help:
-              'Path to file with copyright header to be prepended to generated code.',
-        )
-        ..addFlag(
-          'one_language',
-          hide: true,
-          help: 'Does nothing, only here to avoid breaking changes',
-        )
-        ..addOption(
-          'ast_out',
-          help:
-              'Path to generated AST debugging info. (Warning: format subject to change)',
-        )
-        ..addFlag(
-          'debug_generators',
-          help:
-              'Print the line number of the generator in comments at newlines.',
-        )
-        ..addOption(
-          'base_path',
-          help:
-              'A base path to be prefixed to all outputs and copyright header path. Generally used for testing',
-          hide: true,
-        )
-        ..addOption(
-          'package_name',
-          help: 'The package that generated code will be in.',
-        );
+  static final ArgParser _argParser = ArgParser()
+    ..addOption('input', help: 'REQUIRED: Path to pigeon file.')
+    ..addOption(
+      'dart_out',
+      help:
+          'Path to generated Dart source file (.dart). '
+          'Required if one_language is not specified.',
+    )
+    ..addOption(
+      'dart_test_out',
+      help:
+          'Path to generated library for Dart tests, when using '
+          '@HostApi(dartHostTestHandler:).',
+    )
+    ..addOption('objc_source_out', help: 'Path to generated Objective-C source file (.m).')
+    ..addOption('java_out', help: 'Path to generated Java file (.java).')
+    ..addOption('java_package', help: 'The package that generated Java code will be in.')
+    ..addFlag(
+      'java_use_generated_annotation',
+      help: 'Adds the java.annotation.Generated annotation to the output.',
+    )
+    ..addOption(
+      'swift_out',
+      help: 'Path to generated Swift file (.swift).',
+      aliases: const <String>['experimental_swift_out'],
+    )
+    ..addOption(
+      'kotlin_out',
+      help: 'Path to generated Kotlin file (.kt).',
+      aliases: const <String>['experimental_kotlin_out'],
+    )
+    ..addOption(
+      'kotlin_package',
+      help: 'The package that generated Kotlin code will be in.',
+      aliases: const <String>['experimental_kotlin_package'],
+    )
+    ..addFlag(
+      'kotlin_use_generated_annotation',
+      help: 'Adds javax.annotation.Generated annotation to the output.',
+    )
+    ..addOption(
+      'cpp_header_out',
+      help: 'Path to generated C++ header file (.h).',
+      aliases: const <String>['experimental_cpp_header_out'],
+    )
+    ..addOption(
+      'cpp_source_out',
+      help: 'Path to generated C++ classes file (.cpp).',
+      aliases: const <String>['experimental_cpp_source_out'],
+    )
+    ..addOption('cpp_namespace', help: 'The namespace that generated C++ code will be in.')
+    ..addOption(
+      'gobject_header_out',
+      help: 'Path to generated GObject header file (.h).',
+      aliases: const <String>['experimental_gobject_header_out'],
+    )
+    ..addOption(
+      'gobject_source_out',
+      help: 'Path to generated GObject classes file (.cc).',
+      aliases: const <String>['experimental_gobject_source_out'],
+    )
+    ..addOption('gobject_module', help: 'The module that generated GObject code will be in.')
+    ..addOption('objc_header_out', help: 'Path to generated Objective-C header file (.h).')
+    ..addOption('objc_prefix', help: 'Prefix for generated Objective-C classes and protocols.')
+    ..addOption(
+      'copyright_header',
+      help: 'Path to file with copyright header to be prepended to generated code.',
+    )
+    ..addFlag('one_language', hide: true, help: 'Does nothing, only here to avoid breaking changes')
+    ..addOption(
+      'ast_out',
+      help: 'Path to generated AST debugging info. (Warning: format subject to change)',
+    )
+    ..addFlag(
+      'debug_generators',
+      help: 'Print the line number of the generator in comments at newlines.',
+    )
+    ..addOption(
+      'base_path',
+      help:
+          'A base path to be prefixed to all outputs and copyright header path. Generally used for testing',
+      hide: true,
+    )
+    ..addOption('package_name', help: 'The package that generated code will be in.')
+    ..addFlag(
+      'ignore_lints',
+      help: 'Ignore all lint violations in generated Dart code.',
+      hide: true,
+    );
 
   /// Convert command-line arguments to [PigeonOptions].
   static PigeonOptions parseArgs(List<String> args) {
     // Note: This function shouldn't perform any logic, just translate the args
-    // to PigeonOptions.  Synthesized values inside of the PigeonOption should
+    // to PigeonOptions. Synthesized values inside of the PigeonOption should
     // get set in the `run` function to accommodate users that are using the
     // `configurePigeon` function.
     final ArgResults results = _argParser.parse(args);
 
-    final PigeonOptions opts = PigeonOptions(
+    final opts = PigeonOptions(
       input: results['input'] as String?,
       dartOut: results['dart_out'] as String?,
       dartTestOut: results['dart_test_out'] as String?,
@@ -644,27 +603,26 @@ ${_argParser.usage}''';
       javaOut: results['java_out'] as String?,
       javaOptions: JavaOptions(
         package: results['java_package'] as String?,
-        useGeneratedAnnotation:
-            results['java_use_generated_annotation'] as bool?,
+        useGeneratedAnnotation: results['java_use_generated_annotation'] as bool?,
       ),
       swiftOut: results['swift_out'] as String?,
       kotlinOut: results['kotlin_out'] as String?,
       kotlinOptions: KotlinOptions(
         package: results['kotlin_package'] as String?,
+        useGeneratedAnnotation: results['kotlin_use_generated_annotation'] as bool? ?? false,
       ),
       cppHeaderOut: results['cpp_header_out'] as String?,
       cppSourceOut: results['cpp_source_out'] as String?,
       cppOptions: CppOptions(namespace: results['cpp_namespace'] as String?),
       gobjectHeaderOut: results['gobject_header_out'] as String?,
       gobjectSourceOut: results['gobject_source_out'] as String?,
-      gobjectOptions: GObjectOptions(
-        module: results['gobject_module'] as String?,
-      ),
+      gobjectOptions: GObjectOptions(module: results['gobject_module'] as String?),
       copyrightHeader: results['copyright_header'] as String?,
       astOut: results['ast_out'] as String?,
       debugGenerators: results['debug_generators'] as bool?,
       basePath: results['base_path'] as String?,
       dartPackageName: results['package_name'] as String?,
+      ignoreLints: results.flag('ignore_lints'),
     );
     return opts;
   }
@@ -672,8 +630,7 @@ ${_argParser.usage}''';
   /// Crawls through the reflection system looking for a configurePigeon method and
   /// executing it.
   static void _executeConfigurePigeon(PigeonOptions options) {
-    for (final LibraryMirror library
-        in currentMirrorSystem().libraries.values) {
+    for (final LibraryMirror library in currentMirrorSystem().libraries.values) {
       for (final DeclarationMirror declaration in library.declarations.values) {
         if (declaration is MethodMirror &&
             MirrorSystem.getName(declaration.simpleName) == 'configurePigeon') {
@@ -688,21 +645,17 @@ ${_argParser.usage}''';
     }
   }
 
-  /// The 'main' entrypoint used by the command-line tool.  [args] are the
-  /// command-line arguments.  The optional parameter [adapters] allows you to
+  /// The 'main' entrypoint used by the command-line tool. [args] are the
+  /// command-line arguments. The optional parameter [adapters] allows you to
   /// customize the generators that pigeon will use. The optional parameter
   /// [sdkPath] allows you to specify the Dart SDK path.
-  static Future<int> run(
-    List<String> args, {
-    List<GeneratorAdapter>? adapters,
-    String? sdkPath,
-  }) {
+  static Future<int> run(List<String> args, {List<GeneratorAdapter>? adapters, String? sdkPath}) {
     final PigeonOptions options = Pigeon.parseArgs(args);
     return runWithOptions(options, adapters: adapters, sdkPath: sdkPath);
   }
 
-  /// The 'main' entrypoint used by external packages.  [options] is
-  /// used when running the code generator.  The optional parameter [adapters] allows you to
+  /// The 'main' entrypoint used by external packages. [options] is
+  /// used when running the code generator. The optional parameter [adapters] allows you to
   /// customize the generators that pigeon will use. The optional parameter
   /// [sdkPath] allows you to specify the Dart SDK path.
   static Future<int> runWithOptions(
@@ -719,15 +672,15 @@ ${_argParser.usage}''';
     final List<GeneratorAdapter> safeGeneratorAdapters =
         adapters ??
         <GeneratorAdapter>[
-          DartGeneratorAdapter(),
-          JavaGeneratorAdapter(),
-          SwiftGeneratorAdapter(),
-          KotlinGeneratorAdapter(),
-          CppGeneratorAdapter(),
-          GObjectGeneratorAdapter(),
-          DartTestGeneratorAdapter(),
-          ObjcGeneratorAdapter(),
-          AstGeneratorAdapter(),
+          const DartGeneratorAdapter(),
+          const JavaGeneratorAdapter(),
+          const SwiftGeneratorAdapter(),
+          const KotlinGeneratorAdapter(),
+          const CppGeneratorAdapter(),
+          const GObjectGeneratorAdapter(),
+          const DartTestGeneratorAdapter(),
+          const ObjcGeneratorAdapter(),
+          const AstGeneratorAdapter(),
         ];
     _executeConfigurePigeon(options);
 
@@ -736,10 +689,9 @@ ${_argParser.usage}''';
       return 0;
     }
 
-    parseResults =
-        parseResults ?? pigeon.parseFile(options.input!, sdkPath: sdkPath);
+    parseResults = parseResults ?? pigeon.parseFile(options.input!, sdkPath: sdkPath);
 
-    final List<Error> errors = <Error>[];
+    final errors = <Error>[];
     errors.addAll(parseResults.errors);
 
     // Helper to clean up non-Stdout sinks.
@@ -750,24 +702,15 @@ ${_argParser.usage}''';
     }
 
     if (parseResults.pigeonOptions != null && mergeDefinitionFileOptions) {
-      options = PigeonOptions.fromMap(
-        mergeMaps(options.toMap(), parseResults.pigeonOptions!),
-      );
+      options = PigeonOptions.fromMap(mergeMaps(options.toMap(), parseResults.pigeonOptions!));
     }
 
-    final InternalPigeonOptions internalOptions =
-        InternalPigeonOptions.fromPigeonOptions(options);
+    final InternalPigeonOptions internalOptions = InternalPigeonOptions.fromPigeonOptions(options);
 
-    for (final GeneratorAdapter adapter in safeGeneratorAdapters) {
-      final IOSink? sink = adapter.shouldGenerate(
-        internalOptions,
-        FileType.source,
-      );
+    for (final adapter in safeGeneratorAdapters) {
+      final IOSink? sink = adapter.shouldGenerate(internalOptions, FileType.source);
       if (sink != null) {
-        final List<Error> adapterErrors = adapter.validate(
-          internalOptions,
-          parseResults.root,
-        );
+        final List<Error> adapterErrors = adapter.validate(internalOptions, parseResults.root);
         errors.addAll(adapterErrors);
         await releaseSink(sink);
       }
@@ -788,7 +731,7 @@ ${_argParser.usage}''';
       return 1;
     }
 
-    for (final GeneratorAdapter adapter in safeGeneratorAdapters) {
+    for (final adapter in safeGeneratorAdapters) {
       for (final FileType fileType in adapter.fileTypeList) {
         final IOSink? sink = adapter.shouldGenerate(internalOptions, fileType);
         if (sink != null) {
@@ -804,12 +747,10 @@ ${_argParser.usage}''';
 
   /// Print a list of errors to stderr.
   static void printErrors(List<Error> errors) {
-    for (final Error err in errors) {
+    for (final err in errors) {
       if (err.filename != null) {
         if (err.lineNumber != null) {
-          stderr.writeln(
-            'Error: ${err.filename}:${err.lineNumber}: ${err.message}',
-          );
+          stderr.writeln('Error: ${err.filename}:${err.lineNumber}: ${err.message}');
         } else {
           stderr.writeln('Error: ${err.filename}: ${err.message}');
         }
@@ -843,11 +784,7 @@ class Error {
 /// A collection of an AST represented as a [Root] and [Error]'s.
 class ParseResults {
   /// Parametric constructor for [ParseResults].
-  ParseResults({
-    required this.root,
-    required this.errors,
-    required this.pigeonOptions,
-  });
+  ParseResults({required this.root, required this.errors, required this.pigeonOptions});
 
   /// The resulting AST.
   final Root root;

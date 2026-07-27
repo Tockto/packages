@@ -1,3 +1,18 @@
+## 2.13.1
+
+* Changes the default implementation of `setJpegImageQuality` to a no-op so that
+  platforms that do not support it ignore the setting instead of throwing.
+* Updates minimum supported SDK version to Flutter 3.38/Dart 3.10.
+
+## 2.13.0
+
+* Updates minimum supported SDK version to Flutter 3.35/Dart 3.9.
+* Adds `setJpegImageQuality` for controlling JPEG compression quality.
+
+## 2.12.0
+
+* Adds support for video stabilization.
+
 ## 2.11.0
 
 * Adds a flag to configure a recording to be persistent across camera changes. See

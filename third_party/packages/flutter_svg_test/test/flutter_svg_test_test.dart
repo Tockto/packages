@@ -13,10 +13,8 @@ void main() {
     group('with bytesLoader', () {
       // #docregion ByLoader
       testWidgets('asset svg', (WidgetTester widgetTester) async {
-        final SvgPicture asset = SvgPicture.asset('test/flutter_logo.svg');
-        await widgetTester.pumpWidget(
-          DefaultAssetBundle(bundle: _FakeAssetBundle(), child: asset),
-        );
+        final asset = SvgPicture.asset('test/flutter_logo.svg');
+        await widgetTester.pumpWidget(DefaultAssetBundle(bundle: _FakeAssetBundle(), child: asset));
 
         expect(find.svg(asset.bytesLoader), findsOneWidget);
       });
@@ -24,32 +22,29 @@ void main() {
 
       testWidgets('network svg', (WidgetTester widgetTester) async {
         final http.Client fakeClient = _FakeHttpClient();
-        final SvgPicture asset = SvgPicture.network(
-          'svg.dart',
-          httpClient: fakeClient,
-        );
+        final asset = SvgPicture.network('svg.dart', httpClient: fakeClient);
         await widgetTester.pumpWidget(asset);
 
         expect(find.svg(asset.bytesLoader), findsOneWidget);
       });
 
       testWidgets('string svg', (WidgetTester widgetTester) async {
-        final SvgPicture asset = SvgPicture.string(_svgStr);
+        final asset = SvgPicture.string(_svgStr);
         await widgetTester.pumpWidget(asset);
 
         expect(find.svg(asset.bytesLoader), findsOneWidget);
       });
 
       testWidgets('file svg', (WidgetTester widgetTester) async {
-        final File file = File('test/flutter_logo.svg');
-        final SvgPicture asset = SvgPicture.file(file);
+        final file = File('test/flutter_logo.svg');
+        final asset = SvgPicture.file(file);
         await widgetTester.pumpWidget(asset);
 
         expect(find.svg(asset.bytesLoader), findsOneWidget);
       });
 
       testWidgets('memory svg', (WidgetTester widgetTester) async {
-        final SvgPicture asset = SvgPicture.memory(_svgBytes);
+        final asset = SvgPicture.memory(_svgBytes);
         await widgetTester.pumpWidget(asset);
 
         expect(find.svg(asset.bytesLoader), findsOneWidget);
@@ -58,12 +53,9 @@ void main() {
 
     // #docregion ByPath
     testWidgets('asset svg with path', (WidgetTester widgetTester) async {
-      const String svgPath = 'test/flutter_logo.svg';
+      const svgPath = 'test/flutter_logo.svg';
       await widgetTester.pumpWidget(
-        DefaultAssetBundle(
-          bundle: _FakeAssetBundle(),
-          child: SvgPicture.asset(svgPath),
-        ),
+        DefaultAssetBundle(bundle: _FakeAssetBundle(), child: SvgPicture.asset(svgPath)),
       );
 
       expect(find.svgAssetWithPath(svgPath), findsOneWidget);
@@ -71,14 +63,14 @@ void main() {
     // #enddocregion ByPath
 
     testWidgets('network svg with url', (WidgetTester widgetTester) async {
-      const String svgUri = 'svg.dart';
+      const svgUri = 'svg.dart';
       await widgetTester.pumpWidget(SvgPicture.network(svgUri));
 
       expect(find.svgNetworkWithUrl(svgUri), findsOneWidget);
     });
 
     testWidgets('file svg with path', (WidgetTester widgetTester) async {
-      const String svgPath = 'test/flutter_logo.svg';
+      const svgPath = 'test/flutter_logo.svg';
 
       await widgetTester.pumpWidget(SvgPicture.file(File(svgPath)));
 

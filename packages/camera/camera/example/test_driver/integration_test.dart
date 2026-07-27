@@ -17,8 +17,7 @@ Future<void> main() async {
     print('This test must be run on a POSIX host. Skipping...');
     exit(0);
   }
-  final bool adbExists =
-      Process.runSync('which', <String>['adb']).exitCode == 0;
+  final adbExists = Process.runSync('which', <String>['adb']).exitCode == 0;
   if (!adbExists) {
     print(r'This test needs ADB to exist on the $PATH. Skipping...');
     exit(0);
@@ -40,10 +39,7 @@ Future<void> main() async {
   ]);
   print('Starting test.');
   final FlutterDriver driver = await FlutterDriver.connect();
-  final String data = await driver.requestData(
-    null,
-    timeout: const Duration(minutes: 1),
-  );
+  final String data = await driver.requestData(null, timeout: const Duration(minutes: 1));
   await driver.close();
   print('Test finished. Revoking camera permissions...');
   Process.runSync('adb', <String>[
@@ -61,6 +57,6 @@ Future<void> main() async {
     'android.permission.RECORD_AUDIO',
   ]);
 
-  final Map<String, dynamic> result = jsonDecode(data) as Map<String, dynamic>;
+  final result = jsonDecode(data) as Map<String, dynamic>;
   exit(result['result'] == 'true' ? 0 : 1);
 }

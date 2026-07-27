@@ -3,8 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:collection/collection.dart';
-import 'package:flutter/foundation.dart'
-    show VoidCallback, immutable, listEquals;
+import 'package:flutter/foundation.dart' show VoidCallback, immutable, listEquals;
 import 'package:flutter/material.dart' show Color, Colors;
 
 import 'types.dart';
@@ -131,7 +130,7 @@ class Polygon implements MapsObject<Polygon> {
   /// Converts this object to something serializable in JSON.
   @override
   Object toJson() {
-    final Map<String, Object> json = <String, Object>{};
+    final json = <String, Object>{};
 
     void addIfPresent(String fieldName, Object? value) {
       if (value != null) {
@@ -141,9 +140,9 @@ class Polygon implements MapsObject<Polygon> {
 
     addIfPresent('polygonId', polygonId.value);
     addIfPresent('consumeTapEvents', consumeTapEvents);
-    addIfPresent('fillColor', fillColor.value);
+    addIfPresent('fillColor', fillColor.toARGB32());
     addIfPresent('geodesic', geodesic);
-    addIfPresent('strokeColor', strokeColor.value);
+    addIfPresent('strokeColor', strokeColor.toARGB32());
     addIfPresent('strokeWidth', strokeWidth);
     addIfPresent('visible', visible);
     addIfPresent('zIndex', zIndex);
@@ -180,7 +179,7 @@ class Polygon implements MapsObject<Polygon> {
   int get hashCode => polygonId.hashCode;
 
   Object _pointsToJson() {
-    final List<Object> result = <Object>[];
+    final result = <Object>[];
     for (final LatLng point in points) {
       result.add(point.toJson());
     }
@@ -188,10 +187,10 @@ class Polygon implements MapsObject<Polygon> {
   }
 
   List<List<Object>> _holesToJson() {
-    final List<List<Object>> result = <List<Object>>[];
+    final result = <List<Object>>[];
     for (final List<LatLng> hole in holes) {
-      final List<Object> jsonHole = <Object>[];
-      for (final LatLng point in hole) {
+      final jsonHole = <Object>[];
+      for (final point in hole) {
         jsonHole.add(point.toJson());
       }
       result.add(jsonHole);

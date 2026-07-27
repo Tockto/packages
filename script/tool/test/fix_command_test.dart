@@ -21,9 +21,10 @@ void main() {
   setUp(() {
     mockPlatform = MockPlatform();
     final GitDir gitDir;
-    (:packagesDir, :processRunner, gitProcessRunner: _, :gitDir) =
-        configureBaseCommandMocks(platform: mockPlatform);
-    final FixCommand command = FixCommand(
+    (:packagesDir, :processRunner, gitProcessRunner: _, :gitDir) = configureBaseCommandMocks(
+      platform: mockPlatform,
+    );
+    final command = FixCommand(
       packagesDir,
       processRunner: processRunner,
       platform: mockPlatform,
@@ -41,15 +42,14 @@ void main() {
     await runCapturingPrint(runner, <String>['fix']);
 
     expect(
-        processRunner.recordedCalls,
-        orderedEquals(<ProcessCall>[
-          ProcessCall('dart', const <String>['fix', '--apply'], package.path),
-          ProcessCall('dart', const <String>['fix', '--apply'],
-              package.getExamples().first.path),
-          ProcessCall('dart', const <String>['fix', '--apply'], plugin.path),
-          ProcessCall('dart', const <String>['fix', '--apply'],
-              plugin.getExamples().first.path),
-        ]));
+      processRunner.recordedCalls,
+      orderedEquals(<ProcessCall>[
+        ProcessCall('dart', const <String>['fix', '--apply'], package.path),
+        ProcessCall('dart', const <String>['fix', '--apply'], package.getExamples().first.path),
+        ProcessCall('dart', const <String>['fix', '--apply'], plugin.path),
+        ProcessCall('dart', const <String>['fix', '--apply'], plugin.getExamples().first.path),
+      ]),
+    );
   });
 
   test('fails if "dart fix" fails', () async {
@@ -60,17 +60,15 @@ void main() {
     ];
 
     Error? commandError;
-    final List<String> output = await runCapturingPrint(runner, <String>['fix'],
-        errorHandler: (Error e) {
-      commandError = e;
-    });
+    final List<String> output = await runCapturingPrint(
+      runner,
+      <String>['fix'],
+      errorHandler: (Error e) {
+        commandError = e;
+      },
+    );
 
     expect(commandError, isA<ToolExit>());
-    expect(
-      output,
-      containsAllInOrder(<Matcher>[
-        contains('Unable to automatically fix package.'),
-      ]),
-    );
+    expect(output, containsAllInOrder(<Matcher>[contains('Unable to automatically fix package.')]));
   });
 }

@@ -17,8 +17,7 @@ class SharedAxisTransitionDemo extends StatefulWidget {
 }
 
 class _SharedAxisTransitionDemoState extends State<SharedAxisTransitionDemo> {
-  SharedAxisTransitionType? _transitionType =
-      SharedAxisTransitionType.horizontal;
+  SharedAxisTransitionType? _transitionType = SharedAxisTransitionType.horizontal;
   bool _isLoggedIn = false;
 
   void _updateTransitionType(SharedAxisTransitionType? newType) {
@@ -44,18 +43,19 @@ class _SharedAxisTransitionDemoState extends State<SharedAxisTransitionDemo> {
             Expanded(
               child: PageTransitionSwitcher(
                 reverse: !_isLoggedIn,
-                transitionBuilder: (
-                  Widget child,
-                  Animation<double> animation,
-                  Animation<double> secondaryAnimation,
-                ) {
-                  return SharedAxisTransition(
-                    animation: animation,
-                    secondaryAnimation: secondaryAnimation,
-                    transitionType: _transitionType!,
-                    child: child,
-                  );
-                },
+                transitionBuilder:
+                    (
+                      Widget child,
+                      Animation<double> animation,
+                      Animation<double> secondaryAnimation,
+                    ) {
+                      return SharedAxisTransition(
+                        animation: animation,
+                        secondaryAnimation: secondaryAnimation,
+                        transitionType: _transitionType!,
+                        child: child,
+                      );
+                    },
                 child: _isLoggedIn ? _CoursePage() : _SignInPage(),
               ),
             ),
@@ -84,17 +84,11 @@ class _SharedAxisTransitionDemoState extends State<SharedAxisTransitionDemo> {
               child: const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  Radio<SharedAxisTransitionType>(
-                    value: SharedAxisTransitionType.horizontal,
-                  ),
+                  Radio<SharedAxisTransitionType>(value: SharedAxisTransitionType.horizontal),
                   Text('X'),
-                  Radio<SharedAxisTransitionType>(
-                    value: SharedAxisTransitionType.vertical,
-                  ),
+                  Radio<SharedAxisTransitionType>(value: SharedAxisTransitionType.vertical),
                   Text('Y'),
-                  Radio<SharedAxisTransitionType>(
-                    value: SharedAxisTransitionType.scaled,
-                  ),
+                  Radio<SharedAxisTransitionType>(value: SharedAxisTransitionType.scaled),
                   Text('Z'),
                 ],
               ),
@@ -151,7 +145,7 @@ class _CourseSwitchState extends State<_CourseSwitch> {
 
   @override
   Widget build(BuildContext context) {
-    final String subtitle = _value ? 'Bundled' : 'Shown Individually';
+    final subtitle = _value ? 'Bundled' : 'Shown Individually';
     return SwitchListTile(
       title: Text(widget.course),
       subtitle: Text(subtitle),
@@ -176,10 +170,7 @@ class _SignInPage extends StatelessWidget {
             Padding(padding: EdgeInsets.symmetric(vertical: maxHeight / 20)),
             Image.asset('assets/avatar_logo.png', width: 80),
             Padding(padding: EdgeInsets.symmetric(vertical: maxHeight / 50)),
-            Text(
-              'Hi David Park',
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
+            Text('Hi David Park', style: Theme.of(context).textTheme.headlineSmall),
             Padding(padding: EdgeInsets.symmetric(vertical: maxHeight / 50)),
             const Text(
               'Sign in with your account',
@@ -189,19 +180,10 @@ class _SignInPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 const Padding(
-                  padding: EdgeInsets.only(
-                    top: 40.0,
-                    left: 15.0,
-                    right: 15.0,
-                    bottom: 10.0,
-                  ),
+                  padding: EdgeInsets.only(top: 40.0, left: 15.0, right: 15.0, bottom: 10.0),
                   child: TextField(
                     decoration: InputDecoration(
-                      suffixIcon: Icon(
-                        Icons.visibility,
-                        size: 20,
-                        color: Colors.black54,
-                      ),
+                      suffixIcon: Icon(Icons.visibility, size: 20, color: Colors.black54),
                       isDense: true,
                       labelText: 'Email or phone number',
                       border: OutlineInputBorder(),
@@ -210,17 +192,11 @@ class _SignInPage extends StatelessWidget {
                 ),
                 Padding(
                   padding: const EdgeInsets.only(left: 10.0),
-                  child: TextButton(
-                    onPressed: () {},
-                    child: const Text('FORGOT EMAIL?'),
-                  ),
+                  child: TextButton(onPressed: () {}, child: const Text('FORGOT EMAIL?')),
                 ),
                 Padding(
                   padding: const EdgeInsets.only(left: 10.0),
-                  child: TextButton(
-                    onPressed: () {},
-                    child: const Text('CREATE ACCOUNT'),
-                  ),
+                  child: TextButton(onPressed: () {}, child: const Text('CREATE ACCOUNT')),
                 ),
               ],
             ),

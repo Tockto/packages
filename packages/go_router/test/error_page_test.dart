@@ -14,7 +14,7 @@ void main() {
     testPageNotFound(widget: widgetsAppBuilder(home: const ErrorScreen(null))),
   );
 
-  final Exception exception = Exception('Something went wrong!');
+  final exception = Exception('Something went wrong!');
   testWidgets(
     'shows the exception message when provided',
     testPageShowsExceptionMessage(
@@ -26,9 +26,7 @@ void main() {
   testWidgets(
     'clicking the button should redirect to /',
     testClickingTheButtonRedirectsToRoot(
-      buttonFinder: find.byWidgetPredicate(
-        (Widget widget) => widget is GestureDetector,
-      ),
+      buttonFinder: find.byWidgetPredicate((Widget widget) => widget is GestureDetector),
       widget: widgetsAppBuilder(home: const ErrorScreen(null)),
     ),
   );

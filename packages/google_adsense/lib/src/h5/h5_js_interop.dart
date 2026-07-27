@@ -117,19 +117,18 @@ extension type AdBreakPlacement._(JSObject _) implements JSObject {
       name: '$_namePrefix${name ?? ''}'.toJS,
       beforeAd: beforeAd?.toJS,
       afterAd: afterAd?.toJS,
-      beforeReward:
-          beforeReward != null
-              ? (JSFunction showAdFn) {
-                beforeReward(() {
-                  // Delay the call to `showAdFn` so tap users don't trigger a click on the
-                  // ad on pointerup. This should leaves enough time for Flutter to settle
-                  // its tap events, before triggering the H5 ad.
-                  Timer(const Duration(milliseconds: 100), () {
-                    showAdFn.callAsFunction();
-                  });
+      beforeReward: beforeReward != null
+          ? (JSFunction showAdFn) {
+              beforeReward(() {
+                // Delay the call to `showAdFn` so tap users don't trigger a click on the
+                // ad on pointerup. This should leaves enough time for Flutter to settle
+                // its tap events, before triggering the H5 ad.
+                Timer(const Duration(milliseconds: 100), () {
+                  showAdFn.callAsFunction();
                 });
-              }.toJS
-              : null,
+              });
+            }.toJS
+          : null,
       adDismissed: adDismissed?.toJS,
       adViewed: adViewed?.toJS,
       adBreakDone: adBreakDone?.toJS,
@@ -177,9 +176,7 @@ extension type AdBreakPlacement._(JSObject _) implements JSObject {
   /// {@macro pkg_google_adsense_parameter_h5_adBreakDone}
   ///
   /// See: https://developers.google.com/ad-placement/apis#prerolls
-  factory AdBreakPlacement.preroll({
-    required H5AdBreakDoneCallback? adBreakDone,
-  }) {
+  factory AdBreakPlacement.preroll({required H5AdBreakDoneCallback? adBreakDone}) {
     return AdBreakPlacement(type: BreakType.preroll, adBreakDone: adBreakDone);
   }
 
@@ -298,14 +295,12 @@ extension type AdBreakDonePlacementInfo._(JSObject _) implements JSObject {
   external JSString? _breakName;
 
   /// The format of the break. See [BreakFormat].
-  BreakFormat? get breakFormat =>
-      BreakFormat.values.maybe(_breakFormat?.toDart);
+  BreakFormat? get breakFormat => BreakFormat.values.maybe(_breakFormat?.toDart);
   @JS('breakFormat')
   external JSString? _breakFormat;
 
   /// The status of this placement. See [BreakStatus].
-  BreakStatus? get breakStatus =>
-      BreakStatus.values.maybe(_breakStatus?.toDart);
+  BreakStatus? get breakStatus => BreakStatus.values.maybe(_breakStatus?.toDart);
   @JS('breakStatus')
   external JSString? _breakStatus;
 }
@@ -322,8 +317,7 @@ typedef H5BeforeAdCallback = void Function();
 typedef H5AfterAdCallback = void Function();
 
 /// The type of the `adBreakDone` callback.
-typedef H5AdBreakDoneCallback =
-    void Function(AdBreakDonePlacementInfo placementInfo);
+typedef H5AdBreakDoneCallback = void Function(AdBreakDonePlacementInfo placementInfo);
 
 /// The type of the `beforeReward` callback.
 typedef H5BeforeRewardCallback = void Function(H5ShowAdFn showAdFn);

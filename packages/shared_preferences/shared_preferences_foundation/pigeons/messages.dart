@@ -7,13 +7,12 @@ import 'package:pigeon/pigeon.dart';
 @ConfigurePigeon(
   PigeonOptions(
     dartOut: 'lib/src/messages.g.dart',
-    dartTestOut: 'test/test_api.g.dart',
     swiftOut:
         'darwin/shared_preferences_foundation/Sources/shared_preferences_foundation/messages.g.swift',
     copyrightHeader: 'pigeons/copyright_header.txt',
   ),
 )
-@HostApi(dartHostTestHandler: 'TestUserDefaultsApi')
+@HostApi()
 abstract class LegacyUserDefaultsApi {
   void remove(String key);
   void setBool(String key, bool value);
@@ -28,7 +27,7 @@ class SharedPreferencesPigeonOptions {
   String? suiteName;
 }
 
-@HostApi(dartHostTestHandler: 'TestSharedPreferencesAsyncApi')
+@HostApi()
 abstract class UserDefaultsApi {
   /// Adds property to shared preferences data set of type String.
   @SwiftFunction('set(key:value:options:)')
@@ -38,17 +37,11 @@ abstract class UserDefaultsApi {
   void clear(List<String>? allowList, SharedPreferencesPigeonOptions options);
 
   /// Gets all properties from shared preferences data set with matching prefix.
-  Map<String, Object> getAll(
-    List<String>? allowList,
-    SharedPreferencesPigeonOptions options,
-  );
+  Map<String, Object> getAll(List<String>? allowList, SharedPreferencesPigeonOptions options);
 
   /// Gets individual value stored with [key], if any.
   Object? getValue(String key, SharedPreferencesPigeonOptions options);
 
   /// Gets all properties from shared preferences data set with matching prefix.
-  List<String> getKeys(
-    List<String>? allowList,
-    SharedPreferencesPigeonOptions options,
-  );
+  List<String> getKeys(List<String>? allowList, SharedPreferencesPigeonOptions options);
 }

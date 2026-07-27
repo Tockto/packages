@@ -11,8 +11,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'page.dart';
 
 class AnimateCameraPage extends GoogleMapExampleAppPage {
-  const AnimateCameraPage({Key? key})
-    : super(const Icon(Icons.map), 'Camera control, animated', key: key);
+  const AnimateCameraPage({super.key}) : super(const Icon(Icons.map), 'Camera control, animated');
 
   @override
   Widget build(BuildContext context) {
@@ -40,10 +39,9 @@ class AnimateCameraState extends State<AnimateCamera> {
 
   void _toggleAnimationDuration() {
     setState(() {
-      _cameraUpdateAnimationDuration =
-          _cameraUpdateAnimationDuration != null
-              ? null
-              : const Duration(seconds: _durationSeconds);
+      _cameraUpdateAnimationDuration = _cameraUpdateAnimationDuration != null
+          ? null
+          : const Duration(seconds: _durationSeconds);
     });
   }
 
@@ -59,9 +57,7 @@ class AnimateCameraState extends State<AnimateCamera> {
             height: 200.0,
             child: GoogleMap(
               onMapCreated: _onMapCreated,
-              initialCameraPosition: const CameraPosition(
-                target: LatLng(0.0, 0.0),
-              ),
+              initialCameraPosition: const CameraPosition(target: LatLng(0.0, 0.0)),
             ),
           ),
         ),
@@ -89,9 +85,7 @@ class AnimateCameraState extends State<AnimateCamera> {
                 TextButton(
                   onPressed: () {
                     mapController?.animateCamera(
-                      CameraUpdate.newLatLng(
-                        const LatLng(56.1725505, 10.1850512),
-                      ),
+                      CameraUpdate.newLatLng(const LatLng(56.1725505, 10.1850512)),
                       duration: _cameraUpdateAnimationDuration,
                     );
                   },
@@ -115,10 +109,7 @@ class AnimateCameraState extends State<AnimateCamera> {
                 TextButton(
                   onPressed: () {
                     mapController?.animateCamera(
-                      CameraUpdate.newLatLngZoom(
-                        const LatLng(37.4231613, -122.087159),
-                        11.0,
-                      ),
+                      CameraUpdate.newLatLngZoom(const LatLng(37.4231613, -122.087159), 11.0),
                       duration: _cameraUpdateAnimationDuration,
                     );
                   },
@@ -193,12 +184,11 @@ class AnimateCameraState extends State<AnimateCamera> {
             const SizedBox(width: 5),
             Switch(
               value: _cameraUpdateAnimationDuration != null,
-              onChanged:
-                  kIsWeb
-                      ? null
-                      : (bool value) {
-                        _toggleAnimationDuration();
-                      },
+              onChanged: kIsWeb
+                  ? null
+                  : (bool value) {
+                      _toggleAnimationDuration();
+                    },
             ),
           ],
         ),

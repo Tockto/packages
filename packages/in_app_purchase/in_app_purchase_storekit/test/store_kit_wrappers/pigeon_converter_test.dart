@@ -8,19 +8,18 @@ import 'package:in_app_purchase_storekit/src/store_kit_2_wrappers/sk2_product_wr
 import 'package:in_app_purchase_storekit/store_kit_wrappers.dart';
 
 void main() {
-  final SKPriceLocaleWrapper locale = SKPriceLocaleWrapper(
+  final locale = SKPriceLocaleWrapper(
     currencySymbol: r'$',
     currencyCode: 'USD',
     countryCode: 'USA',
   );
 
-  final SKProductSubscriptionPeriodWrapper subPeriod =
-      SKProductSubscriptionPeriodWrapper(
-        numberOfUnits: 1,
-        unit: SKSubscriptionPeriodUnit.month,
-      );
+  final subPeriod = SKProductSubscriptionPeriodWrapper(
+    numberOfUnits: 1,
+    unit: SKSubscriptionPeriodUnit.month,
+  );
 
-  final SKProductDiscountWrapper discount = SKProductDiscountWrapper(
+  final discount = SKProductDiscountWrapper(
     price: '0.99',
     priceLocale: locale,
     numberOfPeriods: 1,
@@ -30,7 +29,7 @@ void main() {
     type: SKProductDiscountType.subscription,
   );
 
-  final SKProductWrapper product = SKProductWrapper(
+  final product = SKProductWrapper(
     productIdentifier: 'fake_product',
     localizedTitle: 'title',
     localizedDescription: 'description',
@@ -40,21 +39,18 @@ void main() {
     discounts: <SKProductDiscountWrapper>[discount],
   );
 
-  final SkProductResponseWrapper productResponse = SkProductResponseWrapper(
+  final productResponse = SkProductResponseWrapper(
     products: <SKProductWrapper>[product],
     invalidProductIdentifiers: const <String>['invalid_identifier'],
   );
 
   test('test SKPriceLocale pigeon converters', () {
-    final SKPriceLocaleMessage msg = SKPriceLocaleWrapper.convertToPigeon(
-      locale,
-    );
+    final SKPriceLocaleMessage msg = SKPriceLocaleWrapper.convertToPigeon(locale);
     expect(msg.currencySymbol, r'$');
     expect(msg.currencyCode, 'USD');
     expect(msg.countryCode, 'USA');
 
-    final SKPriceLocaleWrapper convertedWrapper =
-        SKPriceLocaleWrapper.convertFromPigeon(msg);
+    final SKPriceLocaleWrapper convertedWrapper = SKPriceLocaleWrapper.convertFromPigeon(msg);
     expect(convertedWrapper, locale);
   });
 
@@ -69,16 +65,16 @@ void main() {
   });
 
   test('test SKProductDiscount pigeon converters', () {
-    final SKProductDiscountMessage msg =
-        SKProductDiscountWrapper.convertToPigeon(discount);
+    final SKProductDiscountMessage msg = SKProductDiscountWrapper.convertToPigeon(discount);
     expect(msg.price, '0.99');
     expect(msg.numberOfPeriods, 1);
     expect(msg.paymentMode, SKProductDiscountPaymentModeMessage.payUpFront);
     expect(msg.identifier, 'discount');
     expect(msg.type, SKProductDiscountTypeMessage.subscription);
 
-    final SKProductDiscountWrapper convertedWrapper =
-        SKProductDiscountWrapper.convertFromPigeon(msg);
+    final SKProductDiscountWrapper convertedWrapper = SKProductDiscountWrapper.convertFromPigeon(
+      msg,
+    );
     expect(convertedWrapper, discount);
   });
 
@@ -90,24 +86,23 @@ void main() {
     expect(msg.price, '3.99');
     expect(msg.discounts?.length, 1);
 
-    final SKProductWrapper convertedWrapper =
-        SKProductWrapper.convertFromPigeon(msg);
+    final SKProductWrapper convertedWrapper = SKProductWrapper.convertFromPigeon(msg);
     expect(convertedWrapper, product);
   });
 
   test('test SKProductResponse pigeon converters', () {
-    final SKProductsResponseMessage msg =
-        SkProductResponseWrapper.convertToPigeon(productResponse);
+    final SKProductsResponseMessage msg = SkProductResponseWrapper.convertToPigeon(productResponse);
     expect(msg.products?.length, 1);
     expect(msg.invalidProductIdentifiers, <String>['invalid_identifier']);
 
-    final SkProductResponseWrapper convertedWrapper =
-        SkProductResponseWrapper.convertFromPigeon(msg);
+    final SkProductResponseWrapper convertedWrapper = SkProductResponseWrapper.convertFromPigeon(
+      msg,
+    );
     expect(convertedWrapper, productResponse);
   });
 
   test('test SKerror pigeon converter', () {
-    final SKErrorMessage msg = SKErrorMessage(code: 99, domain: 'domain');
+    final msg = SKErrorMessage(code: 99, domain: 'domain');
     final SKError wrapper = SKError.convertFromPigeon(msg);
 
     expect(wrapper.code, 99);
@@ -116,7 +111,7 @@ void main() {
   });
 
   test('test AppStoreProduct2Details conversion', () {
-    final SK2Product product = SK2Product(
+    final product = SK2Product(
       id: '123',
       displayName: 'name',
       displayPrice: '0.99',
@@ -126,8 +121,7 @@ void main() {
       priceLocale: SK2PriceLocale(currencyCode: 'USD', currencySymbol: r'$'),
     );
 
-    final AppStoreProduct2Details details =
-        AppStoreProduct2Details.fromSK2Product(product);
+    final details = AppStoreProduct2Details.fromSK2Product(product);
 
     expect(details.sk2Product, product);
     expect(details.price, product.displayPrice);

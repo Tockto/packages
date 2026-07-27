@@ -23,23 +23,18 @@ final RegExp _parameterRegExp = RegExp(r':(\w+)(\((?:\\.|[^\\()])+\))?');
 /// To extract the path parameter values from a [RegExpMatch], pass the
 /// [RegExpMatch] into [extractPathParameters] with the `parameters` that are
 /// used for generating the [RegExp].
-RegExp patternToRegExp(
-  String pattern,
-  List<String> parameters, {
-  required bool caseSensitive,
-}) {
-  final StringBuffer buffer = StringBuffer('^');
-  int start = 0;
+RegExp patternToRegExp(String pattern, List<String> parameters, {required bool caseSensitive}) {
+  final buffer = StringBuffer('^');
+  var start = 0;
   for (final RegExpMatch match in _parameterRegExp.allMatches(pattern)) {
     if (match.start > start) {
       buffer.write(RegExp.escape(pattern.substring(start, match.start)));
     }
     final String name = match[1]!;
     final String? optionalPattern = match[2];
-    final String regex =
-        optionalPattern != null
-            ? _escapeGroup(optionalPattern, name)
-            : '(?<$name>[^/]+)';
+    final String regex = optionalPattern != null
+        ? _escapeGroup(optionalPattern, name)
+        : '(?<$name>[^/]+)';
     buffer.write(regex);
     parameters.add(name);
     start = match.end;
@@ -79,8 +74,8 @@ String _escapeGroup(String group, [String? name]) {
 /// 2. Call [patternToPath] with the `pathParameters` from the first step and
 ///    the original `pattern` used for generating the [RegExp].
 String patternToPath(String pattern, Map<String, String> pathParameters) {
-  final StringBuffer buffer = StringBuffer();
-  int start = 0;
+  final buffer = StringBuffer();
+  var start = 0;
   for (final RegExpMatch match in _parameterRegExp.allMatches(pattern)) {
     if (match.start > start) {
       buffer.write(pattern.substring(start, match.start));
@@ -100,13 +95,9 @@ String patternToPath(String pattern, Map<String, String> pathParameters) {
 ///
 /// The [parameters] should originate from the call to [patternToRegExp] that
 /// creates the [RegExp].
-Map<String, String> extractPathParameters(
-  List<String> parameters,
-  RegExpMatch match,
-) {
+Map<String, String> extractPathParameters(List<String> parameters, RegExpMatch match) {
   return <String, String>{
-    for (int i = 0; i < parameters.length; ++i)
-      parameters[i]: match.namedGroup(parameters[i])!,
+    for (int i = 0; i < parameters.length; ++i) parameters[i]: match.namedGroup(parameters[i])!,
   };
 }
 
@@ -126,9 +117,7 @@ String concatenatePaths(String parentPath, String childPath) {
 ///
 /// e.g: pathA = /a?fid=f1, pathB = c/d?pid=p2,  concatenatePaths(pathA, pathB) = /a/c/d?pid=2.
 Uri concatenateUris(Uri parentUri, Uri childUri) {
-  Uri newUri = childUri.replace(
-    path: concatenatePaths(parentUri.path, childUri.path),
-  );
+  Uri newUri = childUri.replace(path: concatenatePaths(parentUri.path, childUri.path));
 
   // Parse the new normalized uri to remove unnecessary parts, like the trailing '?'.
   newUri = Uri.parse(canonicalUri(newUri.toString()));
@@ -140,7 +129,7 @@ String canonicalUri(String loc) {
   if (loc.isEmpty) {
     throw GoException('Location cannot be empty.');
   }
-  String canon = Uri.parse(loc).toString();
+  var canon = Uri.parse(loc).toString();
   canon = canon.endsWith('?') ? canon.substring(0, canon.length - 1) : canon;
   final Uri uri = Uri.parse(canon);
 
@@ -148,23 +137,18 @@ String canonicalUri(String loc) {
   // /profile/ => /profile
   // / => /
   // /login?from=/ => /login?from=/
-  canon =
-      uri.path.endsWith('/') &&
-              uri.path != '/' &&
-              !uri.hasQuery &&
-              !uri.hasFragment
-          ? canon.substring(0, canon.length - 1)
-          : canon;
+  canon = uri.path.endsWith('/') && uri.path != '/' && !uri.hasQuery && !uri.hasFragment
+      ? canon.substring(0, canon.length - 1)
+      : canon;
 
   // replace '/?', except for first occurrence, from path only
   // /login/?from=/ => /login?from=/
   // /?from=/ => /?from=/
-  final int pathStartIndex =
-      uri.host.isNotEmpty
-          ? uri.toString().indexOf(uri.host) + uri.host.length
-          : uri.hasScheme
-          ? uri.toString().indexOf(uri.scheme) + uri.scheme.length
-          : 0;
+  final int pathStartIndex = uri.host.isNotEmpty
+      ? uri.toString().indexOf(uri.host) + uri.host.length
+      : uri.hasScheme
+      ? uri.toString().indexOf(uri.scheme) + uri.scheme.length
+      : 0;
   if (pathStartIndex < canon.length) {
     canon = canon.replaceFirst('/?', '?', pathStartIndex + 1);
   }
@@ -173,25 +157,16 @@ String canonicalUri(String loc) {
 }
 
 /// Builds an absolute path for the provided route.
-String? fullPathForRoute(
-  RouteBase targetRoute,
-  String parentFullpath,
-  List<RouteBase> routes,
-) {
-  for (final RouteBase route in routes) {
-    final String fullPath =
-        (route is GoRoute)
-            ? concatenatePaths(parentFullpath, route.path)
-            : parentFullpath;
+String? fullPathForRoute(RouteBase targetRoute, String parentFullpath, List<RouteBase> routes) {
+  for (final route in routes) {
+    final String fullPath = (route is GoRoute)
+        ? concatenatePaths(parentFullpath, route.path)
+        : parentFullpath;
 
     if (route == targetRoute) {
       return fullPath;
     } else {
-      final String? subRoutePath = fullPathForRoute(
-        targetRoute,
-        fullPath,
-        route.routes,
-      );
+      final String? subRoutePath = fullPathForRoute(targetRoute, fullPath, route.routes);
       if (subRoutePath != null) {
         return subRoutePath;
       }

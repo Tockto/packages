@@ -28,18 +28,15 @@ void main() {
     widgets.WidgetsFlutterBinding.ensureInitialized();
     mockApi = MockInAppPurchaseApi();
     when(mockApi.startConnection(any, any, any)).thenAnswer(
-      (_) async => PlatformBillingResult(
-        responseCode: PlatformBillingResponse.ok,
-        debugMessage: '',
-      ),
+      (_) async =>
+          PlatformBillingResult(responseCode: PlatformBillingResponse.ok, debugMessage: ''),
     );
     manager = BillingClientManager(
       billingClientFactory:
           (
             PurchasesUpdatedListener listener,
             UserSelectedAlternativeBillingListener? alternativeBillingListener,
-          ) =>
-              BillingClient(listener, alternativeBillingListener, api: mockApi),
+          ) => BillingClient(listener, alternativeBillingListener, api: mockApi),
     );
     iapAndroidPlatformAddition = InAppPurchaseAndroidPlatformAddition(manager);
   });
@@ -47,18 +44,16 @@ void main() {
   group('consume purchases', () {
     test('consume purchase async success', () async {
       const BillingResponse expectedCode = BillingResponse.ok;
-      const String debugMessage = 'dummy message';
-      const BillingResultWrapper expectedBillingResult = BillingResultWrapper(
+      const debugMessage = 'dummy message';
+      const expectedBillingResult = BillingResultWrapper(
         responseCode: expectedCode,
         debugMessage: debugMessage,
       );
       when(
         mockApi.consumeAsync(any),
       ).thenAnswer((_) async => convertToPigeonResult(expectedBillingResult));
-      final BillingResultWrapper billingResultWrapper =
-          await iapAndroidPlatformAddition.consumePurchase(
-            GooglePlayPurchaseDetails.fromPurchase(dummyPurchase).first,
-          );
+      final BillingResultWrapper billingResultWrapper = await iapAndroidPlatformAddition
+          .consumePurchase(GooglePlayPurchaseDetails.fromPurchase(dummyPurchase).first);
 
       expect(billingResultWrapper, equals(expectedBillingResult));
     });
@@ -66,8 +61,8 @@ void main() {
 
   group('billingConfig', () {
     test('getCountryCode success', () async {
-      const String expectedCountryCode = 'US';
-      const BillingConfigWrapper expected = BillingConfigWrapper(
+      const expectedCountryCode = 'US';
+      const expected = BillingConfigWrapper(
         countryCode: expectedCountryCode,
         responseCode: BillingResponse.ok,
         debugMessage: 'dummy message',
@@ -76,8 +71,7 @@ void main() {
       when(
         mockApi.getBillingConfigAsync(),
       ).thenAnswer((_) async => platformBillingConfigFromWrapper(expected));
-      final String countryCode = await iapAndroidPlatformAddition
-          .getCountryCode();
+      final String countryCode = await iapAndroidPlatformAddition.getCountryCode();
 
       expect(countryCode, equals(expectedCountryCode));
     });
@@ -86,35 +80,24 @@ void main() {
   group('setBillingChoice', () {
     test('setAlternativeBillingOnlyState', () async {
       clearInteractions(mockApi);
-      await iapAndroidPlatformAddition.setBillingChoice(
-        BillingChoiceMode.alternativeBillingOnly,
-      );
+      await iapAndroidPlatformAddition.setBillingChoice(BillingChoiceMode.alternativeBillingOnly);
 
       // Fake the disconnect that we would expect from a endConnectionCall.
       manager.client.hostCallbackHandler.onBillingServiceDisconnected(0);
       // Verify that after connection ended reconnect was called.
-      final VerificationResult result = verify(
-        mockApi.startConnection(any, captureAny, any),
-      );
+      final VerificationResult result = verify(mockApi.startConnection(any, captureAny, any));
       expect(result.callCount, equals(2));
-      expect(
-        result.captured.last,
-        PlatformBillingChoiceMode.alternativeBillingOnly,
-      );
+      expect(result.captured.last, PlatformBillingChoiceMode.alternativeBillingOnly);
     });
 
     test('setPlayBillingState', () async {
       clearInteractions(mockApi);
-      await iapAndroidPlatformAddition.setBillingChoice(
-        BillingChoiceMode.playBillingOnly,
-      );
+      await iapAndroidPlatformAddition.setBillingChoice(BillingChoiceMode.playBillingOnly);
 
       // Fake the disconnect that we would expect from a endConnectionCall.
       manager.client.hostCallbackHandler.onBillingServiceDisconnected(0);
       // Verify that after connection ended reconnect was called.
-      final VerificationResult result = verify(
-        mockApi.startConnection(any, captureAny, any),
-      );
+      final VerificationResult result = verify(mockApi.startConnection(any, captureAny, any));
       expect(result.callCount, equals(2));
       expect(result.captured.last, PlatformBillingChoiceMode.playBillingOnly);
     });
@@ -122,7 +105,7 @@ void main() {
 
   group('isAlternativeBillingOnlyAvailable', () {
     test('isAlternativeBillingOnlyAvailable success', () async {
-      const BillingResultWrapper expected = BillingResultWrapper(
+      const expected = BillingResultWrapper(
         responseCode: BillingResponse.ok,
         debugMessage: 'dummy message',
       );
@@ -142,7 +125,7 @@ void main() {
 
   group('showAlternativeBillingOnlyInformationDialog', () {
     test('showAlternativeBillingOnlyInformationDialog success', () async {
-      const BillingResultWrapper expected = BillingResultWrapper(
+      const expected = BillingResultWrapper(
         responseCode: BillingResponse.ok,
         debugMessage: 'dummy message',
       );
@@ -160,10 +143,30 @@ void main() {
     });
   });
 
+  group('showInAppMessages', () {
+    test('showInAppMessages success', () async {
+      const expected = InAppMessageResultWrapper(
+        responseCode: InAppMessageResponse.subscriptionStatusUpdated,
+        purchaseToken: 'dummy purchase token',
+      );
+
+      when(mockApi.showInAppMessages()).thenAnswer(
+        (_) async => PlatformInAppMessageResult(
+          responseCode: PlatformInAppMessageResponse.subscriptionStatusUpdated,
+          purchaseToken: expected.purchaseToken,
+        ),
+      );
+
+      final InAppMessageResultWrapper result = await iapAndroidPlatformAddition.showInAppMessages();
+
+      expect(result, equals(expected));
+    });
+  });
+
   group('queryPastPurchase', () {
     group('queryPurchaseDetails', () {
       test('returns ProductDetailsResponseWrapper', () async {
-        const String debugMessage = 'dummy message';
+        const debugMessage = 'dummy message';
         const PlatformBillingResponse responseCode = PlatformBillingResponse.ok;
 
         when(mockApi.queryPurchasesAsync(any)).thenAnswer(
@@ -172,16 +175,14 @@ void main() {
               responseCode: responseCode,
               debugMessage: debugMessage,
             ),
-            purchases: <PlatformPurchase>[
-              convertToPigeonPurchase(dummyPurchase),
-            ],
+            purchases: <PlatformPurchase>[convertToPigeonPurchase(dummyPurchase)],
           ),
         );
 
         // Since queryPastPurchases makes 2 platform method calls (one for each ProductType), the result will contain 2 dummyWrapper instead
         // of 1.
-        final QueryPurchaseDetailsResponse response =
-            await iapAndroidPlatformAddition.queryPastPurchases();
+        final QueryPurchaseDetailsResponse response = await iapAndroidPlatformAddition
+            .queryPastPurchases();
         expect(response.error, isNull);
         expect(response.pastPurchases.first.purchaseID, dummyPurchase.orderId);
       });
@@ -194,15 +195,13 @@ void main() {
             details: <dynamic, dynamic>{'info': 'error_info'},
           );
         });
-        final QueryPurchaseDetailsResponse response =
-            await iapAndroidPlatformAddition.queryPastPurchases();
+        final QueryPurchaseDetailsResponse response = await iapAndroidPlatformAddition
+            .queryPastPurchases();
         expect(response.pastPurchases, isEmpty);
         expect(response.error, isNotNull);
         expect(response.error!.code, 'error_code');
         expect(response.error!.message, 'error_message');
-        expect(response.error!.details, <String, dynamic>{
-          'info': 'error_info',
-        });
+        expect(response.error!.details, <String, dynamic>{'info': 'error_info'});
       });
     });
   });
@@ -212,8 +211,9 @@ void main() {
       when(
         mockApi.isFeatureSupported(PlatformBillingClientFeature.subscriptions),
       ).thenAnswer((_) async => false);
-      final bool isSupported = await iapAndroidPlatformAddition
-          .isFeatureSupported(BillingClientFeature.subscriptions);
+      final bool isSupported = await iapAndroidPlatformAddition.isFeatureSupported(
+        BillingClientFeature.subscriptions,
+      );
       expect(isSupported, isFalse);
     });
 
@@ -221,8 +221,9 @@ void main() {
       when(
         mockApi.isFeatureSupported(PlatformBillingClientFeature.subscriptions),
       ).thenAnswer((_) async => true);
-      final bool isSupported = await iapAndroidPlatformAddition
-          .isFeatureSupported(BillingClientFeature.subscriptions);
+      final bool isSupported = await iapAndroidPlatformAddition.isFeatureSupported(
+        BillingClientFeature.subscriptions,
+      );
       expect(isSupported, isTrue);
     });
   });
@@ -231,7 +232,7 @@ void main() {
     test('called', () async {
       final Future<GooglePlayUserChoiceDetails> futureDetails =
           iapAndroidPlatformAddition.userChoiceDetailsStream.first;
-      const UserChoiceDetailsWrapper expected = UserChoiceDetailsWrapper(
+      const expected = UserChoiceDetailsWrapper(
         originalExternalTransactionId: 'TransactionId',
         externalTransactionToken: 'TransactionToken',
         products: <UserChoiceDetailsProductWrapper>[
@@ -248,10 +249,7 @@ void main() {
         ],
       );
       manager.onUserChoiceAlternativeBilling(expected);
-      expect(
-        await futureDetails,
-        Translator.convertToUserChoiceDetails(expected),
-      );
+      expect(await futureDetails, Translator.convertToUserChoiceDetails(expected));
     });
   });
 }

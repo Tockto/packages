@@ -23,25 +23,22 @@ void main() {
 
     group('canLaunch', () {
       test('success', () async {
-        final UrlLauncherMacOS launcher = UrlLauncherMacOS(api: api);
+        final launcher = UrlLauncherMacOS(api: api);
         expect(await launcher.canLaunch('http://example.com/'), true);
       });
 
       test('failure', () async {
-        final UrlLauncherMacOS launcher = UrlLauncherMacOS(api: api);
+        final launcher = UrlLauncherMacOS(api: api);
         expect(await launcher.canLaunch('unknown://scheme'), false);
       });
 
       test('invalid URL returns a PlatformException', () async {
-        final UrlLauncherMacOS launcher = UrlLauncherMacOS(api: api);
-        await expectLater(
-          launcher.canLaunch('invalid://u r l'),
-          throwsA(isA<PlatformException>()),
-        );
+        final launcher = UrlLauncherMacOS(api: api);
+        await expectLater(launcher.canLaunch('invalid://u r l'), throwsA(isA<PlatformException>()));
       });
 
       test('passes unexpected PlatformExceptions through', () async {
-        final UrlLauncherMacOS launcher = UrlLauncherMacOS(api: api);
+        final launcher = UrlLauncherMacOS(api: api);
         await expectLater(
           launcher.canLaunch('unexpectedthrow://someexception'),
           throwsA(isA<PlatformException>()),
@@ -51,7 +48,7 @@ void main() {
 
     group('launch', () {
       test('success', () async {
-        final UrlLauncherMacOS launcher = UrlLauncherMacOS(api: api);
+        final launcher = UrlLauncherMacOS(api: api);
         expect(
           await launcher.launch(
             'http://example.com/',
@@ -67,7 +64,7 @@ void main() {
       });
 
       test('failure', () async {
-        final UrlLauncherMacOS launcher = UrlLauncherMacOS(api: api);
+        final launcher = UrlLauncherMacOS(api: api);
         expect(
           await launcher.launch(
             'unknown://scheme',
@@ -83,7 +80,7 @@ void main() {
       });
 
       test('invalid URL returns a PlatformException', () async {
-        final UrlLauncherMacOS launcher = UrlLauncherMacOS(api: api);
+        final launcher = UrlLauncherMacOS(api: api);
         await expectLater(
           launcher.launch(
             'invalid://u r l',
@@ -99,7 +96,7 @@ void main() {
       });
 
       test('passes unexpected PlatformExceptions through', () async {
-        final UrlLauncherMacOS launcher = UrlLauncherMacOS(api: api);
+        final launcher = UrlLauncherMacOS(api: api);
         await expectLater(
           launcher.launch(
             'unexpectedthrow://someexception',
@@ -117,54 +114,30 @@ void main() {
 
     group('supportsMode', () {
       test('returns true for platformDefault', () async {
-        final UrlLauncherMacOS launcher = UrlLauncherMacOS(api: api);
-        expect(
-          await launcher.supportsMode(PreferredLaunchMode.platformDefault),
-          true,
-        );
+        final launcher = UrlLauncherMacOS(api: api);
+        expect(await launcher.supportsMode(PreferredLaunchMode.platformDefault), true);
       });
 
       test('returns true for external application', () async {
-        final UrlLauncherMacOS launcher = UrlLauncherMacOS(api: api);
-        expect(
-          await launcher.supportsMode(PreferredLaunchMode.externalApplication),
-          true,
-        );
+        final launcher = UrlLauncherMacOS(api: api);
+        expect(await launcher.supportsMode(PreferredLaunchMode.externalApplication), true);
       });
 
       test('returns false for other modes', () async {
-        final UrlLauncherMacOS launcher = UrlLauncherMacOS(api: api);
+        final launcher = UrlLauncherMacOS(api: api);
         expect(
-          await launcher.supportsMode(
-            PreferredLaunchMode.externalNonBrowserApplication,
-          ),
+          await launcher.supportsMode(PreferredLaunchMode.externalNonBrowserApplication),
           false,
         );
-        expect(
-          await launcher.supportsMode(PreferredLaunchMode.inAppBrowserView),
-          false,
-        );
-        expect(
-          await launcher.supportsMode(PreferredLaunchMode.inAppWebView),
-          false,
-        );
+        expect(await launcher.supportsMode(PreferredLaunchMode.inAppBrowserView), false);
+        expect(await launcher.supportsMode(PreferredLaunchMode.inAppWebView), false);
       });
     });
 
     test('supportsCloseForMode returns false', () async {
-      final UrlLauncherMacOS launcher = UrlLauncherMacOS(api: api);
-      expect(
-        await launcher.supportsCloseForMode(
-          PreferredLaunchMode.platformDefault,
-        ),
-        false,
-      );
-      expect(
-        await launcher.supportsCloseForMode(
-          PreferredLaunchMode.externalApplication,
-        ),
-        false,
-      );
+      final launcher = UrlLauncherMacOS(api: api);
+      expect(await launcher.supportsCloseForMode(PreferredLaunchMode.platformDefault), false);
+      expect(await launcher.supportsCloseForMode(PreferredLaunchMode.externalApplication), false);
     });
   });
 }
@@ -190,10 +163,7 @@ class _FakeUrlLauncherApi implements UrlLauncherApi {
       case 'https':
         return UrlLauncherBoolResult(value: true);
       case 'invalid':
-        return UrlLauncherBoolResult(
-          value: false,
-          error: UrlLauncherError.invalidUrl,
-        );
+        return UrlLauncherBoolResult(value: false, error: UrlLauncherError.invalidUrl);
       case 'unexpectedthrow':
         throw PlatformException(code: 'argument_error');
       default:

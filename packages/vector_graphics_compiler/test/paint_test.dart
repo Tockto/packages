@@ -7,24 +7,21 @@ import 'package:vector_graphics_compiler/vector_graphics_compiler.dart';
 
 void main() {
   test('Color tests', () {
-    expect(
-      const Color.fromRGBO(10, 15, 20, .1),
-      const Color.fromARGB(25, 10, 15, 20),
-    );
+    expect(const Color.fromRGBO(10, 15, 20, .1), const Color.fromARGB(25, 10, 15, 20));
 
     expect(
       const Color.fromARGB(255, 10, 15, 20).withOpacity(.1),
       const Color.fromARGB(25, 10, 15, 20),
     );
 
-    const Color testColor = Color(0xFFABCDEF);
+    const testColor = Color(0xFFABCDEF);
     expect(testColor.r, 0xAB);
     expect(testColor.g, 0xCD);
     expect(testColor.b, 0xEF);
   });
 
   test('LinearGradient can be converted to local coordinates', () {
-    const LinearGradient gradient = LinearGradient(
+    const gradient = LinearGradient(
       id: 'test',
       from: Point.zero,
       to: Point(1, 1),
@@ -44,7 +41,7 @@ void main() {
   });
 
   test('LinearGradient applied bounds with userSpaceOnUse', () {
-    const LinearGradient gradient = LinearGradient(
+    const gradient = LinearGradient(
       id: 'test',
       from: Point.zero,
       to: Point(1, 1),
@@ -65,7 +62,7 @@ void main() {
   });
 
   test('LinearGradient applied bounds with userSpaceOnUse and transformed', () {
-    final LinearGradient gradient = LinearGradient(
+    final gradient = LinearGradient(
       id: 'test',
       from: Point.zero,
       to: const Point(1, 1),
@@ -86,7 +83,7 @@ void main() {
   });
 
   test('RadialGradient can be converted to local coordinates', () {
-    const RadialGradient gradient = RadialGradient(
+    const gradient = RadialGradient(
       id: 'test',
       center: Point(0.5, 0.5),
       radius: 10,
@@ -114,7 +111,7 @@ void main() {
   });
 
   test('RadialGradient applied bounds with userSpaceOnUse', () {
-    const RadialGradient gradient = RadialGradient(
+    const gradient = RadialGradient(
       id: 'test',
       center: Point(0.5, 0.5),
       radius: 10,

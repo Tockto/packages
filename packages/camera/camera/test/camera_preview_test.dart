@@ -10,8 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-class FakeController extends ValueNotifier<CameraValue>
-    implements CameraController {
+class FakeController extends ValueNotifier<CameraValue> implements CameraController {
   FakeController() : super(const CameraValue.uninitialized(fakeDescription));
 
   static const CameraDescription fakeDescription = CameraDescription(
@@ -112,6 +111,7 @@ class FakeController extends ValueNotifier<CameraValue>
   @override
   Future<void> startVideoRecording({
     onLatestImageAvailable? onAvailable,
+    bool enablePersistentRecording = true,
   }) async {}
 
   @override
@@ -139,6 +139,16 @@ class FakeController extends ValueNotifier<CameraValue>
   CameraDescription get description => value.description;
 
   @override
+  Future<void> setVideoStabilizationMode(
+    VideoStabilizationMode mode, {
+    bool allowFallback = true,
+  }) async {}
+
+  @override
+  Future<Iterable<VideoStabilizationMode>> getSupportedVideoStabilizationModes() async =>
+      <VideoStabilizationMode>[];
+
+  @override
   bool supportsImageStreaming() => true;
 }
 
@@ -149,17 +159,16 @@ void main() {
       (WidgetTester tester) async {
         debugDefaultTargetPlatformOverride = TargetPlatform.android;
 
-        final FakeController controller = FakeController();
+        final controller = FakeController();
         addTearDown(controller.dispose);
 
         controller.value = controller.value.copyWith(
           isInitialized: true,
           isRecordingVideo: true,
           deviceOrientation: DeviceOrientation.portraitDown,
-          lockedCaptureOrientation:
-              const Optional<DeviceOrientation>.fromNullable(
-                DeviceOrientation.landscapeRight,
-              ),
+          lockedCaptureOrientation: const Optional<DeviceOrientation>.fromNullable(
+            DeviceOrientation.landscapeRight,
+          ),
           recordingOrientation: const Optional<DeviceOrientation>.fromNullable(
             DeviceOrientation.portraitUp,
           ),
@@ -167,16 +176,11 @@ void main() {
         );
 
         await tester.pumpWidget(
-          Directionality(
-            textDirection: TextDirection.ltr,
-            child: CameraPreview(controller),
-          ),
+          Directionality(textDirection: TextDirection.ltr, child: CameraPreview(controller)),
         );
         expect(find.byType(RotatedBox), findsOneWidget);
 
-        final RotatedBox rotatedBox = tester.widget<RotatedBox>(
-          find.byType(RotatedBox),
-        );
+        final RotatedBox rotatedBox = tester.widget<RotatedBox>(find.byType(RotatedBox));
         expect(rotatedBox.quarterTurns, 0);
 
         debugDefaultTargetPlatformOverride = null;
@@ -188,17 +192,16 @@ void main() {
       (WidgetTester tester) async {
         debugDefaultTargetPlatformOverride = TargetPlatform.android;
 
-        final FakeController controller = FakeController();
+        final controller = FakeController();
         addTearDown(controller.dispose);
 
         controller.value = controller.value.copyWith(
           isInitialized: true,
           isRecordingVideo: true,
           deviceOrientation: DeviceOrientation.portraitUp,
-          lockedCaptureOrientation:
-              const Optional<DeviceOrientation>.fromNullable(
-                DeviceOrientation.landscapeLeft,
-              ),
+          lockedCaptureOrientation: const Optional<DeviceOrientation>.fromNullable(
+            DeviceOrientation.landscapeLeft,
+          ),
           recordingOrientation: const Optional<DeviceOrientation>.fromNullable(
             DeviceOrientation.landscapeRight,
           ),
@@ -206,16 +209,11 @@ void main() {
         );
 
         await tester.pumpWidget(
-          Directionality(
-            textDirection: TextDirection.ltr,
-            child: CameraPreview(controller),
-          ),
+          Directionality(textDirection: TextDirection.ltr, child: CameraPreview(controller)),
         );
         expect(find.byType(RotatedBox), findsOneWidget);
 
-        final RotatedBox rotatedBox = tester.widget<RotatedBox>(
-          find.byType(RotatedBox),
-        );
+        final RotatedBox rotatedBox = tester.widget<RotatedBox>(find.byType(RotatedBox));
         expect(rotatedBox.quarterTurns, 1);
 
         debugDefaultTargetPlatformOverride = null;
@@ -227,17 +225,16 @@ void main() {
       (WidgetTester tester) async {
         debugDefaultTargetPlatformOverride = TargetPlatform.android;
 
-        final FakeController controller = FakeController();
+        final controller = FakeController();
         addTearDown(controller.dispose);
 
         controller.value = controller.value.copyWith(
           isInitialized: true,
           isRecordingVideo: true,
           deviceOrientation: DeviceOrientation.portraitUp,
-          lockedCaptureOrientation:
-              const Optional<DeviceOrientation>.fromNullable(
-                DeviceOrientation.landscapeRight,
-              ),
+          lockedCaptureOrientation: const Optional<DeviceOrientation>.fromNullable(
+            DeviceOrientation.landscapeRight,
+          ),
           recordingOrientation: const Optional<DeviceOrientation>.fromNullable(
             DeviceOrientation.portraitDown,
           ),
@@ -245,16 +242,11 @@ void main() {
         );
 
         await tester.pumpWidget(
-          Directionality(
-            textDirection: TextDirection.ltr,
-            child: CameraPreview(controller),
-          ),
+          Directionality(textDirection: TextDirection.ltr, child: CameraPreview(controller)),
         );
         expect(find.byType(RotatedBox), findsOneWidget);
 
-        final RotatedBox rotatedBox = tester.widget<RotatedBox>(
-          find.byType(RotatedBox),
-        );
+        final RotatedBox rotatedBox = tester.widget<RotatedBox>(find.byType(RotatedBox));
         expect(rotatedBox.quarterTurns, 2);
 
         debugDefaultTargetPlatformOverride = null;
@@ -266,17 +258,16 @@ void main() {
       (WidgetTester tester) async {
         debugDefaultTargetPlatformOverride = TargetPlatform.android;
 
-        final FakeController controller = FakeController();
+        final controller = FakeController();
         addTearDown(controller.dispose);
 
         controller.value = controller.value.copyWith(
           isInitialized: true,
           isRecordingVideo: true,
           deviceOrientation: DeviceOrientation.portraitUp,
-          lockedCaptureOrientation:
-              const Optional<DeviceOrientation>.fromNullable(
-                DeviceOrientation.landscapeRight,
-              ),
+          lockedCaptureOrientation: const Optional<DeviceOrientation>.fromNullable(
+            DeviceOrientation.landscapeRight,
+          ),
           recordingOrientation: const Optional<DeviceOrientation>.fromNullable(
             DeviceOrientation.landscapeLeft,
           ),
@@ -284,16 +275,11 @@ void main() {
         );
 
         await tester.pumpWidget(
-          Directionality(
-            textDirection: TextDirection.ltr,
-            child: CameraPreview(controller),
-          ),
+          Directionality(textDirection: TextDirection.ltr, child: CameraPreview(controller)),
         );
         expect(find.byType(RotatedBox), findsOneWidget);
 
-        final RotatedBox rotatedBox = tester.widget<RotatedBox>(
-          find.byType(RotatedBox),
-        );
+        final RotatedBox rotatedBox = tester.widget<RotatedBox>(find.byType(RotatedBox));
         expect(rotatedBox.quarterTurns, 3);
 
         debugDefaultTargetPlatformOverride = null;
@@ -305,16 +291,15 @@ void main() {
       (WidgetTester tester) async {
         debugDefaultTargetPlatformOverride = TargetPlatform.android;
 
-        final FakeController controller = FakeController();
+        final controller = FakeController();
         addTearDown(controller.dispose);
 
         controller.value = controller.value.copyWith(
           isInitialized: true,
           deviceOrientation: DeviceOrientation.portraitDown,
-          lockedCaptureOrientation:
-              const Optional<DeviceOrientation>.fromNullable(
-                DeviceOrientation.portraitUp,
-              ),
+          lockedCaptureOrientation: const Optional<DeviceOrientation>.fromNullable(
+            DeviceOrientation.portraitUp,
+          ),
           recordingOrientation: const Optional<DeviceOrientation>.fromNullable(
             DeviceOrientation.landscapeLeft,
           ),
@@ -322,16 +307,11 @@ void main() {
         );
 
         await tester.pumpWidget(
-          Directionality(
-            textDirection: TextDirection.ltr,
-            child: CameraPreview(controller),
-          ),
+          Directionality(textDirection: TextDirection.ltr, child: CameraPreview(controller)),
         );
         expect(find.byType(RotatedBox), findsOneWidget);
 
-        final RotatedBox rotatedBox = tester.widget<RotatedBox>(
-          find.byType(RotatedBox),
-        );
+        final RotatedBox rotatedBox = tester.widget<RotatedBox>(find.byType(RotatedBox));
         expect(rotatedBox.quarterTurns, 0);
 
         debugDefaultTargetPlatformOverride = null;
@@ -343,16 +323,15 @@ void main() {
       (WidgetTester tester) async {
         debugDefaultTargetPlatformOverride = TargetPlatform.android;
 
-        final FakeController controller = FakeController();
+        final controller = FakeController();
         addTearDown(controller.dispose);
 
         controller.value = controller.value.copyWith(
           isInitialized: true,
           deviceOrientation: DeviceOrientation.portraitDown,
-          lockedCaptureOrientation:
-              const Optional<DeviceOrientation>.fromNullable(
-                DeviceOrientation.landscapeRight,
-              ),
+          lockedCaptureOrientation: const Optional<DeviceOrientation>.fromNullable(
+            DeviceOrientation.landscapeRight,
+          ),
           recordingOrientation: const Optional<DeviceOrientation>.fromNullable(
             DeviceOrientation.landscapeLeft,
           ),
@@ -360,16 +339,11 @@ void main() {
         );
 
         await tester.pumpWidget(
-          Directionality(
-            textDirection: TextDirection.ltr,
-            child: CameraPreview(controller),
-          ),
+          Directionality(textDirection: TextDirection.ltr, child: CameraPreview(controller)),
         );
         expect(find.byType(RotatedBox), findsOneWidget);
 
-        final RotatedBox rotatedBox = tester.widget<RotatedBox>(
-          find.byType(RotatedBox),
-        );
+        final RotatedBox rotatedBox = tester.widget<RotatedBox>(find.byType(RotatedBox));
         expect(rotatedBox.quarterTurns, 1);
 
         debugDefaultTargetPlatformOverride = null;
@@ -381,16 +355,15 @@ void main() {
       (WidgetTester tester) async {
         debugDefaultTargetPlatformOverride = TargetPlatform.android;
 
-        final FakeController controller = FakeController();
+        final controller = FakeController();
         addTearDown(controller.dispose);
 
         controller.value = controller.value.copyWith(
           isInitialized: true,
           deviceOrientation: DeviceOrientation.portraitUp,
-          lockedCaptureOrientation:
-              const Optional<DeviceOrientation>.fromNullable(
-                DeviceOrientation.portraitDown,
-              ),
+          lockedCaptureOrientation: const Optional<DeviceOrientation>.fromNullable(
+            DeviceOrientation.portraitDown,
+          ),
           recordingOrientation: const Optional<DeviceOrientation>.fromNullable(
             DeviceOrientation.landscapeLeft,
           ),
@@ -398,16 +371,11 @@ void main() {
         );
 
         await tester.pumpWidget(
-          Directionality(
-            textDirection: TextDirection.ltr,
-            child: CameraPreview(controller),
-          ),
+          Directionality(textDirection: TextDirection.ltr, child: CameraPreview(controller)),
         );
         expect(find.byType(RotatedBox), findsOneWidget);
 
-        final RotatedBox rotatedBox = tester.widget<RotatedBox>(
-          find.byType(RotatedBox),
-        );
+        final RotatedBox rotatedBox = tester.widget<RotatedBox>(find.byType(RotatedBox));
         expect(rotatedBox.quarterTurns, 2);
 
         debugDefaultTargetPlatformOverride = null;
@@ -419,16 +387,15 @@ void main() {
       (WidgetTester tester) async {
         debugDefaultTargetPlatformOverride = TargetPlatform.android;
 
-        final FakeController controller = FakeController();
+        final controller = FakeController();
         addTearDown(controller.dispose);
 
         controller.value = controller.value.copyWith(
           isInitialized: true,
           deviceOrientation: DeviceOrientation.portraitUp,
-          lockedCaptureOrientation:
-              const Optional<DeviceOrientation>.fromNullable(
-                DeviceOrientation.landscapeRight,
-              ),
+          lockedCaptureOrientation: const Optional<DeviceOrientation>.fromNullable(
+            DeviceOrientation.landscapeRight,
+          ),
           recordingOrientation: const Optional<DeviceOrientation>.fromNullable(
             DeviceOrientation.landscapeLeft,
           ),
@@ -436,16 +403,11 @@ void main() {
         );
 
         await tester.pumpWidget(
-          Directionality(
-            textDirection: TextDirection.ltr,
-            child: CameraPreview(controller),
-          ),
+          Directionality(textDirection: TextDirection.ltr, child: CameraPreview(controller)),
         );
         expect(find.byType(RotatedBox), findsOneWidget);
 
-        final RotatedBox rotatedBox = tester.widget<RotatedBox>(
-          find.byType(RotatedBox),
-        );
+        final RotatedBox rotatedBox = tester.widget<RotatedBox>(find.byType(RotatedBox));
         expect(rotatedBox.quarterTurns, 1);
 
         debugDefaultTargetPlatformOverride = null;
@@ -457,7 +419,7 @@ void main() {
       (WidgetTester tester) async {
         debugDefaultTargetPlatformOverride = TargetPlatform.android;
 
-        final FakeController controller = FakeController();
+        final controller = FakeController();
         addTearDown(controller.dispose);
 
         controller.value = controller.value.copyWith(
@@ -470,16 +432,11 @@ void main() {
         );
 
         await tester.pumpWidget(
-          Directionality(
-            textDirection: TextDirection.ltr,
-            child: CameraPreview(controller),
-          ),
+          Directionality(textDirection: TextDirection.ltr, child: CameraPreview(controller)),
         );
         expect(find.byType(RotatedBox), findsOneWidget);
 
-        final RotatedBox rotatedBox = tester.widget<RotatedBox>(
-          find.byType(RotatedBox),
-        );
+        final RotatedBox rotatedBox = tester.widget<RotatedBox>(find.byType(RotatedBox));
         expect(rotatedBox.quarterTurns, 0);
 
         debugDefaultTargetPlatformOverride = null;
@@ -491,7 +448,7 @@ void main() {
       (WidgetTester tester) async {
         debugDefaultTargetPlatformOverride = TargetPlatform.android;
 
-        final FakeController controller = FakeController();
+        final controller = FakeController();
         addTearDown(controller.dispose);
 
         controller.value = controller.value.copyWith(
@@ -504,16 +461,11 @@ void main() {
         );
 
         await tester.pumpWidget(
-          Directionality(
-            textDirection: TextDirection.ltr,
-            child: CameraPreview(controller),
-          ),
+          Directionality(textDirection: TextDirection.ltr, child: CameraPreview(controller)),
         );
         expect(find.byType(RotatedBox), findsOneWidget);
 
-        final RotatedBox rotatedBox = tester.widget<RotatedBox>(
-          find.byType(RotatedBox),
-        );
+        final RotatedBox rotatedBox = tester.widget<RotatedBox>(find.byType(RotatedBox));
         expect(rotatedBox.quarterTurns, 1);
 
         debugDefaultTargetPlatformOverride = null;
@@ -525,7 +477,7 @@ void main() {
       (WidgetTester tester) async {
         debugDefaultTargetPlatformOverride = TargetPlatform.android;
 
-        final FakeController controller = FakeController();
+        final controller = FakeController();
         addTearDown(controller.dispose);
 
         controller.value = controller.value.copyWith(
@@ -538,16 +490,11 @@ void main() {
         );
 
         await tester.pumpWidget(
-          Directionality(
-            textDirection: TextDirection.ltr,
-            child: CameraPreview(controller),
-          ),
+          Directionality(textDirection: TextDirection.ltr, child: CameraPreview(controller)),
         );
         expect(find.byType(RotatedBox), findsOneWidget);
 
-        final RotatedBox rotatedBox = tester.widget<RotatedBox>(
-          find.byType(RotatedBox),
-        );
+        final RotatedBox rotatedBox = tester.widget<RotatedBox>(find.byType(RotatedBox));
         expect(rotatedBox.quarterTurns, 2);
 
         debugDefaultTargetPlatformOverride = null;
@@ -559,7 +506,7 @@ void main() {
       (WidgetTester tester) async {
         debugDefaultTargetPlatformOverride = TargetPlatform.android;
 
-        final FakeController controller = FakeController();
+        final controller = FakeController();
         addTearDown(controller.dispose);
 
         controller.value = controller.value.copyWith(
@@ -572,16 +519,11 @@ void main() {
         );
 
         await tester.pumpWidget(
-          Directionality(
-            textDirection: TextDirection.ltr,
-            child: CameraPreview(controller),
-          ),
+          Directionality(textDirection: TextDirection.ltr, child: CameraPreview(controller)),
         );
         expect(find.byType(RotatedBox), findsOneWidget);
 
-        final RotatedBox rotatedBox = tester.widget<RotatedBox>(
-          find.byType(RotatedBox),
-        );
+        final RotatedBox rotatedBox = tester.widget<RotatedBox>(find.byType(RotatedBox));
         expect(rotatedBox.quarterTurns, 3);
 
         debugDefaultTargetPlatformOverride = null;
@@ -589,11 +531,9 @@ void main() {
     );
   }, skip: kIsWeb);
 
-  testWidgets('when not on Android there should not be a rotated box', (
-    WidgetTester tester,
-  ) async {
+  testWidgets('when not on Android there should not be a rotated box', (WidgetTester tester) async {
     debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
-    final FakeController controller = FakeController();
+    final controller = FakeController();
     addTearDown(controller.dispose);
     controller.value = controller.value.copyWith(
       isInitialized: true,
@@ -601,10 +541,7 @@ void main() {
     );
 
     await tester.pumpWidget(
-      Directionality(
-        textDirection: TextDirection.ltr,
-        child: CameraPreview(controller),
-      ),
+      Directionality(textDirection: TextDirection.ltr, child: CameraPreview(controller)),
     );
     expect(find.byType(RotatedBox), findsNothing);
     expect(find.byType(Texture), findsOneWidget);

@@ -11,8 +11,7 @@ import 'adsbygoogle.dart' show adsbygooglePresent;
 import 'package_web_tweaks.dart';
 
 // The URL of the ads by google client.
-const String _URL =
-    'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js';
+const String _URL = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js';
 
 /// Loads the JS SDK for [adClient].
 ///
@@ -31,21 +30,18 @@ Future<void> loadJsSdk(
     return;
   }
 
-  final String scriptUrl = '$_URL?client=ca-pub-$adClient';
+  final scriptUrl = '$_URL?client=ca-pub-$adClient';
 
-  final web.HTMLScriptElement script =
-      web.HTMLScriptElement()
-        ..async = true
-        ..crossOrigin = 'anonymous';
+  final script = web.HTMLScriptElement()
+    ..async = true
+    ..crossOrigin = 'anonymous';
 
   if (web.window.nullableTrustedTypes != null) {
-    final String trustedTypePolicyName = 'adsense-dart-$adClient';
+    final trustedTypePolicyName = 'adsense-dart-$adClient';
     try {
       final web.TrustedTypePolicy policy = web.window.trustedTypes.createPolicy(
         trustedTypePolicyName,
-        web.TrustedTypePolicyOptions(
-          createScriptURL: ((JSString url) => url).toJS,
-        ),
+        web.TrustedTypePolicyOptions(createScriptURL: ((JSString url) => url).toJS),
       );
       script.trustedSrc = policy.createScriptURLNoArgs(scriptUrl);
     } catch (e) {
@@ -62,10 +58,7 @@ Future<void> loadJsSdk(
 }
 
 // Applies a map of [attributes] to the `dataset` of [element].
-void _applyDataAttributes(
-  web.HTMLElement element,
-  Map<String, String>? attributes,
-) {
+void _applyDataAttributes(web.HTMLElement element, Map<String, String>? attributes) {
   attributes?.forEach((String key, String value) {
     element.dataset.setProperty(key.toJS, value.toJS);
   });
@@ -76,7 +69,7 @@ void _applyDataAttributes(
 // [target] can be used to specify a different injection target than
 // `window.document.head`, and is normally used for tests.
 bool _sdkAlreadyLoaded(String adClient, web.HTMLElement? target) {
-  final String selector = 'script[src*=ca-pub-$adClient]';
+  final selector = 'script[src*=ca-pub-$adClient]';
   return adsbygooglePresent ||
       web.document.querySelector(selector) != null ||
       target?.querySelector(selector) != null;

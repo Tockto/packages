@@ -26,8 +26,9 @@ final LatLngBounds _testCameraBounds = LatLngBounds(
   northeast: const LatLng(50, -65),
   southwest: const LatLng(28.5, -123),
 );
-final ValueVariant<CameraUpdateType> _cameraUpdateTypeVariants =
-    ValueVariant<CameraUpdateType>(CameraUpdateType.values.toSet());
+final ValueVariant<CameraUpdateType> _cameraUpdateTypeVariants = ValueVariant<CameraUpdateType>(
+  CameraUpdateType.values.toSet(),
+);
 
 /// Integration Tests that use the [GoogleMapsInspectorPlatform].
 void main() {
@@ -38,12 +39,11 @@ void main() {
 void runTests() {
   GoogleMapsFlutterPlatform.instance.enableDebugInspection();
 
-  final GoogleMapsInspectorPlatform inspector =
-      GoogleMapsInspectorPlatform.instance!;
+  final GoogleMapsInspectorPlatform inspector = GoogleMapsInspectorPlatform.instance!;
 
   testWidgets('testCompassToggle', (WidgetTester tester) async {
     final Key key = GlobalKey();
-    final Completer<int> mapIdCompleter = Completer<int>();
+    final mapIdCompleter = Completer<int>();
     await pumpMap(
       tester,
       GoogleMap(
@@ -77,7 +77,7 @@ void runTests() {
 
   testWidgets('testMapToolbarToggle', (WidgetTester tester) async {
     final Key key = GlobalKey();
-    final Completer<int> mapIdCompleter = Completer<int>();
+    final mapIdCompleter = Completer<int>();
 
     await pumpMap(
       tester,
@@ -122,11 +122,10 @@ void runTests() {
     //
     // Thus we test iOS and Android a little differently here.
     final Key key = GlobalKey();
-    final Completer<GoogleMapController> controllerCompleter =
-        Completer<GoogleMapController>();
+    final controllerCompleter = Completer<GoogleMapController>();
 
-    const MinMaxZoomPreference initialZoomLevel = MinMaxZoomPreference(4, 8);
-    const MinMaxZoomPreference finalZoomLevel = MinMaxZoomPreference(6, 10);
+    const initialZoomLevel = MinMaxZoomPreference(4, 8);
+    const finalZoomLevel = MinMaxZoomPreference(6, 10);
 
     await pumpMap(
       tester,
@@ -143,8 +142,9 @@ void runTests() {
     final GoogleMapController controller = await controllerCompleter.future;
 
     if (isIOS) {
-      final MinMaxZoomPreference zoomLevel = await inspector
-          .getMinMaxZoomLevels(mapId: controller.mapId);
+      final MinMaxZoomPreference zoomLevel = await inspector.getMinMaxZoomLevels(
+        mapId: controller.mapId,
+      );
       expect(zoomLevel, equals(initialZoomLevel));
     } else if (isAndroid) {
       await controller.moveCamera(CameraUpdate.zoomTo(15));
@@ -171,8 +171,9 @@ void runTests() {
     );
 
     if (isIOS) {
-      final MinMaxZoomPreference zoomLevel = await inspector
-          .getMinMaxZoomLevels(mapId: controller.mapId);
+      final MinMaxZoomPreference zoomLevel = await inspector.getMinMaxZoomLevels(
+        mapId: controller.mapId,
+      );
       expect(zoomLevel, equals(finalZoomLevel));
     } else {
       await controller.moveCamera(CameraUpdate.zoomTo(15));
@@ -189,7 +190,7 @@ void runTests() {
 
   testWidgets('testZoomGesturesEnabled', (WidgetTester tester) async {
     final Key key = GlobalKey();
-    final Completer<int> mapIdCompleter = Completer<int>();
+    final mapIdCompleter = Completer<int>();
 
     await pumpMap(
       tester,
@@ -204,9 +205,7 @@ void runTests() {
     );
     final int mapId = await mapIdCompleter.future;
 
-    bool zoomGesturesEnabled = await inspector.areZoomGesturesEnabled(
-      mapId: mapId,
-    );
+    bool zoomGesturesEnabled = await inspector.areZoomGesturesEnabled(mapId: mapId);
     expect(zoomGesturesEnabled, false);
 
     await pumpMap(
@@ -226,7 +225,7 @@ void runTests() {
 
   testWidgets('testZoomControlsEnabled', (WidgetTester tester) async {
     final Key key = GlobalKey();
-    final Completer<int> mapIdCompleter = Completer<int>();
+    final mapIdCompleter = Completer<int>();
 
     await pumpMap(
       tester,
@@ -240,9 +239,7 @@ void runTests() {
     );
     final int mapId = await mapIdCompleter.future;
 
-    bool zoomControlsEnabled = await inspector.areZoomControlsEnabled(
-      mapId: mapId,
-    );
+    bool zoomControlsEnabled = await inspector.areZoomControlsEnabled(mapId: mapId);
     expect(zoomControlsEnabled, !isIOS);
 
     /// Zoom Controls functionality is not available on iOS at the moment.
@@ -259,16 +256,14 @@ void runTests() {
         ),
       );
 
-      zoomControlsEnabled = await inspector.areZoomControlsEnabled(
-        mapId: mapId,
-      );
+      zoomControlsEnabled = await inspector.areZoomControlsEnabled(mapId: mapId);
       expect(zoomControlsEnabled, false);
     }
   });
 
   testWidgets('testLiteModeEnabled', (WidgetTester tester) async {
     final Key key = GlobalKey();
-    final Completer<int> mapIdCompleter = Completer<int>();
+    final mapIdCompleter = Completer<int>();
 
     await pumpMap(
       tester,
@@ -303,7 +298,7 @@ void runTests() {
 
   testWidgets('testRotateGesturesEnabled', (WidgetTester tester) async {
     final Key key = GlobalKey();
-    final Completer<int> mapIdCompleter = Completer<int>();
+    final mapIdCompleter = Completer<int>();
 
     await pumpMap(
       tester,
@@ -318,9 +313,7 @@ void runTests() {
     );
     final int mapId = await mapIdCompleter.future;
 
-    bool rotateGesturesEnabled = await inspector.areRotateGesturesEnabled(
-      mapId: mapId,
-    );
+    bool rotateGesturesEnabled = await inspector.areRotateGesturesEnabled(mapId: mapId);
     expect(rotateGesturesEnabled, false);
 
     await pumpMap(
@@ -334,15 +327,13 @@ void runTests() {
       ),
     );
 
-    rotateGesturesEnabled = await inspector.areRotateGesturesEnabled(
-      mapId: mapId,
-    );
+    rotateGesturesEnabled = await inspector.areRotateGesturesEnabled(mapId: mapId);
     expect(rotateGesturesEnabled, !isWeb);
   });
 
   testWidgets('testTiltGesturesEnabled', (WidgetTester tester) async {
     final Key key = GlobalKey();
-    final Completer<int> mapIdCompleter = Completer<int>();
+    final mapIdCompleter = Completer<int>();
 
     await pumpMap(
       tester,
@@ -357,9 +348,7 @@ void runTests() {
     );
     final int mapId = await mapIdCompleter.future;
 
-    bool tiltGesturesEnabled = await inspector.areTiltGesturesEnabled(
-      mapId: mapId,
-    );
+    bool tiltGesturesEnabled = await inspector.areTiltGesturesEnabled(mapId: mapId);
     expect(tiltGesturesEnabled, false);
 
     await pumpMap(
@@ -379,7 +368,7 @@ void runTests() {
 
   testWidgets('testScrollGesturesEnabled', (WidgetTester tester) async {
     final Key key = GlobalKey();
-    final Completer<int> mapIdCompleter = Completer<int>();
+    final mapIdCompleter = Completer<int>();
 
     await pumpMap(
       tester,
@@ -394,9 +383,7 @@ void runTests() {
     );
     final int mapId = await mapIdCompleter.future;
 
-    bool scrollGesturesEnabled = await inspector.areScrollGesturesEnabled(
-      mapId: mapId,
-    );
+    bool scrollGesturesEnabled = await inspector.areScrollGesturesEnabled(mapId: mapId);
     expect(scrollGesturesEnabled, false);
 
     await pumpMap(
@@ -410,15 +397,13 @@ void runTests() {
       ),
     );
 
-    scrollGesturesEnabled = await inspector.areScrollGesturesEnabled(
-      mapId: mapId,
-    );
+    scrollGesturesEnabled = await inspector.areScrollGesturesEnabled(mapId: mapId);
     expect(scrollGesturesEnabled, true);
   });
 
   testWidgets('testTraffic', (WidgetTester tester) async {
     final Key key = GlobalKey();
-    final Completer<int> mapIdCompleter = Completer<int>();
+    final mapIdCompleter = Completer<int>();
 
     await pumpMap(
       tester,
@@ -453,7 +438,7 @@ void runTests() {
 
   testWidgets('testBuildings', (WidgetTester tester) async {
     final Key key = GlobalKey();
-    final Completer<int> mapIdCompleter = Completer<int>();
+    final mapIdCompleter = Completer<int>();
 
     await pumpMap(
       tester,
@@ -467,9 +452,7 @@ void runTests() {
     );
     final int mapId = await mapIdCompleter.future;
 
-    final bool isBuildingsEnabled = await inspector.areBuildingsEnabled(
-      mapId: mapId,
-    );
+    final bool isBuildingsEnabled = await inspector.areBuildingsEnabled(mapId: mapId);
     expect(isBuildingsEnabled, !isWeb);
   });
 
@@ -478,7 +461,7 @@ void runTests() {
   group('MyLocationButton', () {
     testWidgets('testMyLocationButtonToggle', (WidgetTester tester) async {
       final Key key = GlobalKey();
-      final Completer<int> mapIdCompleter = Completer<int>();
+      final mapIdCompleter = Completer<int>();
 
       await pumpMap(
         tester,
@@ -492,9 +475,7 @@ void runTests() {
       );
       final int mapId = await mapIdCompleter.future;
 
-      bool myLocationButtonEnabled = await inspector.isMyLocationButtonEnabled(
-        mapId: mapId,
-      );
+      bool myLocationButtonEnabled = await inspector.isMyLocationButtonEnabled(mapId: mapId);
       expect(myLocationButtonEnabled, true);
 
       await pumpMap(
@@ -509,17 +490,13 @@ void runTests() {
         ),
       );
 
-      myLocationButtonEnabled = await inspector.isMyLocationButtonEnabled(
-        mapId: mapId,
-      );
+      myLocationButtonEnabled = await inspector.isMyLocationButtonEnabled(mapId: mapId);
       expect(myLocationButtonEnabled, false);
     });
 
-    testWidgets('testMyLocationButton initial value false', (
-      WidgetTester tester,
-    ) async {
+    testWidgets('testMyLocationButton initial value false', (WidgetTester tester) async {
       final Key key = GlobalKey();
-      final Completer<int> mapIdCompleter = Completer<int>();
+      final mapIdCompleter = Completer<int>();
 
       await pumpMap(
         tester,
@@ -534,16 +511,13 @@ void runTests() {
       );
       final int mapId = await mapIdCompleter.future;
 
-      final bool myLocationButtonEnabled = await inspector
-          .isMyLocationButtonEnabled(mapId: mapId);
+      final bool myLocationButtonEnabled = await inspector.isMyLocationButtonEnabled(mapId: mapId);
       expect(myLocationButtonEnabled, false);
     });
 
-    testWidgets('testMyLocationButton initial value true', (
-      WidgetTester tester,
-    ) async {
+    testWidgets('testMyLocationButton initial value true', (WidgetTester tester) async {
       final Key key = GlobalKey();
-      final Completer<int> mapIdCompleter = Completer<int>();
+      final mapIdCompleter = Completer<int>();
 
       await pumpMap(
         tester,
@@ -557,48 +531,37 @@ void runTests() {
       );
       final int mapId = await mapIdCompleter.future;
 
-      final bool myLocationButtonEnabled = await inspector
-          .isMyLocationButtonEnabled(mapId: mapId);
+      final bool myLocationButtonEnabled = await inspector.isMyLocationButtonEnabled(mapId: mapId);
       expect(myLocationButtonEnabled, true);
     });
   }, skip: !isIOS);
 
   testWidgets('marker clustering', (WidgetTester tester) async {
     final Key key = GlobalKey();
-    const int clusterManagersAmount = 2;
-    const int markersPerClusterManager = 5;
-    final Map<MarkerId, Marker> markers = <MarkerId, Marker>{};
-    final Set<ClusterManager> clusterManagers = <ClusterManager>{};
+    const clusterManagersAmount = 2;
+    const markersPerClusterManager = 5;
+    final markers = <MarkerId, Marker>{};
+    final clusterManagers = <ClusterManager>{};
 
-    for (int i = 0; i < clusterManagersAmount; i++) {
-      final ClusterManagerId clusterManagerId = ClusterManagerId(
-        'cluster_manager_$i',
-      );
-      final ClusterManager clusterManager = ClusterManager(
-        clusterManagerId: clusterManagerId,
-      );
+    for (var i = 0; i < clusterManagersAmount; i++) {
+      final clusterManagerId = ClusterManagerId('cluster_manager_$i');
+      final clusterManager = ClusterManager(clusterManagerId: clusterManagerId);
       clusterManagers.add(clusterManager);
     }
 
-    for (final ClusterManager cm in clusterManagers) {
-      for (int i = 0; i < markersPerClusterManager; i++) {
-        final MarkerId markerId = MarkerId(
-          '${cm.clusterManagerId.value}_marker_$i',
-        );
-        final Marker marker = Marker(
+    for (final cm in clusterManagers) {
+      for (var i = 0; i < markersPerClusterManager; i++) {
+        final markerId = MarkerId('${cm.clusterManagerId.value}_marker_$i');
+        final marker = Marker(
           markerId: markerId,
           clusterManagerId: cm.clusterManagerId,
-          position: LatLng(
-            kInitialMapCenter.latitude + i,
-            kInitialMapCenter.longitude,
-          ),
+          position: LatLng(kInitialMapCenter.latitude + i, kInitialMapCenter.longitude),
         );
         markers[markerId] = marker;
       }
     }
 
-    final Completer<GoogleMapController> controllerCompleter =
-        Completer<GoogleMapController>();
+    final controllerCompleter = Completer<GoogleMapController>();
 
     await pumpMap(
       tester,
@@ -615,10 +578,9 @@ void runTests() {
 
     final GoogleMapController controller = await controllerCompleter.future;
 
-    final GoogleMapsInspectorPlatform inspector =
-        GoogleMapsInspectorPlatform.instance!;
+    final GoogleMapsInspectorPlatform inspector = GoogleMapsInspectorPlatform.instance!;
 
-    for (final ClusterManager cm in clusterManagers) {
+    for (final cm in clusterManagers) {
       final List<Cluster> clusters = await inspector.getClusters(
         mapId: controller.mapId,
         clusterManagerId: cm.clusterManagerId,
@@ -644,7 +606,7 @@ void runTests() {
       ),
     );
 
-    for (final ClusterManager cm in clusterManagers) {
+    for (final cm in clusterManagers) {
       final List<Cluster> clusters = await inspector.getClusters(
         mapId: controller.mapId,
         clusterManagerId: cm.clusterManagerId,
@@ -657,10 +619,8 @@ void runTests() {
     'testAnimateCameraWithoutDuration',
     (WidgetTester tester) async {
       final Key key = GlobalKey();
-      final Completer<GoogleMapController> controllerCompleter =
-          Completer<GoogleMapController>();
-      final GoogleMapsInspectorPlatform inspector =
-          GoogleMapsInspectorPlatform.instance!;
+      final controllerCompleter = Completer<GoogleMapController>();
+      final GoogleMapsInspectorPlatform inspector = GoogleMapsInspectorPlatform.instance!;
 
       /// Completer to track when the camera has come to rest.
       Completer<void>? cameraIdleCompleter;
@@ -672,8 +632,7 @@ void runTests() {
             key: key,
             initialCameraPosition: kInitialCameraPosition,
             onCameraIdle: () {
-              if (cameraIdleCompleter != null &&
-                  !cameraIdleCompleter.isCompleted) {
+              if (cameraIdleCompleter != null && !cameraIdleCompleter.isCompleted) {
                 cameraIdleCompleter.complete();
               }
             },
@@ -708,9 +667,7 @@ void runTests() {
         // Immediately after calling animateCamera, check that the camera hasn't
         // reached its final position. This relies on the assumption that the
         // camera move is animated and won't complete instantly.
-        beforeFinishedPosition = await inspector.getCameraPosition(
-          mapId: controller.mapId,
-        );
+        beforeFinishedPosition = await inspector.getCameraPosition(mapId: controller.mapId);
 
         await _checkCameraUpdateByType(
           _cameraUpdateTypeVariants.currentValue!,
@@ -729,8 +686,9 @@ void runTests() {
       // has moved as expected.
       if (inspector.supportsGettingGameraPosition()) {
         // After onCameraIdle event, the camera should be at the final position.
-        final CameraPosition afterFinishedPosition = await inspector
-            .getCameraPosition(mapId: controller.mapId);
+        final CameraPosition afterFinishedPosition = await inspector.getCameraPosition(
+          mapId: controller.mapId,
+        );
         await _checkCameraUpdateByType(
           _cameraUpdateTypeVariants.currentValue!,
           afterFinishedPosition,
@@ -762,16 +720,14 @@ void runTests() {
     'testAnimateCameraWithDuration',
     (WidgetTester tester) async {
       final Key key = GlobalKey();
-      final Completer<GoogleMapController> controllerCompleter =
-          Completer<GoogleMapController>();
-      final GoogleMapsInspectorPlatform inspector =
-          GoogleMapsInspectorPlatform.instance!;
+      final controllerCompleter = Completer<GoogleMapController>();
+      final GoogleMapsInspectorPlatform inspector = GoogleMapsInspectorPlatform.instance!;
 
       /// Completer to track when the camera has come to rest.
       Completer<void>? cameraIdleCompleter;
 
-      const int shortCameraAnimationDurationMS = 200;
-      const int longCameraAnimationDurationMS = 1000;
+      const shortCameraAnimationDurationMS = 200;
+      const longCameraAnimationDurationMS = 1000;
 
       /// Calculate the midpoint duration of the animation test, which will
       /// serve as a reference to verify that animations complete more quickly
@@ -780,7 +736,7 @@ void runTests() {
           (shortCameraAnimationDurationMS + longCameraAnimationDurationMS) ~/ 2;
 
       // Stopwatch to measure the time taken for the animation to complete.
-      final Stopwatch stopwatch = Stopwatch();
+      final stopwatch = Stopwatch();
 
       await tester.pumpWidget(
         Directionality(
@@ -789,8 +745,7 @@ void runTests() {
             key: key,
             initialCameraPosition: kInitialCameraPosition,
             onCameraIdle: () {
-              if (cameraIdleCompleter != null &&
-                  !cameraIdleCompleter.isCompleted) {
+              if (cameraIdleCompleter != null && !cameraIdleCompleter.isCompleted) {
                 stopwatch.stop();
                 cameraIdleCompleter.complete();
               }
@@ -834,15 +789,10 @@ void runTests() {
 
       // For short animation duration, check that the animation is completed
       // faster than the midpoint benchmark.
-      expect(
-        stopwatch.elapsedMilliseconds,
-        lessThan(animationDurationMiddlePoint),
-      );
+      expect(stopwatch.elapsedMilliseconds, lessThan(animationDurationMiddlePoint));
 
       // Reset camera to initial position before testing long duration.
-      await controller.moveCamera(
-        CameraUpdate.newCameraPosition(kInitialCameraPosition),
-      );
+      await controller.moveCamera(CameraUpdate.newCameraPosition(kInitialCameraPosition));
       await tester.pumpAndSettle();
 
       // Create completer for camera idle event.
@@ -869,9 +819,7 @@ void runTests() {
         // Immediately after calling animateCamera, check that the camera hasn't
         // reached its final position. This relies on the assumption that the
         // camera move is animated and won't complete instantly.
-        beforeFinishedPosition = await inspector.getCameraPosition(
-          mapId: controller.mapId,
-        );
+        beforeFinishedPosition = await inspector.getCameraPosition(mapId: controller.mapId);
 
         await _checkCameraUpdateByType(
           _cameraUpdateTypeVariants.currentValue!,
@@ -888,17 +836,15 @@ void runTests() {
 
       // For longer animation duration, check that the animation is completed
       // slower than the midpoint benchmark.
-      expect(
-        stopwatch.elapsedMilliseconds,
-        greaterThan(animationDurationMiddlePoint),
-      );
+      expect(stopwatch.elapsedMilliseconds, greaterThan(animationDurationMiddlePoint));
 
       // If platform supportes getting camera position, check that the camera
       // has moved as expected.
       if (inspector.supportsGettingGameraPosition()) {
         // Camera should be at the final position.
-        final CameraPosition afterFinishedPosition = await inspector
-            .getCameraPosition(mapId: controller.mapId);
+        final CameraPosition afterFinishedPosition = await inspector.getCameraPosition(
+          mapId: controller.mapId,
+        );
         await _checkCameraUpdateByType(
           _cameraUpdateTypeVariants.currentValue!,
           afterFinishedPosition,
@@ -921,10 +867,7 @@ void runTests() {
   );
 }
 
-Marker _copyMarkerWithClusterManagerId(
-  Marker marker,
-  ClusterManagerId? clusterManagerId,
-) {
+Marker _copyMarkerWithClusterManagerId(Marker marker, ClusterManagerId? clusterManagerId) {
   return Marker(
     markerId: marker.markerId,
     alpha: marker.alpha,
@@ -948,23 +891,15 @@ Marker _copyMarkerWithClusterManagerId(
 
 CameraUpdate _getCameraUpdateForType(CameraUpdateType type) {
   return switch (type) {
-    CameraUpdateType.newCameraPosition => CameraUpdate.newCameraPosition(
-      _kTestCameraPosition,
-    ),
+    CameraUpdateType.newCameraPosition => CameraUpdate.newCameraPosition(_kTestCameraPosition),
     CameraUpdateType.newLatLng => CameraUpdate.newLatLng(_kTestMapCenter),
-    CameraUpdateType.newLatLngBounds => CameraUpdate.newLatLngBounds(
-      _testCameraBounds,
-      0,
-    ),
+    CameraUpdateType.newLatLngBounds => CameraUpdate.newLatLngBounds(_testCameraBounds, 0),
     CameraUpdateType.newLatLngZoom => CameraUpdate.newLatLngZoom(
       _kTestMapCenter,
       _kTestCameraZoomLevel,
     ),
     CameraUpdateType.scrollBy => CameraUpdate.scrollBy(10, 10),
-    CameraUpdateType.zoomBy => CameraUpdate.zoomBy(
-      _kTestZoomByAmount,
-      const Offset(1, 1),
-    ),
+    CameraUpdateType.zoomBy => CameraUpdate.zoomBy(_kTestZoomByAmount, const Offset(1, 1)),
     CameraUpdateType.zoomTo => CameraUpdate.zoomTo(_kTestCameraZoomLevel),
     CameraUpdateType.zoomIn => CameraUpdate.zoomIn(),
     CameraUpdateType.zoomOut => CameraUpdate.zoomOut(),
@@ -980,33 +915,20 @@ Future<void> _checkCameraUpdateByType(
 ) async {
   // As the target might differ a bit from the expected target, a threshold is
   // used.
-  const double latLngThreshold = 0.05;
+  const latLngThreshold = 0.05;
 
   switch (type) {
     case CameraUpdateType.newCameraPosition:
-      expect(
-        currentPosition.bearing,
-        wrapMatcher(equals(_kTestCameraPosition.bearing)),
-      );
-      expect(
-        currentPosition.zoom,
-        wrapMatcher(equals(_kTestCameraPosition.zoom)),
-      );
-      expect(
-        currentPosition.tilt,
-        wrapMatcher(equals(_kTestCameraPosition.tilt)),
-      );
+      expect(currentPosition.bearing, wrapMatcher(equals(_kTestCameraPosition.bearing)));
+      expect(currentPosition.zoom, wrapMatcher(equals(_kTestCameraPosition.zoom)));
+      expect(currentPosition.tilt, wrapMatcher(equals(_kTestCameraPosition.tilt)));
       expect(
         currentPosition.target.latitude,
-        wrapMatcher(
-          closeTo(_kTestCameraPosition.target.latitude, latLngThreshold),
-        ),
+        wrapMatcher(closeTo(_kTestCameraPosition.target.latitude, latLngThreshold)),
       );
       expect(
         currentPosition.target.longitude,
-        wrapMatcher(
-          closeTo(_kTestCameraPosition.target.longitude, latLngThreshold),
-        ),
+        wrapMatcher(closeTo(_kTestCameraPosition.target.longitude, latLngThreshold)),
       );
     case CameraUpdateType.newLatLng:
       expect(
@@ -1021,15 +943,11 @@ Future<void> _checkCameraUpdateByType(
       final LatLngBounds bounds = await controller.getVisibleRegion();
       expect(
         bounds.northeast.longitude,
-        wrapMatcher(
-          closeTo(_testCameraBounds.northeast.longitude, latLngThreshold),
-        ),
+        wrapMatcher(closeTo(_testCameraBounds.northeast.longitude, latLngThreshold)),
       );
       expect(
         bounds.southwest.longitude,
-        wrapMatcher(
-          closeTo(_testCameraBounds.southwest.longitude, latLngThreshold),
-        ),
+        wrapMatcher(closeTo(_testCameraBounds.southwest.longitude, latLngThreshold)),
       );
     case CameraUpdateType.newLatLngZoom:
       expect(
@@ -1044,20 +962,11 @@ Future<void> _checkCameraUpdateByType(
     case CameraUpdateType.scrollBy:
       // For scrollBy, just check that the location has changed.
       if (oldPosition != null) {
-        expect(
-          currentPosition.target.latitude,
-          isNot(equals(oldPosition.target.latitude)),
-        );
-        expect(
-          currentPosition.target.longitude,
-          isNot(equals(oldPosition.target.longitude)),
-        );
+        expect(currentPosition.target.latitude, isNot(equals(oldPosition.target.latitude)));
+        expect(currentPosition.target.longitude, isNot(equals(oldPosition.target.longitude)));
       }
     case CameraUpdateType.zoomBy:
-      expect(
-        currentPosition.zoom,
-        wrapMatcher(equals(kInitialZoomLevel + _kTestZoomByAmount)),
-      );
+      expect(currentPosition.zoom, wrapMatcher(equals(kInitialZoomLevel + _kTestZoomByAmount)));
     case CameraUpdateType.zoomTo:
       expect(currentPosition.zoom, wrapMatcher(equals(_kTestCameraZoomLevel)));
     case CameraUpdateType.zoomIn:

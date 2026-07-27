@@ -15,8 +15,7 @@ extension FullScreenSupportMethods on Element {
 }
 
 /// Adds missing fields to [MediaTrackSupportedConstraints].
-extension NonStandardFieldsOnMediaTrackSupportedConstraints
-    on MediaTrackSupportedConstraints {
+extension NonStandardFieldsOnMediaTrackSupportedConstraints on MediaTrackSupportedConstraints {
   @JS('zoom')
   external bool? get zoomNullable;
 
@@ -31,6 +30,9 @@ extension NonStandardFieldsOnMediaTrackCapabilities on MediaTrackCapabilities {
 
   @JS('torch')
   external JSArray<JSBoolean>? get torchNullable;
+
+  @JS('facingMode')
+  external JSArray<JSString>? get facingModeNullable;
 }
 
 /// Adds missing fields to [MediaTrackSettings]
@@ -55,17 +57,12 @@ extension type WebTweakMediaSettingsRange._(JSObject _) implements JSObject {
 /// Adds an applyConstraints method that accepts the WebTweakMediaTrackConstraints.
 extension WebTweakMethodVersions on MediaStreamTrack {
   @JS('applyConstraints')
-  external JSPromise<JSAny?> applyWebTweakConstraints([
-    WebTweakMediaTrackConstraints constraints,
-  ]);
+  external JSPromise<JSAny?> applyWebTweakConstraints([WebTweakMediaTrackConstraints constraints]);
 }
 
 /// Allows creating the MediaTrackConstraints that are needed.
 /// Brought over from package:web 1.0.0
 extension type WebTweakMediaTrackConstraints._(JSObject _) implements JSObject {
   @JS('MediaTrackConstraints')
-  external factory WebTweakMediaTrackConstraints({
-    JSAny zoom,
-    ConstrainBoolean torch,
-  });
+  external factory WebTweakMediaTrackConstraints({JSAny zoom, ConstrainBoolean torch});
 }

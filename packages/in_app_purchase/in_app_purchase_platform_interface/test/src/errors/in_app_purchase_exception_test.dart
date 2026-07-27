@@ -7,19 +7,16 @@ import 'package:in_app_purchase_platform_interface/src/errors/in_app_purchase_ex
 
 void main() {
   test('toString: Should return a description of the exception', () {
-    final InAppPurchaseException exception = InAppPurchaseException(
+    final exception = InAppPurchaseException(
       code: 'error_code',
       message: 'dummy message',
       source: 'dummy_source',
     );
 
     // Act
-    final String actual = exception.toString();
+    final actual = exception.toString();
 
     // Assert
-    expect(
-      actual,
-      'InAppPurchaseException(error_code, dummy message, dummy_source)',
-    );
+    expect(actual, 'InAppPurchaseException(error_code, dummy message, dummy_source)');
   });
 }

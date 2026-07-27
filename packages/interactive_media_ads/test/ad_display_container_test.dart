@@ -14,50 +14,38 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets('build', (WidgetTester tester) async {
-    final TestPlatformAdDisplayContainer adDisplayContainer =
-        TestPlatformAdDisplayContainer(
-          PlatformAdDisplayContainerCreationParams(onContainerAdded: (_) {}),
-          onBuild: (_) => Container(),
-        );
-
-    await tester.pumpWidget(
-      AdDisplayContainer.fromPlatform(platform: adDisplayContainer),
+    final adDisplayContainer = TestPlatformAdDisplayContainer(
+      PlatformAdDisplayContainerCreationParams(onContainerAdded: (_) {}),
+      onBuild: (_) => Container(),
     );
+
+    await tester.pumpWidget(AdDisplayContainer.fromPlatform(platform: adDisplayContainer));
 
     expect(find.byType(Container), findsOneWidget);
   });
 
-  testWidgets(
-    'constructor parameters are correctly passed to creation params',
-    (WidgetTester tester) async {
-      InteractiveMediaAdsPlatform.instance = TestInteractiveMediaAdsPlatform(
-        onCreatePlatformAdDisplayContainer:
-            (PlatformAdDisplayContainerCreationParams params) {
-              return TestPlatformAdDisplayContainer(
-                params,
-                onBuild: (_) => Container(),
-              );
-            },
-        onCreatePlatformAdsLoader: (PlatformAdsLoaderCreationParams params) {
-          throw UnimplementedError();
-        },
-        onCreatePlatformAdsManagerDelegate:
-            (PlatformAdsManagerDelegateCreationParams params) {
-              throw UnimplementedError();
-            },
-        onCreatePlatformContentProgressProvider: (_) {
-          throw UnimplementedError();
-        },
-      );
+  testWidgets('constructor parameters are correctly passed to creation params', (
+    WidgetTester tester,
+  ) async {
+    InteractiveMediaAdsPlatform.instance = TestInteractiveMediaAdsPlatform(
+      onCreatePlatformAdDisplayContainer: (PlatformAdDisplayContainerCreationParams params) {
+        return TestPlatformAdDisplayContainer(params, onBuild: (_) => Container());
+      },
+      onCreatePlatformAdsLoader: (PlatformAdsLoaderCreationParams params) {
+        throw UnimplementedError();
+      },
+      onCreatePlatformAdsManagerDelegate: (PlatformAdsManagerDelegateCreationParams params) {
+        throw UnimplementedError();
+      },
+      onCreatePlatformContentProgressProvider: (_) {
+        throw UnimplementedError();
+      },
+    );
 
-      final AdDisplayContainer adDisplayContainer = AdDisplayContainer(
-        key: GlobalKey(),
-        onContainerAdded: (_) {},
-      );
+    final adDisplayContainer = AdDisplayContainer(key: GlobalKey(), onContainerAdded: (_) {});
 
-      // The key passed to the default constructor is used by the super class
-      // and not passed to the platform implementation.
-      expect(adDisplayContainer.platform.params.key, isNull);
-    },
-  );
+    // The key passed to the default constructor is used by the super class
+    // and not passed to the platform implementation.
+    expect(adDisplayContainer.platform.params.key, isNull);
+  });
 }

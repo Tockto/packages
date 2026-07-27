@@ -61,15 +61,15 @@ class _MyHomePageState extends State<MyHomePage> {
                 constraints: const BoxConstraints(maxWidth: 150),
                 padding: const EdgeInsets.only(bottom: 10),
                 child:
-                // #docregion adUnit
-                AdUnitWidget(
-                  configuration: AdUnitConfiguration.displayAdUnit(
-                    // TODO: Replace with your Ad Unit ID
-                    adSlot: '1234567890',
-                    // Remove AdFormat to make ads limited by height
-                    adFormat: AdFormat.AUTO,
-                  ),
-                ),
+                    // #docregion adUnit
+                    AdUnitWidget(
+                      configuration: AdUnitConfiguration.displayAdUnit(
+                        // TODO: Replace with your Ad Unit ID
+                        adSlot: '1234567890',
+                        // Remove AdFormat to make ads limited by height
+                        adFormat: AdFormat.AUTO,
+                      ),
+                    ),
                 // #enddocregion adUnit
               ),
               const Text(
@@ -77,10 +77,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               // #docregion constraints
               Container(
-                constraints: const BoxConstraints(
-                  maxHeight: 100,
-                  maxWidth: 1200,
-                ),
+                constraints: const BoxConstraints(maxHeight: 100, maxWidth: 1200),
                 padding: const EdgeInsets.only(bottom: 10),
                 child: AdUnitWidget(
                   configuration: AdUnitConfiguration.displayAdUnit(

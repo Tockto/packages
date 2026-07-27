@@ -15,7 +15,11 @@ RouteBase get $mainShellRouteData => StatefulShellRouteData.$route(
   branches: [
     StatefulShellBranchData.$branch(
       routes: [
-        GoRouteData.$route(path: '/home', factory: $HomeRouteData._fromState),
+        GoRouteData.$route(
+          path: '/home',
+          hasOverriddenOnExit: false,
+          factory: $HomeRouteData._fromState,
+        ),
       ],
     ),
     StatefulShellBranchData.$branch(
@@ -23,6 +27,7 @@ RouteBase get $mainShellRouteData => StatefulShellRouteData.$route(
       routes: [
         GoRouteData.$route(
           path: '/notifications/:section',
+          hasOverriddenOnExit: false,
           factory: $NotificationsRouteData._fromState,
         ),
       ],
@@ -31,6 +36,7 @@ RouteBase get $mainShellRouteData => StatefulShellRouteData.$route(
       routes: [
         GoRouteData.$route(
           path: '/orders',
+          hasOverriddenOnExit: false,
           factory: $OrdersRouteData._fromState,
         ),
       ],
@@ -66,10 +72,9 @@ mixin $HomeRouteData on GoRouteData {
 mixin $NotificationsRouteData on GoRouteData {
   static NotificationsRouteData _fromState(GoRouterState state) =>
       NotificationsRouteData(
-        section:
-            _$NotificationsPageSectionEnumMap._$fromName(
-              state.pathParameters['section']!,
-            )!,
+        section: _$NotificationsPageSectionEnumMap._$fromName(
+          state.pathParameters['section']!,
+        )!,
       );
 
   NotificationsRouteData get _self => this as NotificationsRouteData;

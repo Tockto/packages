@@ -100,52 +100,27 @@ void main() {
 
   group('supportsMode', () {
     test('returns true for platformDefault', () async {
-      final UrlLauncherWindows launcher = UrlLauncherWindows(api: api);
-      expect(
-        await launcher.supportsMode(PreferredLaunchMode.platformDefault),
-        true,
-      );
+      final launcher = UrlLauncherWindows(api: api);
+      expect(await launcher.supportsMode(PreferredLaunchMode.platformDefault), true);
     });
 
     test('returns true for external application', () async {
-      final UrlLauncherWindows launcher = UrlLauncherWindows(api: api);
-      expect(
-        await launcher.supportsMode(PreferredLaunchMode.externalApplication),
-        true,
-      );
+      final launcher = UrlLauncherWindows(api: api);
+      expect(await launcher.supportsMode(PreferredLaunchMode.externalApplication), true);
     });
 
     test('returns false for other modes', () async {
-      final UrlLauncherWindows launcher = UrlLauncherWindows(api: api);
-      expect(
-        await launcher.supportsMode(
-          PreferredLaunchMode.externalNonBrowserApplication,
-        ),
-        false,
-      );
-      expect(
-        await launcher.supportsMode(PreferredLaunchMode.inAppBrowserView),
-        false,
-      );
-      expect(
-        await launcher.supportsMode(PreferredLaunchMode.inAppWebView),
-        false,
-      );
+      final launcher = UrlLauncherWindows(api: api);
+      expect(await launcher.supportsMode(PreferredLaunchMode.externalNonBrowserApplication), false);
+      expect(await launcher.supportsMode(PreferredLaunchMode.inAppBrowserView), false);
+      expect(await launcher.supportsMode(PreferredLaunchMode.inAppWebView), false);
     });
   });
 
   test('supportsCloseForMode returns false', () async {
-    final UrlLauncherWindows launcher = UrlLauncherWindows(api: api);
-    expect(
-      await launcher.supportsCloseForMode(PreferredLaunchMode.platformDefault),
-      false,
-    );
-    expect(
-      await launcher.supportsCloseForMode(
-        PreferredLaunchMode.externalApplication,
-      ),
-      false,
-    );
+    final launcher = UrlLauncherWindows(api: api);
+    expect(await launcher.supportsCloseForMode(PreferredLaunchMode.platformDefault), false);
+    expect(await launcher.supportsCloseForMode(PreferredLaunchMode.externalApplication), false);
   });
 }
 
@@ -176,4 +151,12 @@ class _FakeUrlLauncherApi implements UrlLauncherApi {
     }
     return canLaunch;
   }
+
+  @override
+  // ignore: non_constant_identifier_names
+  BinaryMessenger? get pigeonVar_binaryMessenger => null;
+
+  @override
+  // ignore: non_constant_identifier_names
+  String get pigeonVar_messageChannelSuffix => '';
 }

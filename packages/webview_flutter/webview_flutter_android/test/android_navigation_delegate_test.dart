@@ -8,9 +8,7 @@ import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:webview_flutter_android/src/android_proxy.dart';
-import 'package:webview_flutter_android/src/android_webkit.g.dart'
-    as android_webview;
+import 'package:webview_flutter_android/src/android_webkit.g.dart' as android_webview;
 import 'package:webview_flutter_android/src/android_webkit_constants.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:webview_flutter_platform_interface/webview_flutter_platform_interface.dart';
@@ -30,13 +28,10 @@ void main() {
 
   group('AndroidNavigationDelegate', () {
     test('onPageFinished', () {
-      final AndroidNavigationDelegate androidNavigationDelegate =
-          AndroidNavigationDelegate(_buildCreationParams());
+      final androidNavigationDelegate = AndroidNavigationDelegate(_buildCreationParams());
 
       late final String callbackUrl;
-      androidNavigationDelegate.setOnPageFinished(
-        (String url) => callbackUrl = url,
-      );
+      androidNavigationDelegate.setOnPageFinished((String url) => callbackUrl = url);
 
       CapturingWebViewClient.lastCreatedDelegate.onPageFinished!(
         CapturingWebViewClient(),
@@ -48,13 +43,10 @@ void main() {
     });
 
     test('onPageStarted', () {
-      final AndroidNavigationDelegate androidNavigationDelegate =
-          AndroidNavigationDelegate(_buildCreationParams());
+      final androidNavigationDelegate = AndroidNavigationDelegate(_buildCreationParams());
 
       late final String callbackUrl;
-      androidNavigationDelegate.setOnPageStarted(
-        (String url) => callbackUrl = url,
-      );
+      androidNavigationDelegate.setOnPageStarted((String url) => callbackUrl = url);
 
       CapturingWebViewClient.lastCreatedDelegate.onPageStarted!(
         CapturingWebViewClient(),
@@ -66,8 +58,7 @@ void main() {
     });
 
     test('onHttpError from onReceivedHttpError', () {
-      final AndroidNavigationDelegate androidNavigationDelegate =
-          AndroidNavigationDelegate(_buildCreationParams());
+      final androidNavigationDelegate = AndroidNavigationDelegate(_buildCreationParams());
 
       late final HttpResponseError callbackError;
       androidNavigationDelegate.setOnHttpError(
@@ -84,20 +75,15 @@ void main() {
           hasGesture: true,
           method: 'GET',
           requestHeaders: const <String, String>{'X-Mock': 'mocking'},
-          pigeon_instanceManager: TestInstanceManager(),
         ),
-        android_webview.WebResourceResponse.pigeon_detached(
-          statusCode: 401,
-          pigeon_instanceManager: TestInstanceManager(),
-        ),
+        android_webview.WebResourceResponse.pigeon_detached(statusCode: 401),
       );
 
       expect(callbackError.response?.statusCode, 401);
     });
 
     test('onWebResourceError from onReceivedRequestError', () {
-      final AndroidNavigationDelegate androidNavigationDelegate =
-          AndroidNavigationDelegate(_buildCreationParams());
+      final androidNavigationDelegate = AndroidNavigationDelegate(_buildCreationParams());
 
       late final WebResourceError callbackError;
       androidNavigationDelegate.setOnWebResourceError(
@@ -114,12 +100,10 @@ void main() {
           hasGesture: true,
           method: 'GET',
           requestHeaders: const <String, String>{'X-Mock': 'mocking'},
-          pigeon_instanceManager: TestInstanceManager(),
         ),
         android_webview.WebResourceError.pigeon_detached(
           errorCode: WebViewClientConstants.errorFileNotFound,
           description: 'Page not found.',
-          pigeon_instanceManager: TestInstanceManager(),
         ),
       );
 
@@ -132,13 +116,10 @@ void main() {
     test(
       'onNavigationRequest from requestLoading should not be called when loadUrlCallback is not specified',
       () {
-        final AndroidNavigationDelegate androidNavigationDelegate =
-            AndroidNavigationDelegate(_buildCreationParams());
+        final androidNavigationDelegate = AndroidNavigationDelegate(_buildCreationParams());
 
         NavigationRequest? callbackNavigationRequest;
-        androidNavigationDelegate.setOnNavigationRequest((
-          NavigationRequest navigationRequest,
-        ) {
+        androidNavigationDelegate.setOnNavigationRequest((NavigationRequest navigationRequest) {
           callbackNavigationRequest = navigationRequest;
           return NavigationDecision.prevent;
         });
@@ -153,7 +134,6 @@ void main() {
             hasGesture: true,
             method: 'GET',
             requestHeaders: const <String, String>{'X-Mock': 'mocking'},
-            pigeon_instanceManager: TestInstanceManager(),
           ),
         );
 
@@ -164,13 +144,10 @@ void main() {
     test(
       'onNavigationRequest from requestLoading should be called when request is for main frame',
       () {
-        final AndroidNavigationDelegate androidNavigationDelegate =
-            AndroidNavigationDelegate(_buildCreationParams());
+        final androidNavigationDelegate = AndroidNavigationDelegate(_buildCreationParams());
 
         NavigationRequest? callbackNavigationRequest;
-        androidNavigationDelegate.setOnNavigationRequest((
-          NavigationRequest navigationRequest,
-        ) {
+        androidNavigationDelegate.setOnNavigationRequest((NavigationRequest navigationRequest) {
           callbackNavigationRequest = navigationRequest;
           return NavigationDecision.prevent;
         });
@@ -187,7 +164,6 @@ void main() {
             hasGesture: true,
             method: 'GET',
             requestHeaders: const <String, String>{'X-Mock': 'mocking'},
-            pigeon_instanceManager: TestInstanceManager(),
           ),
         );
 
@@ -198,13 +174,10 @@ void main() {
     test(
       'onNavigationRequest from requestLoading should not be called when request is not for main frame',
       () {
-        final AndroidNavigationDelegate androidNavigationDelegate =
-            AndroidNavigationDelegate(_buildCreationParams());
+        final androidNavigationDelegate = AndroidNavigationDelegate(_buildCreationParams());
 
         NavigationRequest? callbackNavigationRequest;
-        androidNavigationDelegate.setOnNavigationRequest((
-          NavigationRequest navigationRequest,
-        ) {
+        androidNavigationDelegate.setOnNavigationRequest((NavigationRequest navigationRequest) {
           callbackNavigationRequest = navigationRequest;
           return NavigationDecision.prevent;
         });
@@ -221,7 +194,6 @@ void main() {
             hasGesture: true,
             method: 'GET',
             requestHeaders: const <String, String>{'X-Mock': 'mocking'},
-            pigeon_instanceManager: TestInstanceManager(),
           ),
         );
 
@@ -232,9 +204,8 @@ void main() {
     test(
       'onLoadRequest from requestLoading should not be called when navigationRequestCallback is not specified',
       () {
-        final Completer<void> completer = Completer<void>();
-        final AndroidNavigationDelegate androidNavigationDelegate =
-            AndroidNavigationDelegate(_buildCreationParams());
+        final completer = Completer<void>();
+        final androidNavigationDelegate = AndroidNavigationDelegate(_buildCreationParams());
 
         androidNavigationDelegate.setOnLoadRequest((_) {
           completer.complete();
@@ -251,7 +222,6 @@ void main() {
             hasGesture: true,
             method: 'GET',
             requestHeaders: const <String, String>{'X-Mock': 'mocking'},
-            pigeon_instanceManager: TestInstanceManager(),
           ),
         );
 
@@ -262,9 +232,8 @@ void main() {
     test(
       'onLoadRequest from requestLoading should not be called when onNavigationRequestCallback returns NavigationDecision.prevent',
       () {
-        final Completer<void> completer = Completer<void>();
-        final AndroidNavigationDelegate androidNavigationDelegate =
-            AndroidNavigationDelegate(_buildCreationParams());
+        final completer = Completer<void>();
+        final androidNavigationDelegate = AndroidNavigationDelegate(_buildCreationParams());
 
         androidNavigationDelegate.setOnLoadRequest((_) {
           completer.complete();
@@ -272,9 +241,7 @@ void main() {
         });
 
         late final NavigationRequest callbackNavigationRequest;
-        androidNavigationDelegate.setOnNavigationRequest((
-          NavigationRequest navigationRequest,
-        ) {
+        androidNavigationDelegate.setOnNavigationRequest((NavigationRequest navigationRequest) {
           callbackNavigationRequest = navigationRequest;
           return NavigationDecision.prevent;
         });
@@ -289,7 +256,6 @@ void main() {
             hasGesture: true,
             method: 'GET',
             requestHeaders: const <String, String>{'X-Mock': 'mocking'},
-            pigeon_instanceManager: TestInstanceManager(),
           ),
         );
 
@@ -302,10 +268,9 @@ void main() {
     test(
       'onLoadRequest from requestLoading should complete when onNavigationRequestCallback returns NavigationDecision.navigate',
       () {
-        final Completer<void> completer = Completer<void>();
+        final completer = Completer<void>();
         late final LoadRequestParams loadRequestParams;
-        final AndroidNavigationDelegate androidNavigationDelegate =
-            AndroidNavigationDelegate(_buildCreationParams());
+        final androidNavigationDelegate = AndroidNavigationDelegate(_buildCreationParams());
 
         androidNavigationDelegate.setOnLoadRequest((LoadRequestParams params) {
           loadRequestParams = params;
@@ -314,9 +279,7 @@ void main() {
         });
 
         late final NavigationRequest callbackNavigationRequest;
-        androidNavigationDelegate.setOnNavigationRequest((
-          NavigationRequest navigationRequest,
-        ) {
+        androidNavigationDelegate.setOnNavigationRequest((NavigationRequest navigationRequest) {
           callbackNavigationRequest = navigationRequest;
           return NavigationDecision.navigate;
         });
@@ -331,14 +294,11 @@ void main() {
             hasGesture: true,
             method: 'GET',
             requestHeaders: const <String, String>{'X-Mock': 'mocking'},
-            pigeon_instanceManager: TestInstanceManager(),
           ),
         );
 
         expect(loadRequestParams.uri.toString(), 'https://www.google.com');
-        expect(loadRequestParams.headers, <String, String>{
-          'X-Mock': 'mocking',
-        });
+        expect(loadRequestParams.headers, <String, String>{'X-Mock': 'mocking'});
         expect(callbackNavigationRequest.isMainFrame, true);
         expect(callbackNavigationRequest.url, 'https://www.google.com');
         expect(completer.isCompleted, true);
@@ -348,13 +308,10 @@ void main() {
     test(
       'onNavigationRequest from urlLoading should not be called when loadUrlCallback is not specified',
       () {
-        final AndroidNavigationDelegate androidNavigationDelegate =
-            AndroidNavigationDelegate(_buildCreationParams());
+        final androidNavigationDelegate = AndroidNavigationDelegate(_buildCreationParams());
 
         NavigationRequest? callbackNavigationRequest;
-        androidNavigationDelegate.setOnNavigationRequest((
-          NavigationRequest navigationRequest,
-        ) {
+        androidNavigationDelegate.setOnNavigationRequest((NavigationRequest navigationRequest) {
           callbackNavigationRequest = navigationRequest;
           return NavigationDecision.prevent;
         });
@@ -372,9 +329,8 @@ void main() {
     test(
       'onLoadRequest from urlLoading should not be called when navigationRequestCallback is not specified',
       () {
-        final Completer<void> completer = Completer<void>();
-        final AndroidNavigationDelegate androidNavigationDelegate =
-            AndroidNavigationDelegate(_buildCreationParams());
+        final completer = Completer<void>();
+        final androidNavigationDelegate = AndroidNavigationDelegate(_buildCreationParams());
 
         androidNavigationDelegate.setOnLoadRequest((_) {
           completer.complete();
@@ -394,9 +350,8 @@ void main() {
     test(
       'onLoadRequest from urlLoading should not be called when onNavigationRequestCallback returns NavigationDecision.prevent',
       () {
-        final Completer<void> completer = Completer<void>();
-        final AndroidNavigationDelegate androidNavigationDelegate =
-            AndroidNavigationDelegate(_buildCreationParams());
+        final completer = Completer<void>();
+        final androidNavigationDelegate = AndroidNavigationDelegate(_buildCreationParams());
 
         androidNavigationDelegate.setOnLoadRequest((_) {
           completer.complete();
@@ -404,9 +359,7 @@ void main() {
         });
 
         late final NavigationRequest callbackNavigationRequest;
-        androidNavigationDelegate.setOnNavigationRequest((
-          NavigationRequest navigationRequest,
-        ) {
+        androidNavigationDelegate.setOnNavigationRequest((NavigationRequest navigationRequest) {
           callbackNavigationRequest = navigationRequest;
           return NavigationDecision.prevent;
         });
@@ -426,10 +379,9 @@ void main() {
     test(
       'onLoadRequest from urlLoading should complete when onNavigationRequestCallback returns NavigationDecision.navigate',
       () {
-        final Completer<void> completer = Completer<void>();
+        final completer = Completer<void>();
         late final LoadRequestParams loadRequestParams;
-        final AndroidNavigationDelegate androidNavigationDelegate =
-            AndroidNavigationDelegate(_buildCreationParams());
+        final androidNavigationDelegate = AndroidNavigationDelegate(_buildCreationParams());
 
         androidNavigationDelegate.setOnLoadRequest((LoadRequestParams params) {
           loadRequestParams = params;
@@ -438,9 +390,7 @@ void main() {
         });
 
         late final NavigationRequest callbackNavigationRequest;
-        androidNavigationDelegate.setOnNavigationRequest((
-          NavigationRequest navigationRequest,
-        ) {
+        androidNavigationDelegate.setOnNavigationRequest((NavigationRequest navigationRequest) {
           callbackNavigationRequest = navigationRequest;
           return NavigationDecision.navigate;
         });
@@ -460,8 +410,7 @@ void main() {
     );
 
     test('setOnNavigationRequest should override URL loading', () {
-      final AndroidNavigationDelegate androidNavigationDelegate =
-          AndroidNavigationDelegate(_buildCreationParams());
+      final androidNavigationDelegate = AndroidNavigationDelegate(_buildCreationParams());
 
       androidNavigationDelegate.setOnNavigationRequest(
         (NavigationRequest request) => NavigationDecision.navigate,
@@ -478,9 +427,8 @@ void main() {
     test(
       'onLoadRequest from onDownloadStart should not be called when navigationRequestCallback is not specified',
       () {
-        final Completer<void> completer = Completer<void>();
-        final AndroidNavigationDelegate androidNavigationDelegate =
-            AndroidNavigationDelegate(_buildCreationParams());
+        final completer = Completer<void>();
+        final androidNavigationDelegate = AndroidNavigationDelegate(_buildCreationParams());
 
         androidNavigationDelegate.setOnLoadRequest((_) {
           completer.complete();
@@ -503,9 +451,8 @@ void main() {
     test(
       'onLoadRequest from onDownloadStart should not be called when onNavigationRequestCallback returns NavigationDecision.prevent',
       () {
-        final Completer<void> completer = Completer<void>();
-        final AndroidNavigationDelegate androidNavigationDelegate =
-            AndroidNavigationDelegate(_buildCreationParams());
+        final completer = Completer<void>();
+        final androidNavigationDelegate = AndroidNavigationDelegate(_buildCreationParams());
 
         androidNavigationDelegate.setOnLoadRequest((_) {
           completer.complete();
@@ -513,9 +460,7 @@ void main() {
         });
 
         late final NavigationRequest callbackNavigationRequest;
-        androidNavigationDelegate.setOnNavigationRequest((
-          NavigationRequest navigationRequest,
-        ) {
+        androidNavigationDelegate.setOnNavigationRequest((NavigationRequest navigationRequest) {
           callbackNavigationRequest = navigationRequest;
           return NavigationDecision.prevent;
         });
@@ -538,10 +483,9 @@ void main() {
     test(
       'onLoadRequest from onDownloadStart should complete when onNavigationRequestCallback returns NavigationDecision.navigate',
       () {
-        final Completer<void> completer = Completer<void>();
+        final completer = Completer<void>();
         late final LoadRequestParams loadRequestParams;
-        final AndroidNavigationDelegate androidNavigationDelegate =
-            AndroidNavigationDelegate(_buildCreationParams());
+        final androidNavigationDelegate = AndroidNavigationDelegate(_buildCreationParams());
 
         androidNavigationDelegate.setOnLoadRequest((LoadRequestParams params) {
           loadRequestParams = params;
@@ -550,9 +494,7 @@ void main() {
         });
 
         late final NavigationRequest callbackNavigationRequest;
-        androidNavigationDelegate.setOnNavigationRequest((
-          NavigationRequest navigationRequest,
-        ) {
+        androidNavigationDelegate.setOnNavigationRequest((NavigationRequest navigationRequest) {
           callbackNavigationRequest = navigationRequest;
           return NavigationDecision.navigate;
         });
@@ -575,8 +517,7 @@ void main() {
     );
 
     test('onUrlChange', () {
-      final AndroidNavigationDelegate androidNavigationDelegate =
-          AndroidNavigationDelegate(_buildCreationParams());
+      final androidNavigationDelegate = AndroidNavigationDelegate(_buildCreationParams());
 
       late final AndroidUrlChange urlChange;
       androidNavigationDelegate.setOnUrlChange((UrlChange change) {
@@ -595,8 +536,7 @@ void main() {
     });
 
     test('onReceivedHttpAuthRequest emits host and realm', () {
-      final AndroidNavigationDelegate androidNavigationDelegate =
-          AndroidNavigationDelegate(_buildCreationParams());
+      final androidNavigationDelegate = AndroidNavigationDelegate(_buildCreationParams());
 
       String? callbackHost;
       String? callbackRealm;
@@ -605,15 +545,13 @@ void main() {
         callbackRealm = request.realm;
       });
 
-      const String expectedHost = 'expectedHost';
-      const String expectedRealm = 'expectedRealm';
+      const expectedHost = 'expectedHost';
+      const expectedRealm = 'expectedRealm';
 
       CapturingWebViewClient.lastCreatedDelegate.onReceivedHttpAuthRequest!(
         CapturingWebViewClient(),
         TestWebView(),
-        android_webview.HttpAuthHandler.pigeon_detached(
-          pigeon_instanceManager: TestInstanceManager(),
-        ),
+        android_webview.HttpAuthHandler.pigeon_detached(),
         expectedHost,
         expectedRealm,
       );
@@ -625,7 +563,7 @@ void main() {
     test('onReceivedHttpAuthRequest calls cancel by default', () {
       AndroidNavigationDelegate(_buildCreationParams());
 
-      final MockHttpAuthHandler mockAuthHandler = MockHttpAuthHandler();
+      final mockAuthHandler = MockHttpAuthHandler();
 
       CapturingWebViewClient.lastCreatedDelegate.onReceivedHttpAuthRequest!(
         CapturingWebViewClient(),
@@ -639,36 +577,28 @@ void main() {
     });
 
     test('setOnSSlAuthError', () async {
-      final AndroidNavigationDelegate androidNavigationDelegate =
-          AndroidNavigationDelegate(_buildCreationParams());
+      final androidNavigationDelegate = AndroidNavigationDelegate(_buildCreationParams());
 
-      final Completer<PlatformSslAuthError> errorCompleter =
-          Completer<PlatformSslAuthError>();
-      await androidNavigationDelegate.setOnSSlAuthError((
-        PlatformSslAuthError error,
-      ) {
+      final errorCompleter = Completer<PlatformSslAuthError>();
+      await androidNavigationDelegate.setOnSSlAuthError((PlatformSslAuthError error) {
         errorCompleter.complete(error);
       });
 
-      final Uint8List certificateData = Uint8List(0);
-      const String url = 'https://google.com';
+      final certificateData = Uint8List(0);
+      const url = 'https://google.com';
 
-      final MockSslError mockSslError = MockSslError();
+      final mockSslError = MockSslError();
       when(mockSslError.url).thenReturn(url);
       when(
         mockSslError.getPrimaryError(),
       ).thenAnswer((_) async => android_webview.SslErrorType.dateInvalid);
-      final MockSslCertificate mockSslCertificate = MockSslCertificate();
-      final MockX509Certificate mockX509Certificate = MockX509Certificate();
-      when(
-        mockX509Certificate.getEncoded(),
-      ).thenAnswer((_) async => certificateData);
-      when(
-        mockSslCertificate.getX509Certificate(),
-      ).thenAnswer((_) async => mockX509Certificate);
+      final mockSslCertificate = MockSslCertificate();
+      final mockX509Certificate = MockX509Certificate();
+      when(mockX509Certificate.getEncoded()).thenAnswer((_) async => certificateData);
+      when(mockSslCertificate.getX509Certificate()).thenAnswer((_) async => mockX509Certificate);
       when(mockSslError.certificate).thenReturn(mockSslCertificate);
 
-      final MockSslErrorHandler mockSslErrorHandler = MockSslErrorHandler();
+      final mockSslErrorHandler = MockSslErrorHandler();
 
       CapturingWebViewClient.lastCreatedDelegate.onReceivedSslError!(
         CapturingWebViewClient(),
@@ -677,8 +607,7 @@ void main() {
         mockSslError,
       );
 
-      final AndroidSslAuthError error =
-          await errorCompleter.future as AndroidSslAuthError;
+      final error = await errorCompleter.future as AndroidSslAuthError;
       expect(error.certificate?.data, certificateData);
       expect(error.description, 'The date of the certificate is invalid.');
       expect(error.url, url);
@@ -695,7 +624,7 @@ void main() {
     test('setOnSSlAuthError calls cancel by default', () async {
       AndroidNavigationDelegate(_buildCreationParams());
 
-      final MockSslErrorHandler mockSslErrorHandler = MockSslErrorHandler();
+      final mockSslErrorHandler = MockSslErrorHandler();
 
       CapturingWebViewClient.lastCreatedDelegate.onReceivedSslError!(
         CapturingWebViewClient(),
@@ -710,13 +639,11 @@ void main() {
 }
 
 AndroidNavigationDelegateCreationParams _buildCreationParams() {
+  android_webview.PigeonOverrides.webViewClient_new = CapturingWebViewClient.new;
+  android_webview.PigeonOverrides.webChromeClient_new = CapturingWebChromeClient.new;
+  android_webview.PigeonOverrides.downloadListener_new = CapturingDownloadListener.new;
   return AndroidNavigationDelegateCreationParams.fromPlatformNavigationDelegateCreationParams(
     const PlatformNavigationDelegateCreationParams(),
-    androidWebViewProxy: const AndroidWebViewProxy(
-      newWebChromeClient: CapturingWebChromeClient.new,
-      newWebViewClient: CapturingWebViewClient.new,
-      newDownloadListener: CapturingDownloadListener.new,
-    ),
   );
 }
 
@@ -740,11 +667,7 @@ class CapturingWebViewClient extends android_webview.WebViewClient {
     super.onReceivedLoginRequest,
     super.onReceivedSslError,
     super.onScaleChanged,
-  }) : super.pigeon_detached(
-         pigeon_instanceManager: android_webview.PigeonInstanceManager(
-           onWeakReferenceRemoved: (_) {},
-         ),
-       ) {
+  }) : super.pigeon_detached() {
     lastCreatedDelegate = this;
   }
 
@@ -753,9 +676,7 @@ class CapturingWebViewClient extends android_webview.WebViewClient {
   bool synchronousReturnValueForShouldOverrideUrlLoading = false;
 
   @override
-  Future<void> setSynchronousReturnValueForShouldOverrideUrlLoading(
-    bool value,
-  ) async {
+  Future<void> setSynchronousReturnValueForShouldOverrideUrlLoading(bool value) async {
     synchronousReturnValueForShouldOverrideUrlLoading = value;
   }
 }
@@ -774,47 +695,27 @@ class CapturingWebChromeClient extends android_webview.WebChromeClient {
     super.onJsAlert,
     required super.onJsConfirm,
     super.onJsPrompt,
-  }) : super.pigeon_detached(
-         pigeon_instanceManager: android_webview.PigeonInstanceManager(
-           onWeakReferenceRemoved: (_) {},
-         ),
-       ) {
+  }) : super.pigeon_detached() {
     lastCreatedDelegate = this;
   }
 
-  static CapturingWebChromeClient lastCreatedDelegate =
-      CapturingWebChromeClient(
-        onJsConfirm: (_, __, ___, ____) async => false,
-        onShowFileChooser: (_, __, ___) async => <String>[],
-      );
+  static CapturingWebChromeClient lastCreatedDelegate = CapturingWebChromeClient(
+    onJsConfirm: (_, _, _, _) async => false,
+    onShowFileChooser: (_, _, _) async => <String>[],
+  );
 }
 
 // Records the last created instance of itself.
 class CapturingDownloadListener extends android_webview.DownloadListener {
-  CapturingDownloadListener({required super.onDownloadStart})
-    : super.pigeon_detached(
-        pigeon_instanceManager: android_webview.PigeonInstanceManager(
-          onWeakReferenceRemoved: (_) {},
-        ),
-      ) {
+  CapturingDownloadListener({required super.onDownloadStart}) : super.pigeon_detached() {
     lastCreatedListener = this;
   }
 
-  static CapturingDownloadListener lastCreatedListener =
-      CapturingDownloadListener(
-        onDownloadStart: (_, __, ___, ____, _____, ______) {},
-      );
+  static CapturingDownloadListener lastCreatedListener = CapturingDownloadListener(
+    onDownloadStart: (_, _, _, _, _, _) {},
+  );
 }
 
 class TestWebView extends android_webview.WebView {
-  TestWebView()
-    : super.pigeon_detached(
-        pigeon_instanceManager: android_webview.PigeonInstanceManager(
-          onWeakReferenceRemoved: (_) {},
-        ),
-      );
-}
-
-class TestInstanceManager extends android_webview.PigeonInstanceManager {
-  TestInstanceManager() : super(onWeakReferenceRemoved: (_) {});
+  TestWebView() : super.pigeon_detached();
 }

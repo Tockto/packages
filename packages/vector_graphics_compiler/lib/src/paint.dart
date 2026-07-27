@@ -37,10 +37,7 @@ class Color {
   /// Each part is represented by an integer from 0..255.
   const Color.fromARGB(int a, int r, int g, int b)
     : value =
-          (((a & 0xff) << 24) |
-              ((r & 0xff) << 16) |
-              ((g & 0xff) << 8) |
-              ((b & 0xff) << 0)) &
+          (((a & 0xff) << 24) | ((r & 0xff) << 16) | ((g & 0xff) << 8) | ((b & 0xff) << 0)) &
           0xFFFFFFFF;
 
   /// Fully opaque black.
@@ -451,8 +448,8 @@ class Paint {
 
   @override
   String toString() {
-    final StringBuffer buffer = StringBuffer('Paint(blendMode: $blendMode');
-    const String leading = ', ';
+    final buffer = StringBuffer('Paint(blendMode: $blendMode');
+    const leading = ', ';
     if (stroke != null) {
       buffer.write('${leading}stroke: $stroke');
     }
@@ -470,14 +467,8 @@ class Paint {
 @immutable
 class Stroke {
   /// Creates a new collection of stroking properties.
-  const Stroke({
-    Color? color,
-    this.shader,
-    this.cap,
-    this.join,
-    this.miterLimit,
-    this.width,
-  }) : color = color ?? Color.opaqueBlack;
+  const Stroke({Color? color, this.shader, this.cap, this.join, this.miterLimit, this.width})
+    : color = color ?? Color.opaqueBlack;
 
   /// The color to use for this stroke.
   ///
@@ -507,15 +498,8 @@ class Stroke {
   final double? width;
 
   @override
-  int get hashCode => Object.hash(
-    PaintingStyle.stroke,
-    color,
-    shader,
-    cap,
-    join,
-    miterLimit,
-    width,
-  );
+  int get hashCode =>
+      Object.hash(PaintingStyle.stroke, color, shader, cap, join, miterLimit, width);
 
   @override
   bool operator ==(Object other) {
@@ -530,8 +514,8 @@ class Stroke {
 
   @override
   String toString() {
-    final StringBuffer buffer = StringBuffer('Stroke(color: $color');
-    const String leading = ', ';
+    final buffer = StringBuffer('Stroke(color: $color');
+    const leading = ', ';
     if (shader != null) {
       buffer.write('${leading}shader: $shader');
     }
@@ -580,8 +564,8 @@ class Fill {
 
   @override
   String toString() {
-    final StringBuffer buffer = StringBuffer('Fill(color: $color');
-    const String leading = ', ';
+    final buffer = StringBuffer('Fill(color: $color');
+    const leading = ', ';
 
     if (shader != null) {
       buffer.write('${leading}shader: $shader');
@@ -1233,14 +1217,7 @@ enum TileMode {
 @immutable
 class TextPosition {
   /// See [TextPosition].
-  const TextPosition({
-    this.x,
-    this.y,
-    this.dx,
-    this.dy,
-    this.reset = false,
-    this.transform,
-  });
+  const TextPosition({this.x, this.y, this.dx, this.dy, this.reset = false, this.transform});
 
   /// The horizontal axis coordinate for the current text position.
   ///
@@ -1290,7 +1267,7 @@ class TextPosition {
 
   @override
   String toString() {
-    final StringBuffer buffer = StringBuffer();
+    final buffer = StringBuffer();
     buffer.write('TextPosition(reset: $reset');
     if (x != null) {
       buffer.write(', x: $x');
@@ -1454,8 +1431,8 @@ class TextDecoration {
 
   /// Creates a decoration that paints the union of all the given decorations.
   factory TextDecoration.combine(List<TextDecoration> decorations) {
-    int mask = 0;
-    for (final TextDecoration decoration in decorations) {
+    var mask = 0;
+    for (final decoration in decorations) {
       mask |= decoration.mask;
     }
     return TextDecoration._(mask);
@@ -1494,7 +1471,7 @@ class TextDecoration {
     if (mask == 0) {
       return 'TextDecoration.none';
     }
-    final List<String> values = <String>[];
+    final values = <String>[];
     if (mask & underline.mask != 0) {
       values.add('underline');
     }

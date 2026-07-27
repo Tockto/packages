@@ -12,7 +12,7 @@ class OpenTextPage extends StatelessWidget {
   const OpenTextPage({super.key});
 
   Future<void> _openTextFile(BuildContext context) async {
-    const XTypeGroup typeGroup = XTypeGroup(
+    const typeGroup = XTypeGroup(
       label: 'text',
       extensions: <String>['txt', 'json'],
       uniformTypeIdentifiers: <String>['public.text'],
@@ -73,14 +73,9 @@ class TextDisplay extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text(fileName),
-      content: Scrollbar(
-        child: SingleChildScrollView(child: Text(fileContent)),
-      ),
+      content: Scrollbar(child: SingleChildScrollView(child: Text(fileContent))),
       actions: <Widget>[
-        TextButton(
-          child: const Text('Close'),
-          onPressed: () => Navigator.pop(context),
-        ),
+        TextButton(child: const Text('Close'), onPressed: () => Navigator.pop(context)),
       ],
     );
   }

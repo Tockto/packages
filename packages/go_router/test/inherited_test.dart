@@ -12,10 +12,8 @@ import 'test_helpers.dart';
 void main() {
   group('updateShouldNotify', () {
     test('does not update when goRouter does not change', () {
-      final GoRouter goRouter = GoRouter(
-        routes: <GoRoute>[
-          GoRoute(path: '/', builder: (_, __) => const Page1()),
-        ],
+      final goRouter = GoRouter(
+        routes: <GoRoute>[GoRoute(path: '/', builder: (_, _) => const Page1())],
       );
       final bool shouldNotify = setupInheritedGoRouterChange(
         oldGoRouter: goRouter,
@@ -25,15 +23,11 @@ void main() {
     });
 
     test('does not update even when goRouter changes', () {
-      final GoRouter oldGoRouter = GoRouter(
-        routes: <GoRoute>[
-          GoRoute(path: '/', builder: (_, __) => const Page1()),
-        ],
+      final oldGoRouter = GoRouter(
+        routes: <GoRoute>[GoRoute(path: '/', builder: (_, _) => const Page1())],
       );
-      final GoRouter newGoRouter = GoRouter(
-        routes: <GoRoute>[
-          GoRoute(path: '/', builder: (_, __) => const Page2()),
-        ],
+      final newGoRouter = GoRouter(
+        routes: <GoRoute>[GoRoute(path: '/', builder: (_, _) => const Page2())],
       );
       final bool shouldNotify = setupInheritedGoRouterChange(
         oldGoRouter: oldGoRouter,
@@ -44,25 +38,19 @@ void main() {
   });
 
   test('adds [goRouter] as a diagnostics property', () {
-    final GoRouter goRouter = GoRouter(
-      routes: <GoRoute>[GoRoute(path: '/', builder: (_, __) => const Page1())],
+    final goRouter = GoRouter(
+      routes: <GoRoute>[GoRoute(path: '/', builder: (_, _) => const Page1())],
     );
-    final InheritedGoRouter inheritedGoRouter = InheritedGoRouter(
-      goRouter: goRouter,
-      child: Container(),
-    );
-    final DiagnosticPropertiesBuilder properties =
-        DiagnosticPropertiesBuilder();
+    final inheritedGoRouter = InheritedGoRouter(goRouter: goRouter, child: Container());
+    final properties = DiagnosticPropertiesBuilder();
     inheritedGoRouter.debugFillProperties(properties);
     expect(properties.properties.length, 1);
     expect(properties.properties.first, isA<DiagnosticsProperty<GoRouter>>());
     expect(properties.properties.first.value, goRouter);
   });
 
-  testWidgets("mediates Widget's access to GoRouter.", (
-    WidgetTester tester,
-  ) async {
-    final MockGoRouter router = MockGoRouter();
+  testWidgets("mediates Widget's access to GoRouter.", (WidgetTester tester) async {
+    final router = MockGoRouter();
     await tester.pumpWidget(
       MaterialApp(
         home: InheritedGoRouter(goRouter: router, child: const _MyWidget()),
@@ -75,12 +63,12 @@ void main() {
   testWidgets('builder can access GoRouter', (WidgetTester tester) async {
     // Regression test for https://github.com/flutter/flutter/issues/110512.
     late final GoRouter buildContextRouter;
-    final GoRouter router = GoRouter(
+    final router = GoRouter(
       initialLocation: '/',
       routes: <GoRoute>[
         GoRoute(
           path: '/',
-          builder: (BuildContext context, __) {
+          builder: (BuildContext context, _) {
             buildContextRouter = GoRouter.of(context);
             return const DummyScreen();
           },
@@ -102,18 +90,9 @@ void main() {
   });
 }
 
-bool setupInheritedGoRouterChange({
-  required GoRouter oldGoRouter,
-  required GoRouter newGoRouter,
-}) {
-  final InheritedGoRouter oldInheritedGoRouter = InheritedGoRouter(
-    goRouter: oldGoRouter,
-    child: Container(),
-  );
-  final InheritedGoRouter newInheritedGoRouter = InheritedGoRouter(
-    goRouter: newGoRouter,
-    child: Container(),
-  );
+bool setupInheritedGoRouterChange({required GoRouter oldGoRouter, required GoRouter newGoRouter}) {
+  final oldInheritedGoRouter = InheritedGoRouter(goRouter: oldGoRouter, child: Container());
+  final newInheritedGoRouter = InheritedGoRouter(goRouter: newGoRouter, child: Container());
   return newInheritedGoRouter.updateShouldNotify(oldInheritedGoRouter);
 }
 
@@ -146,9 +125,7 @@ class _MyWidget extends StatelessWidget {
 class MockGoRouter extends GoRouter {
   MockGoRouter()
     : super.routingConfig(
-        routingConfig: const ConstantRoutingConfig(
-          RoutingConfig(routes: <RouteBase>[]),
-        ),
+        routingConfig: const ConstantRoutingConfig(RoutingConfig(routes: <RouteBase>[])),
       );
 
   late String latestPushedName;

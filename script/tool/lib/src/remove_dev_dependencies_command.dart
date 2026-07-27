@@ -15,34 +15,29 @@ import 'common/repository_package.dart';
 /// clients of the library, but not for development of the library.
 class RemoveDevDependenciesCommand extends PackageLoopingCommand {
   /// Creates a publish metadata updater command instance.
-  RemoveDevDependenciesCommand(
-    super.packagesDir, {
-    super.gitDir,
-  });
+  RemoveDevDependenciesCommand(super.packagesDir, {super.gitDir});
 
   @override
   final String name = 'remove-dev-dependencies';
 
   @override
-  final String description = 'Removes any dev_dependencies section from a '
+  final String description =
+      'Removes any dev_dependencies section from a '
       'package, to allow more legacy testing.';
 
   @override
   bool get hasLongOutput => false;
 
   @override
-  PackageLoopingType get packageLoopingType =>
-      PackageLoopingType.includeAllSubpackages;
+  PackageLoopingType get packageLoopingType => PackageLoopingType.includeAllSubpackages;
 
   @override
   Future<PackageResult> runForPackage(RepositoryPackage package) async {
-    bool changed = false;
-    final YamlEditor editablePubspec =
-        YamlEditor(package.pubspecFile.readAsStringSync());
-    const String devDependenciesKey = 'dev_dependencies';
+    var changed = false;
+    final editablePubspec = YamlEditor(package.pubspecFile.readAsStringSync());
+    const devDependenciesKey = 'dev_dependencies';
     final YamlNode root = editablePubspec.parseAt(<String>[]);
-    final YamlMap? devDependencies =
-        (root as YamlMap)[devDependenciesKey] as YamlMap?;
+    final devDependencies = (root as YamlMap)[devDependenciesKey] as YamlMap?;
     if (devDependencies != null) {
       changed = true;
       print('${indentation}Removed dev_dependencies');
@@ -53,8 +48,6 @@ class RemoveDevDependenciesCommand extends PackageLoopingCommand {
       package.pubspecFile.writeAsStringSync(editablePubspec.toString());
     }
 
-    return changed
-        ? PackageResult.success()
-        : PackageResult.skip('Nothing to remove.');
+    return changed ? PackageResult.success() : PackageResult.skip('Nothing to remove.');
   }
 }

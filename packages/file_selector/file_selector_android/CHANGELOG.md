@@ -1,3 +1,39 @@
+## 0.5.2+9
+
+* Fixes a crash when a selected file cannot be copied to a readable location (for
+  example, on a `SecurityException`).
+
+## 0.5.2+8
+
+* Bumps the androidx group across 10 directories with 1 update.
+
+## 0.5.2+7
+
+* Migrates to Built-in Kotlin to support AGP 9.
+* Updates minimum supported SDK version to Flutter 3.44/Dart 3.12.
+
+## 0.5.2+6
+
+* Updates internal implementation to use Kotlin Pigeon.
+
+## 0.5.2+5
+
+* Updates build files from Groovy to Kotlin.
+* Updates minimum supported SDK version to Flutter 3.35/Dart 3.9.
+
+## 0.5.2+4
+
+* Bumps com.android.tools.build:gradle from 8.12.1 to 8.13.1.
+
+## 0.5.2+3
+
+* Updates to Pigeon 26.
+* Updates minimum supported SDK version to Flutter 3.32/Dart 3.8.
+
+## 0.5.2+2
+
+* Removed mockito-inline and updated to mockito-core 5.17.0.
+
 ## 0.5.2+1
 
 * Resolves Gradle 9 deprecations.

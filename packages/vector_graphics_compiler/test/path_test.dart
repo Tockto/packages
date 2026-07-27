@@ -55,8 +55,7 @@ void main() {
   });
 
   test('addRect', () {
-    final PathBuilder builder =
-        PathBuilder()..addRect(const Rect.fromLTRB(10, 10, 20, 20));
+    final builder = PathBuilder()..addRect(const Rect.fromLTRB(10, 10, 20, 20));
 
     expect(
       builder.toPath().toFlutterString(),
@@ -70,10 +69,9 @@ void main() {
   });
 
   test('addOval', () {
-    final PathBuilder builder =
-        PathBuilder()
-          ..addOval(const Rect.fromLTRB(10, 10, 20, 20))
-          ..addOval(const Rect.fromLTRB(50, 50, 80, 70));
+    final builder = PathBuilder()
+      ..addOval(const Rect.fromLTRB(10, 10, 20, 20))
+      ..addOval(const Rect.fromLTRB(50, 50, 80, 70));
     expect(
       builder.toPath().toFlutterString(),
       'Path()\n'
@@ -93,8 +91,7 @@ void main() {
   });
 
   test('addRRect', () {
-    final PathBuilder builder =
-        PathBuilder()..addRRect(const Rect.fromLTRB(20, 20, 60, 60), 5, 5);
+    final builder = PathBuilder()..addRRect(const Rect.fromLTRB(20, 20, 60, 60), 5, 5);
     expect(
       builder.toPath().toFlutterString(),
       'Path()\n'
@@ -112,7 +109,7 @@ void main() {
   });
 
   test('reset/no reset', () {
-    final PathBuilder builder = PathBuilder()..lineTo(10, 10);
+    final builder = PathBuilder()..lineTo(10, 10);
 
     final Path a = builder.toPath(reset: false);
     final Path b = builder.toPath();
@@ -125,11 +122,11 @@ void main() {
   });
 
   test('PathBuilder.fromPath', () {
-    final PathBuilder builder = PathBuilder()..lineTo(10, 10);
+    final builder = PathBuilder()..lineTo(10, 10);
 
     final Path a = builder.toPath();
 
-    final PathBuilder builderA = PathBuilder.fromPath(a);
+    final builderA = PathBuilder.fromPath(a);
     final Path b = builderA.toPath();
 
     expect(a, b);
@@ -173,9 +170,7 @@ void main() {
     );
 
     expect(
-      path
-          .transformed(AffineMatrix.identity.rotated(math.pi / 2))
-          .toFlutterString(),
+      path.transformed(AffineMatrix.identity.rotated(math.pi / 2)).toFlutterString(),
       'Path()\n'
       '  ..moveTo(-3.808519999999999, 22.1595)\n'
       '  ..cubicTo(-1.352539999999999, 19.6789, 4.809660010030285e-7, 16.3807, 4.809660007882255e-7, 12.8727)\n'
@@ -200,9 +195,7 @@ void main() {
     path = parseSvgPathData('M10 10L20 20');
 
     expect(
-      path
-          .transformed(AffineMatrix.identity.translated(10, 10))
-          .toFlutterString(),
+      path.transformed(AffineMatrix.identity.translated(10, 10)).toFlutterString(),
       'Path()\n'
       '  ..moveTo(20.0, 20.0)\n'
       '  ..lineTo(30.0, 30.0);',
@@ -210,59 +203,49 @@ void main() {
   });
 
   test('Compute path bounds with rect', () {
-    final PathBuilder builder =
-        PathBuilder()
-          ..addRect(const Rect.fromLTWH(5, 5, 95, 95))
-          ..close();
+    final builder = PathBuilder()
+      ..addRect(const Rect.fromLTWH(5, 5, 95, 95))
+      ..close();
     final Path path = builder.toPath();
 
     expect(path.bounds(), const Rect.fromLTWH(5, 5, 95, 95));
   });
 
   test('Compute path bounds with lines', () {
-    final PathBuilder builder =
-        PathBuilder()
-          ..moveTo(0, 0)
-          ..lineTo(25, 0)
-          ..lineTo(25, 25)
-          ..lineTo(0, 25)
-          ..close();
+    final builder = PathBuilder()
+      ..moveTo(0, 0)
+      ..lineTo(25, 0)
+      ..lineTo(25, 25)
+      ..lineTo(0, 25)
+      ..close();
     final Path path = builder.toPath();
 
     expect(path.bounds(), const Rect.fromLTWH(0, 0, 25, 25));
   });
 
   test('Compute path bounds with cubics', () {
-    final PathBuilder builder =
-        PathBuilder()
-          ..moveTo(0, 0)
-          ..cubicTo(10, 10, 20, 20, -10, -10)
-          ..close();
+    final builder = PathBuilder()
+      ..moveTo(0, 0)
+      ..cubicTo(10, 10, 20, 20, -10, -10)
+      ..close();
     final Path path = builder.toPath();
 
     expect(path.bounds(), const Rect.fromLTRB(-10.0, -10.0, 20.0, 20.0));
   });
 
   test('Compute cubic bounds where R and B are negative', () {
-    const Rect circle = Rect.fromCircle(-83.533, -122.753, 74.461);
+    const circle = Rect.fromCircle(-83.533, -122.753, 74.461);
     final Path path = PathBuilder().addOval(circle).toPath();
     expect(path.bounds(), circle);
   });
 
   test('Cubic length', () {
     // Value is very close to what Skia says for same input.
-    const CubicToCommand command = CubicToCommand(
-      1.0,
-      15.327,
-      15.326,
-      1.0,
-      33.0,
-      1.0,
-    );
+    const command = CubicToCommand(1.0, 15.327, 15.326, 1.0, 33.0, 1.0);
     expect(command.computeLength(Point.zero), 38.16245134493276);
 
     // Trivially describes a line.
-    const CubicToCommand command2 = CubicToCommand(0, 0, 0, 10, 0, 10);
+    const command2 = CubicToCommand(0, 0, 0, 10, 0, 10);
     expect(command2.computeLength(Point.zero), 10);
   });
 
@@ -468,14 +451,7 @@ void main() {
             1.5554840657280102,
           ),
           MoveToCommand(32.94511841345392, 1.0000460546288212),
-          CubicToCommand(
-            32.96340867914606,
-            1.000015355604456,
-            32.981702545388494,
-            1.0,
-            33.0,
-            1.0,
-          ),
+          CubicToCommand(32.96340867914606, 1.000015355604456, 32.981702545388494, 1.0, 33.0, 1.0),
           CubicToCommand(
             33.6882562195718,
             1.0,
@@ -653,14 +629,7 @@ void main() {
             13.017125890485456,
           ),
           MoveToCommand(1.0338820704843192, 18.855919027319942),
-          CubicToCommand(
-            1.0114006643291984,
-            19.23440453004496,
-            1.0,
-            19.61587149510607,
-            1.0,
-            20.0,
-          ),
+          CubicToCommand(1.0114006643291984, 19.23440453004496, 1.0, 19.61587149510607, 1.0, 20.0),
           CubicToCommand(
             1.0,
             20.30265471646772,

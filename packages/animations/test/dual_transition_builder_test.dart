@@ -7,7 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   testWidgets('runs animations', (WidgetTester tester) async {
-    final AnimationController controller = AnimationController(
+    final controller = AnimationController(
       vsync: const TestVSync(),
       duration: const Duration(milliseconds: 300),
     );
@@ -16,18 +16,10 @@ void main() {
       Center(
         child: DualTransitionBuilder(
           animation: controller,
-          forwardBuilder: (
-            BuildContext context,
-            Animation<double> animation,
-            Widget? child,
-          ) {
+          forwardBuilder: (BuildContext context, Animation<double> animation, Widget? child) {
             return ScaleTransition(scale: animation, child: child);
           },
-          reverseBuilder: (
-            BuildContext context,
-            Animation<double> animation,
-            Widget? child,
-          ) {
+          reverseBuilder: (BuildContext context, Animation<double> animation, Widget? child) {
             return FadeTransition(
               opacity: Tween<double>(begin: 1.0, end: 0.0).animate(animation),
               child: child,
@@ -70,7 +62,7 @@ void main() {
   });
 
   testWidgets('keeps state', (WidgetTester tester) async {
-    final AnimationController controller = AnimationController(
+    final controller = AnimationController(
       vsync: const TestVSync(),
       duration: const Duration(milliseconds: 300),
     );
@@ -81,18 +73,10 @@ void main() {
         child: Center(
           child: DualTransitionBuilder(
             animation: controller,
-            forwardBuilder: (
-              BuildContext context,
-              Animation<double> animation,
-              Widget? child,
-            ) {
+            forwardBuilder: (BuildContext context, Animation<double> animation, Widget? child) {
               return ScaleTransition(scale: animation, child: child);
             },
-            reverseBuilder: (
-              BuildContext context,
-              Animation<double> animation,
-              Widget? child,
-            ) {
+            reverseBuilder: (BuildContext context, Animation<double> animation, Widget? child) {
               return FadeTransition(
                 opacity: Tween<double>(begin: 1.0, end: 0.0).animate(animation),
                 child: child,
@@ -103,9 +87,7 @@ void main() {
         ),
       ),
     );
-    final State<StatefulWidget> state = tester.state(
-      find.byType(_StatefulTestWidget),
-    );
+    final State<StatefulWidget> state = tester.state(find.byType(_StatefulTestWidget));
     expect(state, isNotNull);
 
     controller.forward();
@@ -133,10 +115,8 @@ void main() {
     expect(state, same(tester.state(find.byType(_StatefulTestWidget))));
   });
 
-  testWidgets('does not jump when interrupted - forward', (
-    WidgetTester tester,
-  ) async {
-    final AnimationController controller = AnimationController(
+  testWidgets('does not jump when interrupted - forward', (WidgetTester tester) async {
+    final controller = AnimationController(
       vsync: const TestVSync(),
       duration: const Duration(milliseconds: 300),
     );
@@ -144,18 +124,10 @@ void main() {
       Center(
         child: DualTransitionBuilder(
           animation: controller,
-          forwardBuilder: (
-            BuildContext context,
-            Animation<double> animation,
-            Widget? child,
-          ) {
+          forwardBuilder: (BuildContext context, Animation<double> animation, Widget? child) {
             return ScaleTransition(scale: animation, child: child);
           },
-          reverseBuilder: (
-            BuildContext context,
-            Animation<double> animation,
-            Widget? child,
-          ) {
+          reverseBuilder: (BuildContext context, Animation<double> animation, Widget? child) {
             return FadeTransition(
               opacity: Tween<double>(begin: 1.0, end: 0.0).animate(animation),
               child: child,
@@ -194,10 +166,8 @@ void main() {
     expect(_getOpacity(tester), 1.0);
   });
 
-  testWidgets('does not jump when interrupted - reverse', (
-    WidgetTester tester,
-  ) async {
-    final AnimationController controller = AnimationController(
+  testWidgets('does not jump when interrupted - reverse', (WidgetTester tester) async {
+    final controller = AnimationController(
       value: 1.0,
       vsync: const TestVSync(),
       duration: const Duration(milliseconds: 300),
@@ -206,18 +176,10 @@ void main() {
       Center(
         child: DualTransitionBuilder(
           animation: controller,
-          forwardBuilder: (
-            BuildContext context,
-            Animation<double> animation,
-            Widget? child,
-          ) {
+          forwardBuilder: (BuildContext context, Animation<double> animation, Widget? child) {
             return ScaleTransition(scale: animation, child: child);
           },
-          reverseBuilder: (
-            BuildContext context,
-            Animation<double> animation,
-            Widget? child,
-          ) {
+          reverseBuilder: (BuildContext context, Animation<double> animation, Widget? child) {
             return FadeTransition(
               opacity: Tween<double>(begin: 1.0, end: 0.0).animate(animation),
               child: child,

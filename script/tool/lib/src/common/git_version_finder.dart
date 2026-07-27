@@ -12,10 +12,12 @@ import 'package:yaml/yaml.dart';
 class GitVersionFinder {
   /// Constructor
   GitVersionFinder(this.baseGitDir, {String? baseSha, String? baseBranch})
-      : assert(baseSha == null || baseBranch == null,
-            'At most one of baseSha and baseBranch can be provided'),
-        _baseSha = baseSha,
-        _baseBranch = baseBranch ?? 'FETCH_HEAD';
+    : assert(
+        baseSha == null || baseBranch == null,
+        'At most one of baseSha and baseBranch can be provided',
+      ),
+      _baseSha = baseSha,
+      _baseBranch = baseBranch ?? 'main';
 
   /// The top level directory of the git repo.
   ///
@@ -29,23 +31,47 @@ class GitVersionFinder {
   final String _baseBranch;
 
   /// Get a list of all the changed files.
-  Future<List<String>> getChangedFiles(
-      {bool includeUncommitted = false}) async {
+  Future<List<String>> getChangedFiles({bool includeUncommitted = false}) async {
     final String baseSha = await getBaseSha();
-    final io.ProcessResult changedFilesCommand = await baseGitDir
-        .runCommand(<String>[
+    final io.ProcessResult changedFilesCommand = await baseGitDir.runCommand(<String>[
       'diff',
+      '-z',
       '--name-only',
       baseSha,
-      if (!includeUncommitted) 'HEAD'
+      if (!includeUncommitted) 'HEAD',
     ]);
-    final String changedFilesStdout = changedFilesCommand.stdout.toString();
-    if (changedFilesStdout.isEmpty) {
+    return _splitDiffOutputs(changedFilesCommand.stdout.toString());
+  }
+
+  /// Get a list of all the staged files.
+  Future<List<String>> getStagedFiles() async {
+    final io.ProcessResult changedFilesCommand = await baseGitDir.runCommand(const <String>[
+      'diff',
+      '--cached',
+      '-z',
+      '--name-only',
+      '--diff-filter=ACM',
+    ]);
+    return _splitDiffOutputs(changedFilesCommand.stdout.toString());
+  }
+
+  /// Splits the stdout of a `git diff` command into a list of file paths.
+  ///
+  /// When `git diff` is run with the `-z` flag, it outputs file paths separated
+  /// by a null byte (`\u0000`, ASCII 0). Otherwise, it outputs file paths
+  /// separated by newlines. This method accounts for that by checking for
+  /// null bytes and falling back to splitting by newlines if none are found.
+  List<String> _splitDiffOutputs(String stdout) {
+    if (stdout.isEmpty) {
       return <String>[];
     }
-    final List<String> changedFiles = changedFilesStdout.split('\n')
-      ..removeWhere((String element) => element.isEmpty);
-    return changedFiles.toList();
+    final List<String> files;
+    if (stdout.contains('\u0000')) {
+      files = stdout.split('\u0000');
+    } else {
+      files = stdout.split('\n');
+    }
+    return files.where((String file) => file.isNotEmpty).toList();
   }
 
   /// Get a list of all the changed files.
@@ -60,7 +86,7 @@ class GitVersionFinder {
       if (!includeUncommitted) 'HEAD',
       if (targetPath != null) ...<String>['--', targetPath],
     ]);
-    final String diffStdout = diffCommand.stdout.toString();
+    final diffStdout = diffCommand.stdout.toString();
     if (diffStdout.isEmpty) {
       return <String>[];
     }
@@ -71,23 +97,21 @@ class GitVersionFinder {
 
   /// Get the package version specified in the pubspec file in `pubspecPath` and
   /// at the revision of `gitRef` (defaulting to the base if not provided).
-  Future<Version?> getPackageVersion(String pubspecPath,
-      {String? gitRef}) async {
+  Future<Version?> getPackageVersion(String pubspecPath, {String? gitRef}) async {
     final String ref = gitRef ?? (await getBaseSha());
 
     io.ProcessResult gitShow;
     try {
-      gitShow =
-          await baseGitDir.runCommand(<String>['show', '$ref:$pubspecPath']);
+      gitShow = await baseGitDir.runCommand(<String>['show', '$ref:$pubspecPath']);
     } on io.ProcessException {
       return null;
     }
-    final String fileContent = gitShow.stdout as String;
+    final fileContent = gitShow.stdout as String;
     if (fileContent.trim().isEmpty) {
       return null;
     }
-    final YamlMap fileYaml = loadYaml(fileContent) as YamlMap;
-    final String? versionString = fileYaml['version'] as String?;
+    final fileYaml = loadYaml(fileContent) as YamlMap;
+    final versionString = fileYaml['version'] as String?;
     return versionString == null ? null : Version.parse(versionString);
   }
 
@@ -98,14 +122,20 @@ class GitVersionFinder {
       return baseSha;
     }
 
-    io.ProcessResult baseShaFromMergeBase = await baseGitDir.runCommand(
-        <String>['merge-base', '--fork-point', _baseBranch, 'HEAD'],
-        throwOnError: false);
+    io.ProcessResult baseShaFromMergeBase = await baseGitDir.runCommand(<String>[
+      'merge-base',
+      '--fork-point',
+      _baseBranch,
+      'HEAD',
+    ], throwOnError: false);
     final String stdout = (baseShaFromMergeBase.stdout as String? ?? '').trim();
     final String stderr = (baseShaFromMergeBase.stderr as String? ?? '').trim();
     if (stderr.isNotEmpty || stdout.isEmpty) {
-      baseShaFromMergeBase = await baseGitDir
-          .runCommand(<String>['merge-base', _baseBranch, 'HEAD']);
+      baseShaFromMergeBase = await baseGitDir.runCommand(<String>[
+        'merge-base',
+        _baseBranch,
+        'HEAD',
+      ]);
     }
     baseSha = (baseShaFromMergeBase.stdout as String).trim();
     _baseSha = baseSha;

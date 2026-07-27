@@ -15,11 +15,14 @@ import 'generator.dart';
 /// The current version of pigeon.
 ///
 /// This must match the version in pubspec.yaml.
-const String pigeonVersion = '26.0.2';
+const String pigeonVersion = '27.3.0';
+
+/// Default plugin package name.
+const String defaultPluginPackageName = 'dev.flutter.pigeon';
 
 /// Read all the content from [stdin] to a String.
 String readStdin() {
-  final List<int> bytes = <int>[];
+  final bytes = <int>[];
   int byte = stdin.readByteSync();
   while (byte >= 0) {
     bytes.add(byte);
@@ -31,13 +34,13 @@ String readStdin() {
 /// True if the generator line number should be printed out at the end of newlines.
 bool debugGenerators = false;
 
-/// A helper class for managing indentation, wrapping a [StringSink].
+/// A helper class for managing indentation, wrapping a [StringBuffer].
 class Indent {
-  /// Constructor which takes a [StringSink] [Indent] will wrap.
-  Indent(this._sink);
-
   int _count = 0;
-  final StringSink _sink;
+  final StringBuffer _buffer = StringBuffer();
+
+  @override
+  String toString() => _buffer.toString();
 
   /// String used for newlines (ex "\n").
   String get newline {
@@ -64,17 +67,19 @@ class Indent {
 
   /// Returns the String representing the current indentation.
   String str() {
-    String result = '';
-    for (int i = 0; i < _count; i++) {
+    var result = '';
+    for (var i = 0; i < _count; i++) {
       result += tab;
     }
     return result;
   }
 
-  /// Replaces the newlines and tabs of input and adds it to the stream.
+  /// Replaces the newlines and tabs of [input] and adds the result to the
+  /// stream.
   ///
-  /// [trimIndentation] flag finds the line with the fewest leading empty
-  /// spaces and trims the beginning of all lines by this number.
+  /// If the [trimIndentation] parameter is true, this function also finds the
+  /// smallest leading space count and trims the beginning of all lines by this
+  /// number.
   void format(
     String input, {
     bool leadingSpace = true,
@@ -83,19 +88,17 @@ class Indent {
   }) {
     final List<String> lines = input.split('\n');
 
-    final int indentationToRemove =
-        !trimIndentation
-            ? 0
-            : lines
-                .where((String line) => line.trim().isNotEmpty)
-                .map((String line) => line.length - line.trimLeft().length)
-                .reduce(min);
+    final int indentationToRemove = !trimIndentation
+        ? 0
+        : lines
+              .where((String line) => line.trim().isNotEmpty)
+              .map((String line) => line.length - line.trimLeft().length)
+              .reduce(min);
 
-    for (int i = 0; i < lines.length; ++i) {
-      final String line =
-          lines[i].length >= indentationToRemove
-              ? lines[i].substring(indentationToRemove)
-              : lines[i];
+    for (var i = 0; i < lines.length; ++i) {
+      final String line = lines[i].length >= indentationToRemove
+          ? lines[i].substring(indentationToRemove)
+          : lines[i];
 
       if (i == 0 && !leadingSpace) {
         add(line.replaceAll('\t', tab));
@@ -114,27 +117,27 @@ class Indent {
   void addScoped(
     String? begin,
     String? end,
-    Function func, {
+    void Function() func, {
     bool addTrailingNewline = true,
     int nestCount = 1,
   }) {
     if (begin != null) {
-      _sink.write(begin + newline);
+      _buffer.write(begin + newline);
     }
     nest(nestCount, func);
     if (end != null && end.isNotEmpty) {
-      _sink.write(str() + end);
+      _buffer.write(str() + end);
       if (addTrailingNewline) {
-        _sink.write(newline);
+        _buffer.write(newline);
       }
     }
   }
 
-  /// Like `addScoped` but writes the current indentation level.
+  /// Like [addScoped] but writes the current indentation.
   void writeScoped(
     String? begin,
     String? end,
-    Function func, {
+    void Function() func, {
     int nestCount = 1,
     bool addTrailingNewline = true,
   }) {
@@ -150,40 +153,40 @@ class Indent {
   /// Scoped increase of the indent level.
   ///
   /// For the execution of [func] the indentation will be incremented by the given amount.
-  void nest(int count, Function func) {
+  void nest(int count, void Function() func) {
     inc(count);
-    func(); // ignore: avoid_dynamic_calls
+    func();
     dec(count);
   }
 
   /// Add [text] with indentation and a newline.
   void writeln(String text) {
     if (text.isEmpty) {
-      _sink.write(newline);
+      _buffer.write(newline);
     } else {
-      _sink.write(str() + text + newline);
+      _buffer.write(str() + text + newline);
     }
   }
 
   /// Add [text] with indentation.
   void write(String text) {
-    _sink.write(str() + text);
+    _buffer.write(str() + text);
   }
 
   /// Add [text] with a newline.
   void addln(String text) {
-    _sink.write(text + newline);
+    _buffer.write(text + newline);
   }
 
   /// Just adds [text].
   void add(String text) {
-    _sink.write(text);
+    _buffer.write(text);
   }
 
   /// Adds [lines] number of newlines.
   void newln([int lines = 1]) {
     for (; lines > 0; lines--) {
-      _sink.write(newline);
+      _buffer.write(newline);
     }
   }
 }
@@ -263,11 +266,7 @@ HostDatatype getHostDatatype(
   String? Function(TypeDeclaration) builtinResolver, {
   String Function(String)? customResolver,
 }) {
-  return _getHostDatatype(
-    type,
-    builtinResolver,
-    customResolver: customResolver,
-  );
+  return _getHostDatatype(type, builtinResolver, customResolver: customResolver);
 }
 
 HostDatatype _getHostDatatype(
@@ -279,10 +278,9 @@ HostDatatype _getHostDatatype(
   final String? datatype = builtinResolver(type);
   if (datatype == null) {
     if (type.isClass) {
-      final String customName =
-          customResolver != null
-              ? customResolver(type.baseName)
-              : type.baseName;
+      final String customName = customResolver != null
+          ? customResolver(type.baseName)
+          : type.baseName;
       return HostDatatype(
         datatype: customName,
         isBuiltin: false,
@@ -290,10 +288,9 @@ HostDatatype _getHostDatatype(
         isEnum: false,
       );
     } else if (type.isEnum) {
-      final String customName =
-          customResolver != null
-              ? customResolver(type.baseName)
-              : type.baseName;
+      final String customName = customResolver != null
+          ? customResolver(type.baseName)
+          : type.baseName;
       return HostDatatype(
         datatype: customName,
         isBuiltin: false,
@@ -328,8 +325,7 @@ const String generatedCodeWarning =
 
 /// Warning printed at the top of all generated code.
 String getGeneratedCodeWarning() {
-  final String versionString =
-      includeVersionInGeneratedWarning ? ' (v$pigeonVersion)' : '';
+  final versionString = includeVersionInGeneratedWarning ? ' (v$pigeonVersion)' : '';
   return 'Autogenerated from Pigeon$versionString, do not edit directly.';
 }
 
@@ -399,7 +395,7 @@ bool isVoid(TypeMirror type) {
 /// Adds the [lines] to [indent].
 void addLines(Indent indent, Iterable<String> lines, {String? linePrefix}) {
   final String prefix = linePrefix ?? '';
-  for (final String line in lines) {
+  for (final line in lines) {
     indent.writeln(line.isNotEmpty ? '$prefix$line' : prefix.trimRight());
   }
 }
@@ -408,20 +404,14 @@ void addLines(Indent indent, Iterable<String> lines, {String? linePrefix}) {
 ///
 /// In other words, whenever there is a conflict over the value of a key path,
 /// [modification]'s value for that key path is selected.
-Map<String, Object> mergeMaps(
-  Map<String, Object> base,
-  Map<String, Object> modification,
-) {
-  final Map<String, Object> result = <String, Object>{};
+Map<String, Object> mergeMaps(Map<String, Object> base, Map<String, Object> modification) {
+  final result = <String, Object>{};
   for (final MapEntry<String, Object> entry in modification.entries) {
     if (base.containsKey(entry.key)) {
       final Object entryValue = entry.value;
       if (entryValue is Map<String, Object>) {
         assert(base[entry.key] is Map<String, Object>);
-        result[entry.key] = mergeMaps(
-          (base[entry.key] as Map<String, Object>?)!,
-          entryValue,
-        );
+        result[entry.key] = mergeMaps((base[entry.key] as Map<String, Object>?)!, entryValue);
       } else {
         result[entry.key] = entry.value;
       }
@@ -501,8 +491,7 @@ const int minimumCodecFieldKey = proxyApiCodecInstanceManagerKey + 1;
 const int maximumCodecFieldKey = 255;
 
 /// The total number of keys allowed in the custom codec.
-const int totalCustomCodecKeysAllowed =
-    maximumCodecFieldKey - minimumCodecFieldKey;
+const int totalCustomCodecKeysAllowed = maximumCodecFieldKey - minimumCodecFieldKey;
 
 Iterable<TypeDeclaration> _getTypeArguments(TypeDeclaration type) sync* {
   for (final TypeDeclaration typeArg in type.typeArguments) {
@@ -511,12 +500,8 @@ Iterable<TypeDeclaration> _getTypeArguments(TypeDeclaration type) sync* {
   yield type;
 }
 
-bool _isUnseenCustomType(
-  TypeDeclaration type,
-  Set<String> referencedTypeNames,
-) {
-  return !referencedTypeNames.contains(type.baseName) &&
-      !validTypes.contains(type.baseName);
+bool _isUnseenCustomType(TypeDeclaration type, Set<String> referencedTypeNames) {
+  return !referencedTypeNames.contains(type.baseName) && !validTypes.contains(type.baseName);
 }
 
 class _Bag<Key, Value> {
@@ -532,7 +517,7 @@ class _Bag<Key, Value> {
   }
 
   void addMany(Iterable<Key> keys, Value? value) {
-    for (final Key key in keys) {
+    for (final key in keys) {
       add(key, value);
     }
   }
@@ -540,12 +525,9 @@ class _Bag<Key, Value> {
 
 /// Recurses into a list of [Api]s and produces a list of all referenced types
 /// and an associated [List] of the offsets where they are found.
-Map<TypeDeclaration, List<int>> getReferencedTypes(
-  List<Api> apis,
-  List<Class> classes,
-) {
-  final _Bag<TypeDeclaration, int> references = _Bag<TypeDeclaration, int>();
-  for (final Api api in apis) {
+Map<TypeDeclaration, List<int>> getReferencedTypes(List<Api> apis, List<Class> classes) {
+  final references = _Bag<TypeDeclaration, int>();
+  for (final api in apis) {
     for (final Method method in api.methods) {
       for (final NamedType field in method.parameters) {
         references.addMany(_getTypeArguments(field.type), field.offset);
@@ -555,10 +537,7 @@ Map<TypeDeclaration, List<int>> getReferencedTypes(
     if (api is AstProxyApi) {
       for (final Constructor constructor in api.constructors) {
         for (final NamedType parameter in constructor.parameters) {
-          references.addMany(
-            _getTypeArguments(parameter.type),
-            parameter.offset,
-          );
+          references.addMany(_getTypeArguments(parameter.type), parameter.offset);
         }
       }
       for (final ApiField field in api.fields) {
@@ -567,9 +546,10 @@ Map<TypeDeclaration, List<int>> getReferencedTypes(
     }
   }
 
-  final Set<String> referencedTypeNames =
-      references.map.keys.map((TypeDeclaration e) => e.baseName).toSet();
-  final List<String> classesToCheck = List<String>.from(referencedTypeNames);
+  final Set<String> referencedTypeNames = references.map.keys
+      .map((TypeDeclaration e) => e.baseName)
+      .toSet();
+  final classesToCheck = List<String>.from(referencedTypeNames);
   while (classesToCheck.isNotEmpty) {
     final String next = classesToCheck.removeLast();
     final Class aClass = classes.firstWhere(
@@ -597,8 +577,7 @@ Map<TypeDeclaration, List<int>> getReferencedTypes(
 ///
 /// [T] depends on the language. For example, Android uses an int while iOS uses
 /// semantic versioning.
-({TypeDeclaration type, T version})?
-findHighestApiRequirement<T extends Object>(
+({TypeDeclaration type, T version})? findHighestApiRequirement<T extends Object>(
   Iterable<TypeDeclaration> types, {
   required T? Function(TypeDeclaration) onGetApiRequirement,
   required Comparator<T> onCompare,
@@ -624,9 +603,7 @@ findHighestApiRequirement<T extends Object>(
     TypeDeclaration one,
     TypeDeclaration two,
   ) {
-    return onCompare(onGetApiRequirement(one)!, onGetApiRequirement(two)!) > 0
-        ? one
-        : two;
+    return onCompare(onGetApiRequirement(one)!, onGetApiRequirement(two)!) > 0 ? one : two;
   });
 
   return (
@@ -646,11 +623,8 @@ enum CustomTypes {
 
 /// Return the enumerated types that must exist in the codec
 /// where the enumeration should be the key used in the buffer.
-Iterable<EnumeratedType> getEnumeratedTypes(
-  Root root, {
-  bool excludeSealedClasses = false,
-}) sync* {
-  int index = 0;
+Iterable<EnumeratedType> getEnumeratedTypes(Root root, {bool excludeSealedClasses = false}) sync* {
+  var index = 0;
 
   for (final Enum customEnum in root.enums) {
     yield EnumeratedType(
@@ -677,8 +651,7 @@ Iterable<EnumeratedType> getEnumeratedTypes(
 
 /// Checks if [root] contains enough custom types to require overflow codec tools.
 bool customTypeOverflowCheck(Root root) {
-  return root.classes.length + root.enums.length >
-      maximumCodecFieldKey - minimumCodecFieldKey;
+  return root.classes.length + root.enums.length > maximumCodecFieldKey - minimumCodecFieldKey;
 }
 
 /// Describes how to format a document comment.
@@ -728,7 +701,7 @@ Iterable<String> asDocumentationComments(
   DocumentCommentSpecification commentSpec, {
   List<String> generatorComments = const <String>[],
 }) sync* {
-  final List<String> allComments = <String>[
+  final allComments = <String>[
     ...comments,
     if (comments.isNotEmpty && generatorComments.isNotEmpty) '',
     ...generatorComments,
@@ -739,7 +712,7 @@ Iterable<String> asDocumentationComments(
       yield commentSpec.openCommentToken;
       currentLineOpenToken = commentSpec.blockContinuationToken;
     }
-    for (String line in allComments) {
+    for (var line in allComments) {
       if (line.isNotEmpty && line[0] != ' ') {
         line = ' $line';
       }
@@ -839,18 +812,16 @@ class OutputFileOptions<T extends InternalOptions> extends InternalOptions {
 
 /// Converts strings to Upper Camel Case.
 String toUpperCamelCase(String text) {
-  final RegExp separatorPattern = RegExp(r'[ _-]');
+  final separatorPattern = RegExp(r'[ _-]');
   return text.split(separatorPattern).map((String word) {
-    return word.isEmpty
-        ? ''
-        : word.substring(0, 1).toUpperCase() + word.substring(1);
+    return word.isEmpty ? '' : word.substring(0, 1).toUpperCase() + word.substring(1);
   }).join();
 }
 
 /// Converts strings to Lower Camel Case.
 String toLowerCamelCase(String text) {
-  final RegExp separatorPattern = RegExp(r'[ _-]');
-  bool firstWord = true;
+  final separatorPattern = RegExp(r'[ _-]');
+  var firstWord = true;
   return text.split(separatorPattern).map((String word) {
     if (word.isEmpty) {
       return '';
@@ -866,10 +837,7 @@ String toLowerCamelCase(String text) {
 /// Converts string to SCREAMING_SNAKE_CASE.
 String toScreamingSnakeCase(String string) {
   return string
-      .replaceAllMapped(
-        RegExp(r'(?<=[a-z])[A-Z]'),
-        (Match m) => '_${m.group(0)}',
-      )
+      .replaceAllMapped(RegExp(r'(?<=[a-z])[A-Z]'), (Match m) => '_${m.group(0)}')
       .toUpperCase();
 }
 
@@ -902,4 +870,23 @@ bool isCollectionType(TypeDeclaration type) {
       !type.isEnum &&
       !type.isProxyApi &&
       (type.baseName.contains('List') || type.baseName == 'Map');
+}
+
+/// Escapes special characters in a string for use in double-quoted string literals.
+String escapeStringDoubleQuotes(String value) {
+  return value
+      .replaceAll(r'\', r'\\')
+      .replaceAll('"', r'\"')
+      .replaceAll('\n', r'\n')
+      .replaceAll('\r', r'\r');
+}
+
+/// Escapes special characters in a string for use in single-quoted string literals.
+String escapeStringSingleQuotes(String value) {
+  return value
+      .replaceAll(r'\', r'\\')
+      .replaceAll("'", r"\'")
+      .replaceAll('\n', r'\n')
+      .replaceAll('\r', r'\r')
+      .replaceAll(r'$', r'\$');
 }

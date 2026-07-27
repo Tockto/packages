@@ -6,7 +6,6 @@ import 'package:meta/meta.dart';
 
 import '../platform_interface/platform_interface.dart';
 import 'interactive_media_ads.g.dart';
-import 'interactive_media_ads_proxy.dart';
 
 /// Implementation of [PlatformAdsRenderingSettingsCreationParams] for iOS.
 final class IOSAdsRenderingSettingsCreationParams
@@ -19,9 +18,7 @@ final class IOSAdsRenderingSettingsCreationParams
     super.mimeTypes,
     super.playAdsAfterTime,
     super.uiElements,
-    @visibleForTesting InteractiveMediaAdsProxy? proxy,
-  }) : _proxy = proxy ?? const InteractiveMediaAdsProxy(),
-       super();
+  }) : super();
 
   /// Creates a [IOSAdsRenderingSettingsCreationParams] from an instance of
   /// [PlatformAdsRenderingSettingsCreationParams].
@@ -37,8 +34,6 @@ final class IOSAdsRenderingSettingsCreationParams
       uiElements: params.uiElements,
     );
   }
-
-  final InteractiveMediaAdsProxy _proxy;
 }
 
 /// Implementation of [PlatformAdsRenderingSettings] for iOS.
@@ -52,16 +47,14 @@ base class IOSAdsRenderingSettings extends PlatformAdsRenderingSettings {
       nativeSettings.setEnablePreloading(_iosParams.enablePreloading!);
     }
     nativeSettings.setLoadVideoTimeout(
-      _iosParams.loadVideoTimeout.inMicroseconds /
-          Duration.microsecondsPerSecond,
+      _iosParams.loadVideoTimeout.inMicroseconds / Duration.microsecondsPerSecond,
     );
     if (_iosParams.mimeTypes != null) {
       nativeSettings.setMimeTypes(_iosParams.mimeTypes);
     }
     if (_iosParams.playAdsAfterTime != null) {
       nativeSettings.setPlayAdsAfterTime(
-        _iosParams.playAdsAfterTime!.inMicroseconds /
-            Duration.microsecondsPerSecond,
+        _iosParams.playAdsAfterTime!.inMicroseconds / Duration.microsecondsPerSecond,
       );
     }
     if (_iosParams.uiElements != null) {
@@ -78,8 +71,7 @@ base class IOSAdsRenderingSettings extends PlatformAdsRenderingSettings {
 
   /// The native iOS IMAAdsRenderingSettings.
   @internal
-  late final IMAAdsRenderingSettings nativeSettings = _iosParams._proxy
-      .newIMAAdsRenderingSettings();
+  late final IMAAdsRenderingSettings nativeSettings = IMAAdsRenderingSettings();
 
   late final IOSAdsRenderingSettingsCreationParams _iosParams =
       params is IOSAdsRenderingSettingsCreationParams

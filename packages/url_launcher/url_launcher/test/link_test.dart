@@ -21,10 +21,10 @@ void main() {
 
   group('Link', () {
     testWidgets('handles null uri correctly', (WidgetTester tester) async {
-      bool isBuilt = false;
+      var isBuilt = false;
       FollowLink? followLink;
 
-      final Link link = Link(
+      final link = Link(
         uri: null,
         builder: (BuildContext context, FollowLink? followLink2) {
           isBuilt = true;
@@ -109,32 +109,29 @@ void main() {
       expect(mock.launchCalled, isTrue);
     });
 
-    testWidgets('pushes to framework for internal route names', (
-      WidgetTester tester,
-    ) async {
+    testWidgets('pushes to framework for internal route names', (WidgetTester tester) async {
       final Uri uri = Uri.parse('/foo/bar');
       FollowLink? followLink;
 
       await tester.pumpWidget(
         MaterialApp(
           routes: <String, WidgetBuilder>{
-            '/':
-                (BuildContext context) => Link(
-                  uri: uri,
-                  builder: (BuildContext context, FollowLink? followLink2) {
-                    followLink = followLink2;
-                    return Container();
-                  },
-                ),
+            '/': (BuildContext context) => Link(
+              uri: uri,
+              builder: (BuildContext context, FollowLink? followLink2) {
+                followLink = followLink2;
+                return Container();
+              },
+            ),
             '/foo/bar': (BuildContext context) => Container(),
           },
         ),
       );
 
-      bool frameworkCalled = false;
+      var frameworkCalled = false;
       final Future<ByteData> Function(Object?, String) originalPushFunction =
           pushRouteToFrameworkFunction;
-      pushRouteToFrameworkFunction = (Object? _, String __) {
+      pushRouteToFrameworkFunction = (Object? _, String _) {
         frameworkCalled = true;
         return Future<ByteData>.value(ByteData(0));
       };

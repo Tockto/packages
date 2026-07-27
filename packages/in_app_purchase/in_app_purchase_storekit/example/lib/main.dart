@@ -41,8 +41,7 @@ class _MyAppState extends State<_MyApp> {
   final InAppPurchaseStoreKitPlatform _iapStoreKitPlatform =
       InAppPurchasePlatform.instance as InAppPurchaseStoreKitPlatform;
   final InAppPurchaseStoreKitPlatformAddition _iapStoreKitPlatformAddition =
-      InAppPurchasePlatformAddition.instance!
-          as InAppPurchaseStoreKitPlatformAddition;
+      InAppPurchasePlatformAddition.instance! as InAppPurchaseStoreKitPlatformAddition;
   late StreamSubscription<List<PurchaseDetails>> _subscription;
   List<String> _notFoundIds = <String>[];
   List<ProductDetails> _products = <ProductDetails>[];
@@ -55,8 +54,7 @@ class _MyAppState extends State<_MyApp> {
 
   @override
   void initState() {
-    final Stream<List<PurchaseDetails>> purchaseUpdated =
-        _iapStoreKitPlatform.purchaseStream;
+    final Stream<List<PurchaseDetails>> purchaseUpdated = _iapStoreKitPlatform.purchaseStream;
     _subscription = purchaseUpdated.listen(
       (List<PurchaseDetails> purchaseDetailsList) {
         _listenToPurchaseUpdated(purchaseDetailsList);
@@ -91,8 +89,8 @@ class _MyAppState extends State<_MyApp> {
       return;
     }
 
-    final ProductDetailsResponse productDetailResponse =
-        await _iapStoreKitPlatform.queryProductDetails(_kProductIds.toSet());
+    final ProductDetailsResponse productDetailResponse = await _iapStoreKitPlatform
+        .queryProductDetails(_kProductIds.toSet());
     if (productDetailResponse.error != null) {
       setState(() {
         _queryProductError = productDetailResponse.error!.message;
@@ -140,7 +138,7 @@ class _MyAppState extends State<_MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    final List<Widget> stack = <Widget>[];
+    final stack = <Widget>[];
     if (_queryProductError == null) {
       stack.add(
         ListView(
@@ -148,6 +146,7 @@ class _MyAppState extends State<_MyApp> {
             _buildConnectionCheckTile(),
             _buildProductList(),
             _buildConsumableBox(),
+            _buildCodeRedemptionButton(),
             _buildRestoreButton(),
           ],
         ),
@@ -159,10 +158,7 @@ class _MyAppState extends State<_MyApp> {
       stack.add(
         const Stack(
           children: <Widget>[
-            Opacity(
-              opacity: 0.3,
-              child: ModalBarrier(dismissible: false, color: Colors.grey),
-            ),
+            Opacity(opacity: 0.3, child: ModalBarrier(dismissible: false, color: Colors.grey)),
             Center(child: CircularProgressIndicator()),
           ],
         ),
@@ -184,15 +180,11 @@ class _MyAppState extends State<_MyApp> {
     final Widget storeHeader = ListTile(
       leading: Icon(
         _isAvailable ? Icons.check : Icons.block,
-        color: _isAvailable
-            ? Colors.green
-            : ThemeData.light().colorScheme.error,
+        color: _isAvailable ? Colors.green : ThemeData.light().colorScheme.error,
       ),
-      title: Text(
-        'The store is ${_isAvailable ? 'available' : 'unavailable'}.',
-      ),
+      title: Text('The store is ${_isAvailable ? 'available' : 'unavailable'}.'),
     );
-    final List<Widget> children = <Widget>[storeHeader];
+    final children = <Widget>[storeHeader];
 
     if (!_isAvailable) {
       children.addAll(<Widget>[
@@ -214,28 +206,19 @@ class _MyAppState extends State<_MyApp> {
   Widget _buildProductList() {
     if (_loading) {
       return const Card(
-        child: ListTile(
-          leading: CircularProgressIndicator(),
-          title: Text('Fetching products...'),
-        ),
+        child: ListTile(leading: CircularProgressIndicator(), title: Text('Fetching products...')),
       );
     }
     if (!_isAvailable) {
       return const Card();
     }
-    const ListTile productHeader = ListTile(
-      title: Text(
-        'Products for Sale',
-        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-      ),
+    const productHeader = ListTile(
+      title: Text('Products for Sale', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
     );
-    const ListTile promoHeader = ListTile(
-      title: Text(
-        'Products in promo',
-        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-      ),
+    const promoHeader = ListTile(
+      title: Text('Products in promo', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
     );
-    final List<ListTile> productList = <ListTile>[];
+    final productList = <ListTile>[];
     if (_notFoundIds.isNotEmpty) {
       productList.add(
         ListTile(
@@ -253,18 +236,14 @@ class _MyAppState extends State<_MyApp> {
     // This loading previous purchases code is just a demo. Please do not use this as it is.
     // In your app you should always verify the purchase data using the `verificationData` inside the [PurchaseDetails] object before trusting it.
     // We recommend that you use your own server to verify the purchase data.
-    final Map<String, PurchaseDetails> purchases =
-        Map<String, PurchaseDetails>.fromEntries(
-          _purchases.map((PurchaseDetails purchase) {
-            if (purchase.pendingCompletePurchase) {
-              _iapStoreKitPlatform.completePurchase(purchase);
-            }
-            return MapEntry<String, PurchaseDetails>(
-              purchase.productID,
-              purchase,
-            );
-          }),
-        );
+    final purchases = Map<String, PurchaseDetails>.fromEntries(
+      _purchases.map((PurchaseDetails purchase) {
+        if (purchase.pendingCompletePurchase) {
+          _iapStoreKitPlatform.completePurchase(purchase);
+        }
+        return MapEntry<String, PurchaseDetails>(purchase.productID, purchase);
+      }),
+    );
     productList.addAll(
       _products.map((ProductDetails productDetails) {
         final PurchaseDetails? previousPurchase = purchases[productDetails.id];
@@ -284,17 +263,11 @@ class _MyAppState extends State<_MyApp> {
                     foregroundColor: Colors.white,
                   ),
                   onPressed: () {
-                    final PurchaseParam purchaseParam = PurchaseParam(
-                      productDetails: productDetails,
-                    );
+                    final purchaseParam = PurchaseParam(productDetails: productDetails);
                     if (productDetails.id == _kConsumableId) {
-                      _iapStoreKitPlatform.buyConsumable(
-                        purchaseParam: purchaseParam,
-                      );
+                      _iapStoreKitPlatform.buyConsumable(purchaseParam: purchaseParam);
                     } else {
-                      _iapStoreKitPlatform.buyNonConsumable(
-                        purchaseParam: purchaseParam,
-                      );
+                      _iapStoreKitPlatform.buyNonConsumable(purchaseParam: purchaseParam);
                     }
                   },
                   child: Text(productDetails.price),
@@ -305,11 +278,7 @@ class _MyAppState extends State<_MyApp> {
 
     return Column(
       children: <Widget>[
-        Card(
-          child: Column(
-            children: <Widget>[productHeader, const Divider(), ...productList],
-          ),
-        ),
+        Card(child: Column(children: <Widget>[productHeader, const Divider(), ...productList])),
         Card(
           child: Column(
             children: <Widget>[
@@ -317,19 +286,15 @@ class _MyAppState extends State<_MyApp> {
               const Divider(),
               FutureBuilder<List<ListTile>>(
                 future: _buildPromoList(),
-                builder:
-                    (
-                      BuildContext context,
-                      AsyncSnapshot<List<ListTile>> snapshot,
-                    ) {
-                      final List<ListTile>? data = snapshot.data;
+                builder: (BuildContext context, AsyncSnapshot<List<ListTile>> snapshot) {
+                  final List<ListTile>? data = snapshot.data;
 
-                      if (data != null) {
-                        return Column(children: data);
-                      }
+                  if (data != null) {
+                    return Column(children: data);
+                  }
 
-                      return const SizedBox.shrink();
-                    },
+                  return const SizedBox.shrink();
+                },
               ),
             ],
           ),
@@ -339,18 +304,19 @@ class _MyAppState extends State<_MyApp> {
   }
 
   Future<List<ListTile>> _buildPromoList() async {
-    final List<ListTile> promoList = <ListTile>[];
+    final promoList = <ListTile>[];
     for (final ProductDetails detail in _products) {
       if (detail is AppStoreProduct2Details) {
-        final SK2SubscriptionInfo? subscription =
-            detail.sk2Product.subscription;
+        final SK2SubscriptionInfo? subscription = detail.sk2Product.subscription;
         final List<SK2SubscriptionOffer> offers =
             subscription?.promotionalOffers ?? <SK2SubscriptionOffer>[];
 
-        for (final SK2SubscriptionOffer offer in offers) {
+        for (final offer in offers) {
           if (offer.type == SK2SubscriptionOfferType.winBack) {
-            final bool eligible = await _iapStoreKitPlatform
-                .isWinBackOfferEligible(detail.id, offer.id ?? '');
+            final bool eligible = await _iapStoreKitPlatform.isWinBackOfferEligible(
+              detail.id,
+              offer.id ?? '',
+            );
 
             if (!eligible) {
               continue;
@@ -364,10 +330,7 @@ class _MyAppState extends State<_MyApp> {
     return promoList;
   }
 
-  ListTile _buildPromoTile(
-    ProductDetails productDetails,
-    SK2SubscriptionOffer offer,
-  ) {
+  ListTile _buildPromoTile(ProductDetails productDetails, SK2SubscriptionOffer offer) {
     return ListTile(
       title: Text('${productDetails.title} [${offer.type.name}]'),
       subtitle: Text(productDetails.description),
@@ -377,7 +340,7 @@ class _MyAppState extends State<_MyApp> {
           foregroundColor: Colors.white,
         ),
         onPressed: () {
-          final Sk2PurchaseParam purchaseParam = Sk2PurchaseParam.fromOffer(
+          final purchaseParam = Sk2PurchaseParam.fromOffer(
             productDetails: productDetails,
             offer: offer,
             signature: SK2SubscriptionOfferSignature(
@@ -407,9 +370,7 @@ class _MyAppState extends State<_MyApp> {
     if (!_isAvailable || _notFoundIds.contains(_kConsumableId)) {
       return const Card();
     }
-    const ListTile consumableHeader = ListTile(
-      title: Text('Purchased consumables'),
-    );
+    const consumableHeader = ListTile(title: Text('Purchased consumables'));
     final List<Widget> tokens = _consumables.map((String id) {
       return GridTile(
         child: IconButton(
@@ -429,6 +390,29 @@ class _MyAppState extends State<_MyApp> {
             shrinkWrap: true,
             padding: const EdgeInsets.all(16.0),
             children: tokens,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCodeRedemptionButton() {
+    if (_loading) {
+      return Container();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.all(4.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: <Widget>[
+          TextButton(
+            style: TextButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () => _iapStoreKitPlatformAddition.presentCodeRedemptionSheet(),
+            child: const Text('Show code redemption sheet'),
           ),
         ],
       ),
@@ -509,9 +493,7 @@ class _MyAppState extends State<_MyApp> {
     purchaseDetailsList.forEach(_handleReportedPurchaseState);
   }
 
-  Future<void> _handleReportedPurchaseState(
-    PurchaseDetails purchaseDetails,
-  ) async {
+  Future<void> _handleReportedPurchaseState(PurchaseDetails purchaseDetails) async {
     if (purchaseDetails.status == PurchaseStatus.pending) {
       showPendingUI();
     } else {

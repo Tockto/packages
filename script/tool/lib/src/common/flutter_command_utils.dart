@@ -21,7 +21,7 @@ Future<bool> runConfigOnlyBuild(
   bool buildDebug = false,
   List<String> extraArgs = const <String>[],
 }) async {
-  final String flutterCommand = platform.isWindows ? 'flutter.bat' : 'flutter';
+  final flutterCommand = platform.isWindows ? 'flutter.bat' : 'flutter';
 
   final String target = switch (targetPlatform) {
     FlutterPlatform.android => 'apk',
@@ -32,15 +32,12 @@ Future<bool> runConfigOnlyBuild(
     FlutterPlatform.windows => 'windows',
   };
 
-  final int exitCode = await processRunner.runAndStream(
-      flutterCommand,
-      <String>[
-        'build',
-        target,
-        if (buildDebug) '--debug',
-        '--config-only',
-        ...extraArgs,
-      ],
-      workingDir: package.directory);
+  final int exitCode = await processRunner.runAndStream(flutterCommand, <String>[
+    'build',
+    target,
+    if (buildDebug) '--debug',
+    '--config-only',
+    ...extraArgs,
+  ], workingDir: package.directory);
   return exitCode == 0;
 }

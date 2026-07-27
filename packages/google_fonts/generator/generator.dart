@@ -12,10 +12,8 @@ import 'package:mustache_template/mustache.dart';
 
 import 'fonts.pb.dart';
 
-const String _generatedAllPartsFilePath =
-    'lib/src/google_fonts_all_parts.g.dart';
-String _generatedPartFilePath(String part) =>
-    'lib/src/google_fonts_parts/part_$part.g.dart';
+const String _generatedAllPartsFilePath = 'lib/src/google_fonts_all_parts.dart';
+String _generatedPartFilePath(String part) => 'lib/src/google_fonts_parts/part_$part.dart';
 const String _familiesSupportedPath = 'generator/families_supported';
 const String _familiesDiffPath = 'generator/families_diff';
 
@@ -25,18 +23,18 @@ Future<void> main() async {
   print('Success! Using $protoUrl');
 
   final Directory fontDirectory = await _readFontsProtoData(protoUrl);
+  _computeVariantCounts(fontDirectory);
+
   print('\nValidating font URLs and file contents...');
   await _verifyUrls(fontDirectory);
   print(_success);
 
   print('\nDetermining font families delta...');
-  final _FamiliesDelta familiesDelta = _FamiliesDelta(fontDirectory);
+  final familiesDelta = _FamiliesDelta(fontDirectory);
   print(_success);
 
   print('\nGenerating $_familiesSupportedPath & $_familiesDiffPath ...');
-  File(
-    _familiesSupportedPath,
-  ).writeAsStringSync(familiesDelta.printableSupported());
+  File(_familiesSupportedPath).writeAsStringSync(familiesDelta.printableSupported());
   File(_familiesDiffPath).writeAsStringSync(familiesDelta.markdownDiff());
   print(_success);
 
@@ -61,17 +59,15 @@ const String _success = 'Success!';
 /// that's okay for now, because the generator is only executed in trusted
 /// environments by individual developers.
 Future<Uri> _getProtoUrl({int initialVersion = 7}) async {
-  int directoryVersion = initialVersion;
+  var directoryVersion = initialVersion;
 
   Uri url(int directoryVersion) {
     final String paddedVersion = directoryVersion.toString().padLeft(3, '0');
-    return Uri.parse(
-      'https://fonts.gstatic.com/s/f/directory$paddedVersion.pb',
-    );
+    return Uri.parse('https://fonts.gstatic.com/s/f/directory$paddedVersion.pb');
   }
 
-  bool didReachLatestUrl = false;
-  final http.Client httpClient = http.Client();
+  var didReachLatestUrl = false;
+  final httpClient = http.Client();
   while (!didReachLatestUrl) {
     final http.Response response = await httpClient.get(url(directoryVersion));
     if (response.statusCode == 200) {
@@ -93,12 +89,11 @@ Future<void> _verifyUrls(Directory fontDirectory) async {
       .map((FontFamily f) => f.fonts.length)
       .reduce((int a, int b) => a + b);
 
-  final http.Client client = http.Client();
-  int i = 1;
+  final client = http.Client();
+  var i = 1;
   for (final FontFamily family in fontDirectory.family) {
     for (final Font font in family.fonts) {
-      final String urlString =
-          'https://fonts.gstatic.com/s/a/${_hashToString(font.file.hash)}.ttf';
+      final urlString = 'https://fonts.gstatic.com/s/a/${_hashToString(font.file.hash)}.ttf';
       final Uri url = Uri.parse(urlString);
       await _tryUrl(client, url, font);
       print('Verified URL ($i/$totalFonts): $urlString');
@@ -112,10 +107,8 @@ Future<void> _tryUrl(http.Client client, Uri url, Font font) async {
   try {
     final http.Response fileContents = await client.get(url);
     final int actualFileLength = fileContents.bodyBytes.length;
-    final String actualFileHash =
-        sha256.convert(fileContents.bodyBytes).toString();
-    if (font.file.fileSize != actualFileLength ||
-        _hashToString(font.file.hash) != actualFileHash) {
+    final actualFileHash = sha256.convert(fileContents.bodyBytes).toString();
+    if (font.file.fileSize != actualFileLength || _hashToString(font.file.hash) != actualFileHash) {
       throw Exception('Font from $url did not match length of or checksum.');
     }
   } catch (e) {
@@ -125,8 +118,8 @@ Future<void> _tryUrl(http.Client client, Uri url, Font font) async {
 }
 
 String _hashToString(List<int> bytes) {
-  String fileName = '';
-  for (final int byte in bytes) {
+  var fileName = '';
+  for (final byte in bytes) {
     final String convertedByte = byte.toRadixString(16).padLeft(2, '0');
     fileName += convertedByte;
   }
@@ -147,14 +140,10 @@ class _FamiliesDelta {
 
   void _init(Directory fontDirectory) {
     // Currently supported families.
-    final Set<String> familiesSupported = Set<String>.from(
-      File(_familiesSupportedPath).readAsLinesSync(),
-    );
+    final familiesSupported = Set<String>.from(File(_familiesSupportedPath).readAsLinesSync());
 
     // Newly supported families.
-    all = Set<String>.from(
-      fontDirectory.family.map<String>((FontFamily item) => item.name),
-    );
+    all = Set<String>.from(fontDirectory.family.map<String>((FontFamily item) => item.name));
 
     added = all.difference(familiesSupported);
     removed = familiesSupported.difference(all);
@@ -166,20 +155,18 @@ class _FamiliesDelta {
   // Diff of font families, suitable for markdown
   // (e.g. CHANGELOG, PR description).
   String markdownDiff() {
-    final Iterable<String> addedPrintable = added.map(
-      (String family) => '  - Added `$family`',
-    );
-    final Iterable<String> removedPrintable = removed.map(
-      (String family) => '  - Removed `$family`',
-    );
+    final Iterable<String> addedPrintable = added.map((String family) => '  - `$family`');
+    final Iterable<String> removedPrintable = removed.map((String family) => '  - `$family`');
 
-    String diff = '';
-    if (removedPrintable.isNotEmpty) {
-      diff += removedPrintable.join('\n');
+    var diff = '';
+    if (addedPrintable.isNotEmpty) {
+      diff += '- Added fonts:\n';
+      diff += addedPrintable.join('\n');
       diff += '\n';
     }
-    if (addedPrintable.isNotEmpty) {
-      diff += addedPrintable.join('\n');
+    if (removedPrintable.isNotEmpty) {
+      diff += '- Removed fonts:\n';
+      diff += removedPrintable.join('\n');
       diff += '\n';
     }
 
@@ -187,8 +174,45 @@ class _FamiliesDelta {
   }
 }
 
+void _computeVariantCounts(Directory fontDirectory) {
+  final int families = fontDirectory.family.length;
+
+  // Pre-dedup counts
+  var preStatic = 0;
+  var preVariable = 0;
+  for (final FontFamily family in fontDirectory.family) {
+    for (final Font font in family.fonts) {
+      if (font.isVf) {
+        preVariable += 1;
+      } else {
+        preStatic += 1;
+      }
+    }
+  }
+  print(
+    'Found $families font families, composed of $preStatic static variants and $preVariable variable variants.',
+  );
+
+  // Post-dedup counts
+  var postStatic = 0;
+  var postVariable = 0;
+  for (final FontFamily family in fontDirectory.family) {
+    final List<Font> filtered = _deduplicateFonts(family.fonts);
+    for (final font in filtered) {
+      if (font.isVf) {
+        postVariable += 1;
+      } else {
+        postStatic += 1;
+      }
+    }
+  }
+  print(
+    'After deduplication: composed of $postStatic static variants and $postVariable variable variants.',
+  );
+}
+
 void _generateDartCode(Directory fontDirectory) {
-  final List<Map<String, dynamic>> methods = <Map<String, dynamic>>[];
+  final methods = <Map<String, dynamic>>[];
 
   for (final FontFamily item in fontDirectory.family) {
     final String family = item.name;
@@ -196,7 +220,7 @@ void _generateDartCode(Directory fontDirectory) {
     final String familyWithPlusSigns = family.replaceAll(' ', '+');
     final String methodName = _familyToMethodName(family);
 
-    const List<String> themeParams = <String>[
+    const themeParams = <String>[
       'displayLarge',
       'displayMedium',
       'displaySmall',
@@ -214,6 +238,8 @@ void _generateDartCode(Directory fontDirectory) {
       'labelSmall',
     ];
 
+    final List<Font> filteredVariants = _deduplicateFonts(item.fonts);
+
     methods.add(<String, dynamic>{
       'methodName': methodName,
       'part': methodName[0].toUpperCase(),
@@ -221,35 +247,30 @@ void _generateDartCode(Directory fontDirectory) {
       'fontFamilyDisplay': family,
       'docsUrl': 'https://fonts.google.com/specimen/$familyWithPlusSigns',
       'fontUrls': <Map<String, Object>>[
-        for (final Font variant in item.fonts)
+        for (final Font variant in filteredVariants)
           <String, Object>{
             'variantWeight': variant.weight.start,
-            'variantStyle':
-                variant.italic.start.round() == 1 ? 'italic' : 'normal',
+            'variantStyle': variant.italic.start.round() == 1 ? 'italic' : 'normal',
             'hash': _hashToString(variant.file.hash),
             'length': variant.file.fileSize,
           },
       ],
       'themeParams': <Map<String, String>>[
-        for (final String themeParam in themeParams)
-          <String, String>{'value': themeParam},
+        for (final String themeParam in themeParams) <String, String>{'value': themeParam},
       ],
     });
   }
 
   // Part font methods by first letter.
-  final Map<String, List<Map<String, dynamic>>> methodsByLetter =
-      <String, List<Map<String, dynamic>>>{};
-  final List<Map<String, dynamic>> allParts = <Map<String, dynamic>>[];
+  final methodsByLetter = <String, List<Map<String, dynamic>>>{};
+  final allParts = <Map<String, dynamic>>[];
 
-  for (final Map<String, dynamic> map in methods) {
-    final String methodName = map['methodName'] as String;
+  for (final map in methods) {
+    final methodName = map['methodName'] as String;
     final String firstLetter = methodName[0];
     if (!methodsByLetter.containsKey(firstLetter)) {
       allParts.add(<String, dynamic>{
-        'partFilePath': _generatedPartFilePath(
-          firstLetter,
-        ).replaceFirst('lib/src/', ''),
+        'partFilePath': _generatedPartFilePath(firstLetter).replaceFirst('lib/src/', ''),
       });
       methodsByLetter[firstLetter] = <Map<String, dynamic>>[map];
     } else {
@@ -258,14 +279,11 @@ void _generateDartCode(Directory fontDirectory) {
   }
 
   // Generate part files.
-  final Template partTemplate = Template(
+  final partTemplate = Template(
     File('generator/google_fonts_part.tmpl').readAsStringSync(),
     htmlEscapeValues: false,
   );
-  methodsByLetter.forEach((
-    String letter,
-    List<Map<String, dynamic>> methods,
-  ) async {
+  methodsByLetter.forEach((String letter, List<Map<String, dynamic>> methods) async {
     final String renderedTemplate = partTemplate.renderString(<String, Object>{
       'part': letter.toUpperCase(),
       'method': methods,
@@ -274,16 +292,14 @@ void _generateDartCode(Directory fontDirectory) {
   });
 
   // Generate main file.
-  final Template template = Template(
+  final template = Template(
     File('generator/google_fonts.tmpl').readAsStringSync(),
     htmlEscapeValues: false,
   );
-  final String renderedTemplate = template.renderString(
-    <String, List<Map<String, dynamic>>>{
-      'allParts': allParts,
-      'method': methods,
-    },
-  );
+  final String renderedTemplate = template.renderString(<String, List<Map<String, dynamic>>>{
+    'allParts': allParts,
+    'method': methods,
+  });
   _writeDartFile(_generatedAllPartsFilePath, renderedTemplate);
 }
 
@@ -291,12 +307,75 @@ void _writeDartFile(String path, String content) {
   File(path).writeAsStringSync(content);
 }
 
+/// Remove variable-font entries when a static entry of the same
+/// weight/italic exists. Keep variable only if no static equivalent.
+/// Also deduplicate static variants by keeping only default width (100.0).
+///
+// TODO(guidezpl): Add explicit variable-font support, see
+// https://github.com/flutter/flutter/issues/174575 and
+// https://github.com/flutter/flutter/issues/174567
+// TODO(guidezpl): Add font width/stretch support to google_fonts API to properly
+// handle width variants (condensed, normal, extended) instead of deduplicating them.
+List<Font> _deduplicateFonts(List<Font> fonts) {
+  // First, identify variable fonts, and group static fonts by weight/italic to
+  // find the best width variant.
+  final List<Font> variableFonts = [];
+  final Map<String, List<Font>> staticGroups = {};
+  for (final font in fonts) {
+    if (font.isVf) {
+      variableFonts.add(font);
+    } else {
+      final key = '${font.weight.start}_${font.italic.start.round()}';
+      staticGroups.putIfAbsent(key, () => []).add(font);
+    }
+  }
+
+  // For each static group, keep a single width (default to 100.0) variant.
+  final filteredVariants = <Font>[];
+  for (final List<Font> group in staticGroups.values) {
+    Font? defaultWidthVariant;
+    for (final font in group) {
+      if (font.width.start == 100.0) {
+        defaultWidthVariant = font;
+        break;
+      }
+    }
+
+    if (defaultWidthVariant == null) {
+      // If no default width, and more than one variant, we'll have to revise
+      // this logic to understand which width to prefer.
+      assert(group.length == 1);
+    }
+
+    filteredVariants.add(defaultWidthVariant ?? group.first);
+  }
+
+  // Now, for each variable font, check if a static equivalent exists.
+  // If so, skip the variable font.
+  for (final variant in variableFonts) {
+    var hasStaticEquivalent = false;
+    for (final other in fonts) {
+      if (!other.isVf &&
+          other.weight.start == variant.weight.start &&
+          other.italic.start.round() == variant.italic.start.round()) {
+        hasStaticEquivalent = true;
+        break;
+      }
+    }
+    if (!hasStaticEquivalent) {
+      filteredVariants.add(variant);
+    }
+  }
+
+  return filteredVariants;
+}
+
 String _familyToMethodName(String family) {
   final List<String> words = family.split(' ');
-  for (int i = 0; i < words.length; i++) {
+  for (var i = 0; i < words.length; i++) {
     final String word = words[i];
-    final bool isFirst = i == 0;
-    final bool isUpperCase = word == word.toUpperCase();
+    final isFirst = i == 0;
+    final isUpperCase = word == word.toUpperCase();
     words[i] =
         (isFirst ? word[0].toLowerCase() : word[0].toUpperCase()) +
         (isUpperCase ? word.substring(1).toLowerCase() : word.substring(1));

@@ -4,9 +4,14 @@
 
 package io.flutter.plugins.camerax;
 
+import android.hardware.camera2.CaptureRequest;
+import android.util.Range;
 import android.view.Surface;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
+import androidx.camera.camera2.interop.Camera2Interop;
+import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.Preview;
 import androidx.camera.core.ResolutionInfo;
 import androidx.camera.core.SurfaceRequest;
@@ -35,10 +40,15 @@ class PreviewProxyApi extends PigeonApiPreview {
     return (ProxyApiRegistrar) super.getPigeonRegistrar();
   }
 
+  // Range<?> is defined as Range<Integer> in pigeon.
+  @SuppressWarnings("unchecked")
+  @OptIn(markerClass = ExperimentalCamera2Interop.class)
   @NonNull
   @Override
   public Preview pigeon_defaultConstructor(
-      @Nullable ResolutionSelector resolutionSelector, @Nullable Long targetRotation) {
+      @Nullable ResolutionSelector resolutionSelector,
+      @Nullable Long targetRotation,
+      @Nullable Range<?> targetFpsRange) {
     final Preview.Builder builder = new Preview.Builder();
     if (targetRotation != null) {
       builder.setTargetRotation(targetRotation.intValue());
@@ -46,6 +56,13 @@ class PreviewProxyApi extends PigeonApiPreview {
     if (resolutionSelector != null) {
       builder.setResolutionSelector(resolutionSelector);
     }
+
+    if (targetFpsRange != null) {
+      Camera2Interop.Extender<Preview> extender = new Camera2Interop.Extender<>(builder);
+      extender.setCaptureRequestOption(
+          CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, (Range<Integer>) targetFpsRange);
+    }
+
     return builder.build();
   }
 
@@ -71,7 +88,8 @@ class PreviewProxyApi extends PigeonApiPreview {
       return;
     }
     throw new IllegalStateException(
-        "releaseFlutterSurfaceTexture() cannot be called if the flutterSurfaceProducer for the camera preview has not yet been initialized.");
+        "releaseFlutterSurfaceTexture() cannot be called if the flutterSurfaceProducer for the"
+            + " camera preview has not yet been initialized.");
   }
 
   @Override
@@ -81,7 +99,8 @@ class PreviewProxyApi extends PigeonApiPreview {
       return surfaceProducer.handlesCropAndRotation();
     }
     throw new IllegalStateException(
-        "surfaceProducerHandlesCropAndRotation() cannot be called if the flutterSurfaceProducer for the camera preview has not yet been initialized.");
+        "surfaceProducerHandlesCropAndRotation() cannot be called if the flutterSurfaceProducer for"
+            + " the camera preview has not yet been initialized.");
   }
 
   @Nullable

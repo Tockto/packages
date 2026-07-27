@@ -19,19 +19,16 @@ void main() {
         },
       );
 
-      test(
-        'scaled image height and width are same if max width and max height are null',
-        () {
-          expect(
-            calculateSizeOfDownScaledImage(const Size(500, 300), null, null),
-            const Size(500, 300),
-          );
-        },
-      );
+      test('scaled image height and width are same if max width and max height are null', () {
+        expect(
+          calculateSizeOfDownScaledImage(const Size(500, 300), null, null),
+          const Size(500, 300),
+        );
+      });
 
       test('image size is scaled when maxWidth is set', () {
-        const Size imageSize = Size(500, 300);
-        const int maxWidth = 400;
+        const imageSize = Size(500, 300);
+        const maxWidth = 400;
         final Size scaledSize = calculateSizeOfDownScaledImage(
           Size(imageSize.width, imageSize.height),
           maxWidth.toDouble(),
@@ -42,8 +39,8 @@ void main() {
       });
 
       test('image size is scaled when maxHeight is set', () {
-        const Size imageSize = Size(500, 300);
-        const int maxHeight = 400;
+        const imageSize = Size(500, 300);
+        const maxHeight = 400;
         final Size scaledSize = calculateSizeOfDownScaledImage(
           Size(imageSize.width, imageSize.height),
           null,
@@ -54,9 +51,9 @@ void main() {
       });
 
       test('image size is scaled when both maxWidth and maxHeight is set', () {
-        const Size imageSize = Size(1120, 2000);
-        const int maxHeight = 1200;
-        const int maxWidth = 99;
+        const imageSize = Size(1120, 2000);
+        const maxHeight = 1200;
+        const maxWidth = 99;
         final Size scaledSize = calculateSizeOfDownScaledImage(
           Size(imageSize.width, imageSize.height),
           maxWidth.toDouble(),
@@ -92,13 +89,10 @@ void main() {
         expect(isImageQualityValid(100), true);
       });
 
-      test(
-        'image quality is not valid when imageQuality is less than 0 or greater than 100',
-        () {
-          expect(isImageQualityValid(-1), false);
-          expect(isImageQualityValid(101), false);
-        },
-      );
+      test('image quality is not valid when imageQuality is less than 0 or greater than 100', () {
+        expect(isImageQualityValid(-1), false);
+        expect(isImageQualityValid(101), false);
+      });
     });
   });
 }

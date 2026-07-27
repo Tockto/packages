@@ -35,7 +35,7 @@ void main() {
     });
 
     test('Can be mocked with `implements`', () {
-      final UrlLauncherPlatformMock mock = UrlLauncherPlatformMock();
+      final mock = UrlLauncherPlatformMock();
       UrlLauncherPlatform.instance = mock;
     });
 
@@ -45,20 +45,20 @@ void main() {
   });
 
   group('$MethodChannelUrlLauncher', () {
-    const MethodChannel channel = MethodChannel(
-      'plugins.flutter.io/url_launcher',
+    const channel = MethodChannel('plugins.flutter.io/url_launcher');
+    final log = <MethodCall>[];
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
+      channel,
+      (MethodCall methodCall) async {
+        log.add(methodCall);
+
+        // Return null explicitly instead of relying on the implicit null
+        // returned by the method channel if no return statement is specified.
+        return null;
+      },
     );
-    final List<MethodCall> log = <MethodCall>[];
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(channel, (MethodCall methodCall) async {
-          log.add(methodCall);
 
-          // Return null explicitly instead of relying on the implicit null
-          // returned by the method channel if no return statement is specified.
-          return null;
-        });
-
-    final MethodChannelUrlLauncher launcher = MethodChannelUrlLauncher();
+    final launcher = MethodChannelUrlLauncher();
 
     tearDown(() {
       log.clear();
@@ -67,10 +67,7 @@ void main() {
     test('canLaunch', () async {
       await launcher.canLaunch('http://example.com/');
       expect(log, <Matcher>[
-        isMethodCall(
-          'canLaunch',
-          arguments: <String, Object>{'url': 'http://example.com/'},
-        ),
+        isMethodCall('canLaunch', arguments: <String, Object>{'url': 'http://example.com/'}),
       ]);
     });
 
@@ -313,8 +310,7 @@ class UrlLauncherPlatformMock extends Mock
     with MockPlatformInterfaceMixin
     implements UrlLauncherPlatform {}
 
-class ImplementsUrlLauncherPlatform extends Mock
-    implements UrlLauncherPlatform {}
+class ImplementsUrlLauncherPlatform extends Mock implements UrlLauncherPlatform {}
 
 class ExtendsUrlLauncherPlatform extends UrlLauncherPlatform {
   @override

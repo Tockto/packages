@@ -29,9 +29,7 @@ class FileSelectorLinux extends FileSelectorPlatform {
     final List<String> paths = await _hostApi.showFileChooser(
       PlatformFileChooserActionType.open,
       PlatformFileChooserOptions(
-        allowedFileTypes: _platformTypeGroupsFromXTypeGroups(
-          acceptedTypeGroups,
-        ),
+        allowedFileTypes: _platformTypeGroupsFromXTypeGroups(acceptedTypeGroups),
         currentFolderPath: initialDirectory,
         acceptButtonLabel: confirmButtonText,
         selectMultiple: false,
@@ -49,9 +47,7 @@ class FileSelectorLinux extends FileSelectorPlatform {
     final List<String> paths = await _hostApi.showFileChooser(
       PlatformFileChooserActionType.open,
       PlatformFileChooserOptions(
-        allowedFileTypes: _platformTypeGroupsFromXTypeGroups(
-          acceptedTypeGroups,
-        ),
+        allowedFileTypes: _platformTypeGroupsFromXTypeGroups(acceptedTypeGroups),
         currentFolderPath: initialDirectory,
         acceptButtonLabel: confirmButtonText,
         selectMultiple: true,
@@ -88,27 +84,31 @@ class FileSelectorLinux extends FileSelectorPlatform {
     final List<String> paths = await _hostApi.showFileChooser(
       PlatformFileChooserActionType.save,
       PlatformFileChooserOptions(
-        allowedFileTypes: _platformTypeGroupsFromXTypeGroups(
-          acceptedTypeGroups,
-        ),
+        allowedFileTypes: _platformTypeGroupsFromXTypeGroups(acceptedTypeGroups),
         currentFolderPath: options.initialDirectory,
         currentName: options.suggestedName,
         acceptButtonLabel: options.confirmButtonText,
+        createFolders: options.canCreateDirectories,
       ),
     );
     return paths.isEmpty ? null : FileSaveLocation(paths.first);
   }
 
   @override
-  Future<String?> getDirectoryPath({
-    String? initialDirectory,
-    String? confirmButtonText,
-  }) async {
+  Future<String?> getDirectoryPath({String? initialDirectory, String? confirmButtonText}) async {
+    return getDirectoryPathWithOptions(
+      FileDialogOptions(initialDirectory: initialDirectory, confirmButtonText: confirmButtonText),
+    );
+  }
+
+  @override
+  Future<String?> getDirectoryPathWithOptions(FileDialogOptions options) async {
     final List<String> paths = await _hostApi.showFileChooser(
       PlatformFileChooserActionType.chooseDirectory,
       PlatformFileChooserOptions(
-        currentFolderPath: initialDirectory,
-        acceptButtonLabel: confirmButtonText,
+        currentFolderPath: options.initialDirectory,
+        acceptButtonLabel: options.confirmButtonText,
+        createFolders: options.canCreateDirectories,
         selectMultiple: false,
       ),
     );
@@ -120,20 +120,26 @@ class FileSelectorLinux extends FileSelectorPlatform {
     String? initialDirectory,
     String? confirmButtonText,
   }) async {
+    return getDirectoryPathsWithOptions(
+      FileDialogOptions(initialDirectory: initialDirectory, confirmButtonText: confirmButtonText),
+    );
+  }
+
+  @override
+  Future<List<String>> getDirectoryPathsWithOptions(FileDialogOptions options) async {
     return _hostApi.showFileChooser(
       PlatformFileChooserActionType.chooseDirectory,
       PlatformFileChooserOptions(
-        currentFolderPath: initialDirectory,
-        acceptButtonLabel: confirmButtonText,
+        currentFolderPath: options.initialDirectory,
+        acceptButtonLabel: options.confirmButtonText,
+        createFolders: options.canCreateDirectories,
         selectMultiple: true,
       ),
     );
   }
 }
 
-List<PlatformTypeGroup>? _platformTypeGroupsFromXTypeGroups(
-  List<XTypeGroup>? groups,
-) {
+List<PlatformTypeGroup>? _platformTypeGroupsFromXTypeGroups(List<XTypeGroup>? groups) {
   return groups?.map(_platformTypeGroupFromXTypeGroup).toList();
 }
 
@@ -142,8 +148,7 @@ PlatformTypeGroup _platformTypeGroupFromXTypeGroup(XTypeGroup group) {
   if (group.allowsAny) {
     return PlatformTypeGroup(label: label, extensions: <String>['*']);
   }
-  if ((group.extensions?.isEmpty ?? true) &&
-      (group.mimeTypes?.isEmpty ?? true)) {
+  if ((group.extensions?.isEmpty ?? true) && (group.mimeTypes?.isEmpty ?? true)) {
     throw ArgumentError(
       'Provided type group $group does not allow '
       'all files, but does not set any of the Linux-supported filter '
@@ -154,9 +159,7 @@ PlatformTypeGroup _platformTypeGroupFromXTypeGroup(XTypeGroup group) {
   return PlatformTypeGroup(
     label: label,
     // Covert to GtkFileFilter's *.<extension> format.
-    extensions:
-        group.extensions?.map((String extension) => '*.$extension').toList() ??
-        <String>[],
+    extensions: group.extensions?.map((String extension) => '*.$extension').toList() ?? <String>[],
     mimeTypes: group.mimeTypes ?? <String>[],
   );
 }

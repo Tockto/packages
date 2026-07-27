@@ -12,8 +12,7 @@ import 'src/messages.g.dart';
 /// An implementation of [UrlLauncherPlatform] for Android.
 class UrlLauncherAndroid extends UrlLauncherPlatform {
   /// Creates a new plugin implementation instance.
-  UrlLauncherAndroid({@visibleForTesting UrlLauncherApi? api})
-    : _hostApi = api ?? UrlLauncherApi();
+  UrlLauncherAndroid({@visibleForTesting UrlLauncherApi? api}) : _hostApi = api ?? UrlLauncherApi();
 
   final UrlLauncherApi _hostApi;
 
@@ -77,7 +76,7 @@ class UrlLauncherAndroid extends UrlLauncherPlatform {
   @override
   Future<bool> launchUrl(String url, LaunchOptions options) async {
     final bool inApp;
-    bool requireNonBrowser = false;
+    var requireNonBrowser = false;
     switch (options.mode) {
       case PreferredLaunchMode.inAppWebView:
       case PreferredLaunchMode.inAppBrowserView:

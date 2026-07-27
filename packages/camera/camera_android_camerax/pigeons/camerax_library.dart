@@ -10,8 +10,7 @@ import 'package:pigeon/pigeon.dart';
   PigeonOptions(
     copyrightHeader: 'pigeons/copyright.txt',
     dartOut: 'lib/src/camerax_library.g.dart',
-    kotlinOut:
-        'android/src/main/java/io/flutter/plugins/camerax/CameraXLibrary.g.kt',
+    kotlinOut: 'android/src/main/java/io/flutter/plugins/camerax/CameraXLibrary.g.kt',
     kotlinOptions: KotlinOptions(
       package: 'io.flutter.plugins.camerax',
       errorClassName: 'CameraXError',
@@ -21,9 +20,7 @@ import 'package:pigeon/pigeon.dart';
 /// Immutable class for describing width and height dimensions in pixels.
 ///
 /// See https://developer.android.com/reference/android/util/Size.html.
-@ProxyApi(
-  kotlinOptions: KotlinProxyApiOptions(fullClassName: 'android.util.Size'),
-)
+@ProxyApi(kotlinOptions: KotlinProxyApiOptions(fullClassName: 'android.util.Size'))
 abstract class CameraSize {
   CameraSize();
 
@@ -39,9 +36,7 @@ abstract class CameraSize {
 ///
 /// See https://developer.android.com/reference/androidx/camera/core/ResolutionInfo.
 @ProxyApi(
-  kotlinOptions: KotlinProxyApiOptions(
-    fullClassName: 'androidx.camera.core.ResolutionInfo',
-  ),
+  kotlinOptions: KotlinProxyApiOptions(fullClassName: 'androidx.camera.core.ResolutionInfo'),
 )
 abstract class ResolutionInfo {
   /// Returns the output resolution used for the use case.
@@ -112,7 +107,7 @@ enum CameraStateType {
   unknown,
 }
 
-/// The types (T) properly wrapped to be used as a LiveData<T>.
+/// The types (T) properly wrapped to be used as a `LiveData<T>`.
 enum LiveDataSupportedType { cameraState, zoomState }
 
 /// Immutable class for describing the range of two integer values.
@@ -120,9 +115,7 @@ enum LiveDataSupportedType { cameraState, zoomState }
 /// This is the equivalent to `android.util.Range<Integer>`.
 ///
 /// See https://developer.android.com/reference/android/util/Range.html.
-@ProxyApi(
-  kotlinOptions: KotlinProxyApiOptions(fullClassName: 'android.util.Range<*>'),
-)
+@ProxyApi(kotlinOptions: KotlinProxyApiOptions(fullClassName: 'android.util.Range<*>'))
 abstract class CameraIntegerRange {
   CameraIntegerRange();
 
@@ -163,9 +156,7 @@ enum VideoQuality {
 ///
 /// See https://developer.android.com/reference/androidx/camera/video/VideoRecordEvent.
 @ProxyApi(
-  kotlinOptions: KotlinProxyApiOptions(
-    fullClassName: 'androidx.camera.video.VideoRecordEvent',
-  ),
+  kotlinOptions: KotlinProxyApiOptions(fullClassName: 'androidx.camera.video.VideoRecordEvent'),
 )
 abstract class VideoRecordEvent {}
 
@@ -193,11 +184,7 @@ abstract class VideoRecordEventFinalize extends VideoRecordEvent {}
 /// sensor coordinate system for focus and metering purpose.
 ///
 /// See https://developer.android.com/reference/androidx/camera/core/MeteringPoint.
-@ProxyApi(
-  kotlinOptions: KotlinProxyApiOptions(
-    fullClassName: 'androidx.camera.core.MeteringPoint',
-  ),
-)
+@ProxyApi(kotlinOptions: KotlinProxyApiOptions(fullClassName: 'androidx.camera.core.MeteringPoint'))
 abstract class MeteringPoint {
   /// Size of the MeteringPoint width and height (ranging from 0 to 1).
   ///
@@ -226,11 +213,7 @@ enum MeteringMode {
 /// A simple callback that can receive from LiveData.
 ///
 /// See https://developer.android.com/reference/androidx/lifecycle/Observer.
-@ProxyApi(
-  kotlinOptions: KotlinProxyApiOptions(
-    fullClassName: 'androidx.lifecycle.Observer<*>',
-  ),
-)
+@ProxyApi(kotlinOptions: KotlinProxyApiOptions(fullClassName: 'androidx.lifecycle.Observer<*>'))
 abstract class Observer {
   Observer();
 
@@ -241,15 +224,14 @@ abstract class Observer {
 /// An interface for retrieving camera information.
 ///
 /// See https://developer.android.com/reference/androidx/camera/core/CameraInfo.
-@ProxyApi(
-  kotlinOptions: KotlinProxyApiOptions(
-    fullClassName: 'androidx.camera.core.CameraInfo',
-  ),
-)
+@ProxyApi(kotlinOptions: KotlinProxyApiOptions(fullClassName: 'androidx.camera.core.CameraInfo'))
 abstract class CameraInfo {
   /// Returns the sensor rotation in degrees, relative to the device's "natural"
   /// (default) orientation.
   late int sensorRotationDegrees;
+
+  /// Returns the lens direction of this camera.
+  late LensFacing lensFacing;
 
   /// Returns a ExposureState.
   late ExposureState exposureState;
@@ -285,15 +267,10 @@ enum LensFacing {
 ///
 /// See https://developer.android.com/reference/androidx/camera/core/CameraSelector.
 @ProxyApi(
-  kotlinOptions: KotlinProxyApiOptions(
-    fullClassName: 'androidx.camera.core.CameraSelector',
-  ),
+  kotlinOptions: KotlinProxyApiOptions(fullClassName: 'androidx.camera.core.CameraSelector'),
 )
 abstract class CameraSelector {
-  CameraSelector(
-    LensFacing? requireLensFacing,
-    CameraInfo? cameraInfoForFilter,
-  );
+  CameraSelector(LensFacing? requireLensFacing, CameraInfo? cameraInfoForFilter);
 
   /// A static `CameraSelector` that selects the default back facing camera.
   @static
@@ -343,11 +320,7 @@ abstract class ProcessCameraProvider {
 /// The use case which all other use cases are built on top of.
 ///
 /// See https://developer.android.com/reference/kotlin/androidx/camera/core/UseCase.
-@ProxyApi(
-  kotlinOptions: KotlinProxyApiOptions(
-    fullClassName: 'androidx.camera.core.UseCase',
-  ),
-)
+@ProxyApi(kotlinOptions: KotlinProxyApiOptions(fullClassName: 'androidx.camera.core.UseCase'))
 abstract class UseCase {}
 
 /// The camera interface is used to control the flow of data to use cases,
@@ -355,11 +328,7 @@ abstract class UseCase {}
 /// camera via CameraInfo.
 ///
 /// See https://developer.android.com/reference/kotlin/androidx/camera/core/Camera.
-@ProxyApi(
-  kotlinOptions: KotlinProxyApiOptions(
-    fullClassName: 'androidx.camera.core.Camera',
-  ),
-)
+@ProxyApi(kotlinOptions: KotlinProxyApiOptions(fullClassName: 'androidx.camera.core.Camera'))
 abstract class Camera {
   /// The `CameraControl` for the Camera.
   late CameraControl cameraControl;
@@ -410,13 +379,9 @@ abstract class DeviceOrientationManager {
 /// A use case that provides a camera preview stream for displaying on-screen.
 ///
 /// See https://developer.android.com/reference/kotlin/androidx/camera/core/Preview.
-@ProxyApi(
-  kotlinOptions: KotlinProxyApiOptions(
-    fullClassName: 'androidx.camera.core.Preview',
-  ),
-)
+@ProxyApi(kotlinOptions: KotlinProxyApiOptions(fullClassName: 'androidx.camera.core.Preview'))
 abstract class Preview extends UseCase {
-  Preview(int? targetRotation);
+  Preview(int? targetRotation, CameraIntegerRange? targetFpsRange);
 
   late final ResolutionSelector? resolutionSelector;
 
@@ -449,13 +414,11 @@ abstract class Preview extends UseCase {
 ///
 /// See https://developer.android.com/reference/kotlin/androidx/camera/video/VideoCapture.
 @ProxyApi(
-  kotlinOptions: KotlinProxyApiOptions(
-    fullClassName: 'androidx.camera.video.VideoCapture<*>',
-  ),
+  kotlinOptions: KotlinProxyApiOptions(fullClassName: 'androidx.camera.video.VideoCapture<*>'),
 )
 abstract class VideoCapture extends UseCase {
   /// Create a `VideoCapture` associated with the given `VideoOutput`.
-  VideoCapture.withOutput(VideoOutput videoOutput);
+  VideoCapture.withOutput(VideoOutput videoOutput, CameraIntegerRange? targetFpsRange);
 
   /// Gets the VideoOutput associated with this VideoCapture.
   VideoOutput getOutput();
@@ -467,28 +430,16 @@ abstract class VideoCapture extends UseCase {
 /// A class that will produce video data from a Surface.
 ///
 /// See https://developer.android.com/reference/kotlin/androidx/camera/video/VideoOutput.
-@ProxyApi(
-  kotlinOptions: KotlinProxyApiOptions(
-    fullClassName: 'androidx.camera.video.VideoOutput',
-  ),
-)
+@ProxyApi(kotlinOptions: KotlinProxyApiOptions(fullClassName: 'androidx.camera.video.VideoOutput'))
 abstract class VideoOutput {}
 
 /// An implementation of `VideoOutput` for starting video recordings that are
 /// saved to a File, ParcelFileDescriptor, or MediaStore.
 ///
 /// See https://developer.android.com/reference/kotlin/androidx/camera/video/Recorder.
-@ProxyApi(
-  kotlinOptions: KotlinProxyApiOptions(
-    fullClassName: 'androidx.camera.video.Recorder',
-  ),
-)
+@ProxyApi(kotlinOptions: KotlinProxyApiOptions(fullClassName: 'androidx.camera.video.Recorder'))
 abstract class Recorder implements VideoOutput {
-  Recorder(
-    int? aspectRatio,
-    int? targetVideoEncodingBitRate,
-    QualitySelector? qualitySelector,
-  );
+  Recorder(int? aspectRatio, int? targetVideoEncodingBitRate, QualitySelector? qualitySelector);
 
   /// Gets the aspect ratio of this Recorder.
   int getAspectRatio();
@@ -515,9 +466,7 @@ abstract class VideoRecordEventListener {
 ///
 /// See https://developer.android.com/reference/kotlin/androidx/camera/video/PendingRecording.
 @ProxyApi(
-  kotlinOptions: KotlinProxyApiOptions(
-    fullClassName: 'androidx.camera.video.PendingRecording',
-  ),
+  kotlinOptions: KotlinProxyApiOptions(fullClassName: 'androidx.camera.video.PendingRecording'),
 )
 abstract class PendingRecording {
   /// Enables/disables audio to be recorded for this recording.
@@ -541,11 +490,7 @@ abstract class PendingRecording {
 /// Provides controls for the currently active recording.
 ///
 /// See https://developer.android.com/reference/kotlin/androidx/camera/video/Recording.
-@ProxyApi(
-  kotlinOptions: KotlinProxyApiOptions(
-    fullClassName: 'androidx.camera.video.Recording',
-  ),
-)
+@ProxyApi(kotlinOptions: KotlinProxyApiOptions(fullClassName: 'androidx.camera.video.Recording'))
 abstract class Recording {
   /// Close this recording.
   void close();
@@ -586,13 +531,9 @@ enum CameraXFlashMode {
 /// A use case for taking a picture.
 ///
 /// See https://developer.android.com/reference/kotlin/androidx/camera/core/ImageCapture.
-@ProxyApi(
-  kotlinOptions: KotlinProxyApiOptions(
-    fullClassName: 'androidx.camera.core.ImageCapture',
-  ),
-)
+@ProxyApi(kotlinOptions: KotlinProxyApiOptions(fullClassName: 'androidx.camera.core.ImageCapture'))
 abstract class ImageCapture extends UseCase {
-  ImageCapture(int? targetRotation, CameraXFlashMode? flashMode);
+  ImageCapture(int? targetRotation, CameraXFlashMode? flashMode, int? jpegQuality);
 
   late final ResolutionSelector? resolutionSelector;
 
@@ -601,7 +542,7 @@ abstract class ImageCapture extends UseCase {
 
   /// Captures a new still image for in memory access.
   @async
-  String takePicture();
+  String takePicture(SystemServicesManager systemServicesManager);
 
   /// Sets the desired rotation of the output image.
   void setTargetRotation(int rotation);
@@ -649,10 +590,7 @@ enum ResolutionStrategyFallbackRule {
   ),
 )
 abstract class ResolutionStrategy {
-  ResolutionStrategy(
-    CameraSize boundSize,
-    ResolutionStrategyFallbackRule fallbackRule,
-  );
+  ResolutionStrategy(CameraSize boundSize, ResolutionStrategyFallbackRule fallbackRule);
 
   /// A resolution strategy chooses the highest available resolution.
   @static
@@ -714,8 +652,7 @@ enum AspectRatioStrategyFallbackRule {
 /// See https://developer.android.com/reference/kotlin/androidx/camera/core/resolutionselector/AspectRatioStrategy.
 @ProxyApi(
   kotlinOptions: KotlinProxyApiOptions(
-    fullClassName:
-        'androidx.camera.core.resolutionselector.AspectRatioStrategy',
+    fullClassName: 'androidx.camera.core.resolutionselector.AspectRatioStrategy',
   ),
 )
 abstract class AspectRatioStrategy {
@@ -747,11 +684,7 @@ abstract class AspectRatioStrategy {
 /// Represents the different states the camera can be in.
 ///
 /// See https://developer.android.com/reference/androidx/camera/core/CameraState.
-@ProxyApi(
-  kotlinOptions: KotlinProxyApiOptions(
-    fullClassName: 'androidx.camera.core.CameraState',
-  ),
-)
+@ProxyApi(kotlinOptions: KotlinProxyApiOptions(fullClassName: 'androidx.camera.core.CameraState'))
 abstract class CameraState {
   /// The camera's state.
   late CameraStateType type;
@@ -763,11 +696,7 @@ abstract class CameraState {
 /// An interface which contains the camera exposure related information.
 ///
 /// See https://developer.android.com/reference/androidx/camera/core/ExposureState.
-@ProxyApi(
-  kotlinOptions: KotlinProxyApiOptions(
-    fullClassName: 'androidx.camera.core.ExposureState',
-  ),
-)
+@ProxyApi(kotlinOptions: KotlinProxyApiOptions(fullClassName: 'androidx.camera.core.ExposureState'))
 abstract class ExposureState {
   /// Get the maximum and minimum exposure compensation values for
   /// `CameraControl.setExposureCompensationIndex`.
@@ -780,11 +709,7 @@ abstract class ExposureState {
 /// An interface which contains the zoom related information from a camera.
 ///
 /// See https://developer.android.com/reference/androidx/camera/core/ZoomState.
-@ProxyApi(
-  kotlinOptions: KotlinProxyApiOptions(
-    fullClassName: 'androidx.camera.core.ZoomState',
-  ),
-)
+@ProxyApi(kotlinOptions: KotlinProxyApiOptions(fullClassName: 'androidx.camera.core.ZoomState'))
 abstract class ZoomState {
   /// The minimum zoom ratio.
   late double minZoomRatio;
@@ -797,13 +722,9 @@ abstract class ZoomState {
 /// analysis on.
 ///
 /// See https://developer.android.com/reference/kotlin/androidx/camera/core/ImageAnalysis.
-@ProxyApi(
-  kotlinOptions: KotlinProxyApiOptions(
-    fullClassName: 'androidx.camera.core.ImageAnalysis',
-  ),
-)
+@ProxyApi(kotlinOptions: KotlinProxyApiOptions(fullClassName: 'androidx.camera.core.ImageAnalysis'))
 abstract class ImageAnalysis extends UseCase {
-  ImageAnalysis(int? targetRotation, int? outputImageFormat);
+  ImageAnalysis(int? targetRotation, CameraIntegerRange? targetFpsRange, int? outputImageFormat);
 
   late final ResolutionSelector? resolutionSelector;
 
@@ -890,8 +811,7 @@ abstract class CameraStateStateError {
 /// See https://developer.android.com/reference/androidx/lifecycle/LiveData.
 @ProxyApi(
   kotlinOptions: KotlinProxyApiOptions(
-    fullClassName:
-        'io.flutter.plugins.camerax.LiveDataProxyApi.LiveDataWrapper',
+    fullClassName: 'io.flutter.plugins.camerax.LiveDataProxyApi.LiveDataWrapper',
   ),
 )
 abstract class LiveData {
@@ -912,11 +832,7 @@ abstract class LiveData {
 /// An image proxy which has a similar interface as `android.media.Image`.
 ///
 /// See https://developer.android.com/reference/kotlin/androidx/camera/core/ImageProxy.
-@ProxyApi(
-  kotlinOptions: KotlinProxyApiOptions(
-    fullClassName: 'androidx.camera.core.ImageProxy',
-  ),
-)
+@ProxyApi(kotlinOptions: KotlinProxyApiOptions(fullClassName: 'androidx.camera.core.ImageProxy'))
 abstract class ImageProxy {
   /// The image format.
   late int format;
@@ -939,11 +855,7 @@ abstract class ImageProxy {
 abstract class ImageProxyUtils {
   /// Returns a single buffer that is representative of three NV21-compatible [planes].
   @static
-  Uint8List getNv21Buffer(
-    int imageWidth,
-    int imageHeight,
-    List<PlaneProxy> planes,
-  );
+  Uint8List getNv21Buffer(int imageWidth, int imageHeight, List<PlaneProxy> planes);
 }
 
 /// A plane proxy which has an analogous interface as
@@ -951,9 +863,7 @@ abstract class ImageProxyUtils {
 ///
 /// See https://developer.android.com/reference/kotlin/androidx/camera/core/ImageProxy.PlaneProxy.
 @ProxyApi(
-  kotlinOptions: KotlinProxyApiOptions(
-    fullClassName: 'androidx.camera.core.ImageProxy.PlaneProxy',
-  ),
+  kotlinOptions: KotlinProxyApiOptions(fullClassName: 'androidx.camera.core.ImageProxy.PlaneProxy'),
 )
 abstract class PlaneProxy {
   /// The pixels buffer.
@@ -971,22 +881,14 @@ abstract class PlaneProxy {
 ///
 /// See https://developer.android.com/reference/kotlin/androidx/camera/video/QualitySelector.
 @ProxyApi(
-  kotlinOptions: KotlinProxyApiOptions(
-    fullClassName: 'androidx.camera.video.QualitySelector',
-  ),
+  kotlinOptions: KotlinProxyApiOptions(fullClassName: 'androidx.camera.video.QualitySelector'),
 )
 abstract class QualitySelector {
   /// Gets an instance of QualitySelector with a desired quality.
-  QualitySelector.from(
-    VideoQuality quality,
-    FallbackStrategy? fallbackStrategy,
-  );
+  QualitySelector.from(VideoQuality quality, FallbackStrategy? fallbackStrategy);
 
   /// Gets an instance of QualitySelector with ordered desired qualities.
-  QualitySelector.fromOrderedList(
-    List<VideoQuality> qualities,
-    FallbackStrategy? fallbackStrategy,
-  );
+  QualitySelector.fromOrderedList(List<VideoQuality> qualities, FallbackStrategy? fallbackStrategy);
 
   /// Gets the corresponding resolution from the input quality.
   @static
@@ -999,9 +901,7 @@ abstract class QualitySelector {
 ///
 /// See https://developer.android.com/reference/androidx/camera/video/FallbackStrategy.
 @ProxyApi(
-  kotlinOptions: KotlinProxyApiOptions(
-    fullClassName: 'androidx.camera.video.FallbackStrategy',
-  ),
+  kotlinOptions: KotlinProxyApiOptions(fullClassName: 'androidx.camera.video.FallbackStrategy'),
 )
 abstract class FallbackStrategy {
   /// Returns a fallback strategy that will choose the quality that is closest
@@ -1026,11 +926,7 @@ abstract class FallbackStrategy {
 /// camera.
 ///
 /// See https://developer.android.com/reference/androidx/camera/core/CameraControl.
-@ProxyApi(
-  kotlinOptions: KotlinProxyApiOptions(
-    fullClassName: 'androidx.camera.core.CameraControl',
-  ),
-)
+@ProxyApi(kotlinOptions: KotlinProxyApiOptions(fullClassName: 'androidx.camera.core.CameraControl'))
 abstract class CameraControl {
   /// Enable the torch or disable the torch.
   @async
@@ -1087,9 +983,7 @@ abstract class FocusMeteringActionBuilder {
 ///
 /// See https://developer.android.com/reference/kotlin/androidx/camera/core/FocusMeteringAction.
 @ProxyApi(
-  kotlinOptions: KotlinProxyApiOptions(
-    fullClassName: 'androidx.camera.core.FocusMeteringAction',
-  ),
+  kotlinOptions: KotlinProxyApiOptions(fullClassName: 'androidx.camera.core.FocusMeteringAction'),
 )
 abstract class FocusMeteringAction {
   /// All MeteringPoints used for AE regions.
@@ -1109,9 +1003,7 @@ abstract class FocusMeteringAction {
 ///
 /// See https://developer.android.com/reference/androidx/camera/core/FocusMeteringResult.
 @ProxyApi(
-  kotlinOptions: KotlinProxyApiOptions(
-    fullClassName: 'androidx.camera.core.FocusMeteringResult',
-  ),
+  kotlinOptions: KotlinProxyApiOptions(fullClassName: 'androidx.camera.core.FocusMeteringResult'),
 )
 abstract class FocusMeteringResult {
   /// If auto focus is successful.
@@ -1123,9 +1015,7 @@ abstract class FocusMeteringResult {
 ///
 /// See https://developer.android.com/reference/android/hardware/camera2/CaptureRequest.
 @ProxyApi(
-  kotlinOptions: KotlinProxyApiOptions(
-    fullClassName: 'android.hardware.camera2.CaptureRequest',
-  ),
+  kotlinOptions: KotlinProxyApiOptions(fullClassName: 'android.hardware.camera2.CaptureRequest'),
 )
 abstract class CaptureRequest {
   /// Whether auto-exposure (AE) is currently locked to its latest calculated
@@ -1136,6 +1026,14 @@ abstract class CaptureRequest {
   /// This key is available on all devices.
   @static
   late CaptureRequestKey controlAELock;
+
+  /// Whether video stabilization is active.
+  ///
+  /// Value is int.
+  ///
+  /// This key is available on all devices.
+  @static
+  late CaptureRequestKey controlVideoStabilizationMode;
 }
 
 /// A Key is used to do capture request field lookups with CaptureRequest.get or
@@ -1233,6 +1131,15 @@ abstract class CameraCharacteristics {
   /// This key is available on all devices.
   @static
   late CameraCharacteristicsKey sensorOrientation;
+
+  /// List of video stabilization modes for android.control.videoStabilizationMode
+  /// that are supported by this camera device.
+  ///
+  /// Value is `ControlAvailableVideoStabilizationMode`.
+  ///
+  /// This key is available on all devices.
+  @static
+  late CameraCharacteristicsKey controlAvailableVideoStabilizationModes;
 }
 
 /// An interface for retrieving Camera2-related camera information.
@@ -1258,9 +1165,7 @@ abstract class Camera2CameraInfo {
 ///
 /// See https://developer.android.com/reference/androidx/camera/core/MeteringPointFactory.
 @ProxyApi(
-  kotlinOptions: KotlinProxyApiOptions(
-    fullClassName: 'androidx.camera.core.MeteringPointFactory',
-  ),
+  kotlinOptions: KotlinProxyApiOptions(fullClassName: 'androidx.camera.core.MeteringPointFactory'),
 )
 abstract class MeteringPointFactory {
   /// Creates a MeteringPoint by x, y.
@@ -1280,14 +1185,9 @@ abstract class MeteringPointFactory {
     fullClassName: 'androidx.camera.core.DisplayOrientedMeteringPointFactory',
   ),
 )
-abstract class DisplayOrientedMeteringPointFactory
-    extends MeteringPointFactory {
+abstract class DisplayOrientedMeteringPointFactory extends MeteringPointFactory {
   /// Creates a DisplayOrientedMeteringPointFactory for converting View (x, y)
   /// into a MeteringPoint based on the current display's rotation and
   /// CameraInfo.
-  DisplayOrientedMeteringPointFactory(
-    CameraInfo cameraInfo,
-    double width,
-    double height,
-  );
+  DisplayOrientedMeteringPointFactory(CameraInfo cameraInfo, double width, double height);
 }

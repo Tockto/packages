@@ -28,8 +28,7 @@ const int SHIFTED_EXPONENT_MASK = 0x1f;
 const int SIGNIFICAND_MASK = 0x3ff;
 
 // ignore: non_constant_identifier_names
-final ByteData FP32_DENORMAL_FLOAT = ByteData(4)
-  ..setUint32(0, FP32_DENORMAL_MAGIC);
+final ByteData FP32_DENORMAL_FLOAT = ByteData(4)..setUint32(0, FP32_DENORMAL_MAGIC);
 
 /// Convert the single precision floating point value stored in [byteData] into a half-precision floating point value.
 ///
@@ -39,8 +38,8 @@ void toHalf(ByteData byteData) {
   final int s = bits >> FP32_SIGN_SHIFT;
   int e = (bits >> FP32_EXPONENT_SHIFT) & FP32_SHIFTED_EXPONENT_MASK;
   int m = bits & FP32_SIGNIFICAND_MASK;
-  int outE = 0;
-  int outM = 0;
+  var outE = 0;
+  var outM = 0;
 
   if (e == 0xff) {
     // Infinite or NaN
@@ -96,8 +95,8 @@ double toDouble(ByteData byteData) {
   final int s = bits & SIGN_MASK;
   final int e = (bits >> EXPONENT_SHIFT) & SHIFTED_EXPONENT_MASK;
   final int m = bits & SIGNIFICAND_MASK;
-  int outE = 0;
-  int outM = 0;
+  var outE = 0;
+  var outM = 0;
   if (e == 0) {
     // Denormal or 0
     if (m != 0) {

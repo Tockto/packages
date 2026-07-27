@@ -78,24 +78,19 @@ class VideoPlayerPlugin extends VideoPlayerPlatform {
         uri = assetUrl;
       case DataSourceType.file:
         return Future<int>.error(
-          UnimplementedError(
-            'web implementation of video_player cannot play local files',
-          ),
+          UnimplementedError('web implementation of video_player cannot play local files'),
         );
       case DataSourceType.contentUri:
         return Future<int>.error(
-          UnimplementedError(
-            'web implementation of video_player cannot play content uri',
-          ),
+          UnimplementedError('web implementation of video_player cannot play content uri'),
         );
     }
 
-    final web.HTMLVideoElement videoElement =
-        web.HTMLVideoElement()
-          ..id = 'videoElement-$playerId'
-          ..style.border = 'none'
-          ..style.height = '100%'
-          ..style.width = '100%';
+    final videoElement = web.HTMLVideoElement()
+      ..id = 'videoElement-$playerId'
+      ..style.border = 'none'
+      ..style.height = '100%'
+      ..style.width = '100%';
 
     // TODO(hterkelsen): Use initialization parameters once they are available
     ui_web.platformViewRegistry.registerViewFactory(
@@ -103,8 +98,7 @@ class VideoPlayerPlugin extends VideoPlayerPlatform {
       (int viewId) => videoElement,
     );
 
-    final VideoPlayer player = VideoPlayer(videoElement: videoElement)
-      ..initialize(src: uri);
+    final player = VideoPlayer(videoElement: videoElement)..initialize(src: uri);
 
     _videoPlayers[playerId] = player;
 

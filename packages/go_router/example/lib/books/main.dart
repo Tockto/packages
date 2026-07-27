@@ -37,45 +37,41 @@ class Bookstore extends StatelessWidget {
 
   late final GoRouter _router = GoRouter(
     routes: <GoRoute>[
-      GoRoute(path: '/', redirect: (_, __) => '/books'),
+      GoRoute(path: '/', redirect: (_, _) => '/books'),
       GoRoute(
         path: '/signin',
-        pageBuilder:
-            (BuildContext context, GoRouterState state) => FadeTransitionPage(
-              key: state.pageKey,
-              child: SignInScreen(
-                onSignIn: (Credentials credentials) {
-                  BookstoreAuthScope.of(
-                    context,
-                  ).signIn(credentials.username, credentials.password);
-                },
-              ),
-            ),
+        pageBuilder: (BuildContext context, GoRouterState state) => FadeTransitionPage(
+          key: state.pageKey,
+          child: SignInScreen(
+            onSignIn: (Credentials credentials) {
+              BookstoreAuthScope.of(context).signIn(credentials.username, credentials.password);
+            },
+          ),
+        ),
       ),
-      GoRoute(path: '/books', redirect: (_, __) => '/books/popular'),
+      GoRoute(path: '/books', redirect: (_, _) => '/books/popular'),
       GoRoute(
         path: '/book/:bookId',
-        redirect:
-            (BuildContext context, GoRouterState state) =>
-                '/books/all/${state.pathParameters['bookId']}',
+        redirect: (BuildContext context, GoRouterState state) =>
+            '/books/all/${state.pathParameters['bookId']}',
       ),
       GoRoute(
         path: '/books/:kind(new|all|popular)',
-        pageBuilder:
-            (BuildContext context, GoRouterState state) => FadeTransitionPage(
-              key: _scaffoldKey,
-              child: BookstoreScaffold(
-                selectedTab: ScaffoldTab.books,
-                child: BooksScreen(state.pathParameters['kind']!),
-              ),
-            ),
+        pageBuilder: (BuildContext context, GoRouterState state) => FadeTransitionPage(
+          key: _scaffoldKey,
+          child: BookstoreScaffold(
+            selectedTab: ScaffoldTab.books,
+            child: BooksScreen(state.pathParameters['kind']!),
+          ),
+        ),
         routes: <GoRoute>[
           GoRoute(
             path: ':bookId',
             builder: (BuildContext context, GoRouterState state) {
               final String bookId = state.pathParameters['bookId']!;
-              final Book? selectedBook = libraryInstance.allBooks
-                  .firstWhereOrNull((Book b) => b.id.toString() == bookId);
+              final Book? selectedBook = libraryInstance.allBooks.firstWhereOrNull(
+                (Book b) => b.id.toString() == bookId,
+              );
 
               return BookDetailsScreen(book: selectedBook);
             },
@@ -84,27 +80,23 @@ class Bookstore extends StatelessWidget {
       ),
       GoRoute(
         path: '/author/:authorId',
-        redirect:
-            (BuildContext context, GoRouterState state) =>
-                '/authors/${state.pathParameters['authorId']}',
+        redirect: (BuildContext context, GoRouterState state) =>
+            '/authors/${state.pathParameters['authorId']}',
       ),
       GoRoute(
         path: '/authors',
-        pageBuilder:
-            (BuildContext context, GoRouterState state) => FadeTransitionPage(
-              key: _scaffoldKey,
-              child: const BookstoreScaffold(
-                selectedTab: ScaffoldTab.authors,
-                child: AuthorsScreen(),
-              ),
-            ),
+        pageBuilder: (BuildContext context, GoRouterState state) => FadeTransitionPage(
+          key: _scaffoldKey,
+          child: const BookstoreScaffold(selectedTab: ScaffoldTab.authors, child: AuthorsScreen()),
+        ),
         routes: <GoRoute>[
           GoRoute(
             path: ':authorId',
             builder: (BuildContext context, GoRouterState state) {
               final int authorId = int.parse(state.pathParameters['authorId']!);
-              final Author? selectedAuthor = libraryInstance.allAuthors
-                  .firstWhereOrNull((Author a) => a.id == authorId);
+              final Author? selectedAuthor = libraryInstance.allAuthors.firstWhereOrNull(
+                (Author a) => a.id == authorId,
+              );
 
               return AuthorDetailsScreen(author: selectedAuthor);
             },
@@ -113,14 +105,13 @@ class Bookstore extends StatelessWidget {
       ),
       GoRoute(
         path: '/settings',
-        pageBuilder:
-            (BuildContext context, GoRouterState state) => FadeTransitionPage(
-              key: _scaffoldKey,
-              child: const BookstoreScaffold(
-                selectedTab: ScaffoldTab.settings,
-                child: SettingsScreen(),
-              ),
-            ),
+        pageBuilder: (BuildContext context, GoRouterState state) => FadeTransitionPage(
+          key: _scaffoldKey,
+          child: const BookstoreScaffold(
+            selectedTab: ScaffoldTab.settings,
+            child: SettingsScreen(),
+          ),
+        ),
       ),
     ],
     redirect: _guard,
@@ -130,7 +121,7 @@ class Bookstore extends StatelessWidget {
 
   String? _guard(BuildContext context, GoRouterState state) {
     final bool signedIn = _auth.signedIn;
-    final bool signingIn = state.matchedLocation == '/signin';
+    final signingIn = state.matchedLocation == '/signin';
 
     // Go to /signin if the user is not signed in
     if (!signedIn && !signingIn) {
@@ -157,10 +148,7 @@ class FadeTransitionPage extends CustomTransitionPage<void> {
               Animation<double> animation,
               Animation<double> secondaryAnimation,
               Widget child,
-            ) => FadeTransition(
-              opacity: animation.drive(_curveTween),
-              child: child,
-            ),
+            ) => FadeTransition(opacity: animation.drive(_curveTween), child: child),
       );
 
   static final CurveTween _curveTween = CurveTween(curve: Curves.easeIn);

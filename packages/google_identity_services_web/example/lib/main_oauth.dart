@@ -35,15 +35,14 @@ void main() async {
 
   id.setLogLevel('debug');
 
-  final TokenClientConfig config = TokenClientConfig(
+  final config = TokenClientConfig(
     client_id: 'your-google-client-id-goes-here.apps.googleusercontent.com',
     scope: scopes,
     callback: onTokenResponse,
     error_callback: onError,
   );
 
-  final OverridableTokenClientConfig overridableCfg =
-      OverridableTokenClientConfig(scope: scopes + myConnectionsScopes);
+  final overridableCfg = OverridableTokenClientConfig(scope: scopes + myConnectionsScopes);
 
   final TokenClient client = oauth2.initTokenClient(config);
 
@@ -98,9 +97,7 @@ Future<Object?> get(TokenResponse token, String url) async {
   final Uri uri = Uri.parse(url);
   final http.Response response = await http.get(
     uri,
-    headers: <String, String>{
-      'Authorization': '${token.token_type} ${token.access_token}',
-    },
+    headers: <String, String>{'Authorization': '${token.token_type} ${token.access_token}'},
   );
 
   if (response.statusCode != 200) {

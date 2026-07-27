@@ -9,17 +9,17 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  const String testString = 'hello world';
-  const bool testBool = true;
-  const int testInt = 42;
-  const double testDouble = 3.14159;
-  const List<String> testList = <String>['foo', 'bar'];
+  const testString = 'hello world';
+  const testBool = true;
+  const testInt = 42;
+  const testDouble = 3.14159;
+  const testList = <String>['foo', 'bar'];
 
-  const String testString2 = 'goodbye world';
-  const bool testBool2 = false;
-  const int testInt2 = 1337;
-  const double testDouble2 = 2.71828;
-  const List<String> testList2 = <String>['baz', 'qux'];
+  const testString2 = 'goodbye world';
+  const testBool2 = false;
+  const testInt2 = 1337;
+  const testDouble2 = 2.71828;
+  const testList2 = <String>['baz', 'qux'];
 
   group('shared_preferences', () {
     late SharedPreferences preferences;
@@ -56,7 +56,7 @@ void main() {
       });
 
       testWidgets('removing', (WidgetTester _) async {
-        const String key = 'testKey';
+        const key = 'testKey';
         await preferences.setString(key, testString);
         await preferences.remove(key);
         expect(preferences.get('testKey'), isNull);
@@ -77,9 +77,9 @@ void main() {
       });
 
       testWidgets('simultaneous writes', (WidgetTester _) async {
-        final List<Future<bool>> writes = <Future<bool>>[];
-        const int writeCount = 100;
-        for (int i = 1; i <= writeCount; i++) {
+        final writes = <Future<bool>>[];
+        const writeCount = 100;
+        for (var i = 1; i <= writeCount; i++) {
           writes.add(preferences.setInt('int', i));
         }
         final List<bool> result = await Future.wait(writes, eagerError: true);
@@ -134,12 +134,12 @@ void main() {
     });
 
     testWidgets('allowList only gets allowed items', (WidgetTester _) async {
-      const String allowedString = 'stringKey';
-      const String allowedBool = 'boolKey';
-      const String notAllowedDouble = 'doubleKey';
-      const String resultString = 'resultString';
+      const allowedString = 'stringKey';
+      const allowedBool = 'boolKey';
+      const notAllowedDouble = 'doubleKey';
+      const resultString = 'resultString';
 
-      const Set<String> allowList = <String>{allowedString, allowedBool};
+      const allowList = <String>{allowedString, allowedBool};
 
       SharedPreferences.resetStatic();
       SharedPreferences.setPrefix('', allowList: allowList);
@@ -164,21 +164,21 @@ void main() {
   });
 
   group('shared_preferences_async', () {
-    const String stringKey = 'testString';
-    const String boolKey = 'testBool';
-    const String intKey = 'testInt';
-    const String doubleKey = 'testDouble';
-    const String listKey = 'testList';
+    const stringKey = 'testString';
+    const boolKey = 'testBool';
+    const intKey = 'testInt';
+    const doubleKey = 'testDouble';
+    const listKey = 'testList';
 
-    const String testString = 'hello world';
-    const bool testBool = true;
-    const int testInt = 42;
-    const double testDouble = 3.14159;
-    const List<String> testList = <String>['foo', 'bar'];
+    const testString = 'hello world';
+    const testBool = true;
+    const testInt = 42;
+    const testDouble = 3.14159;
+    const testList = <String>['foo', 'bar'];
 
     group('Async', () {
       Future<SharedPreferencesAsync> getPreferences() async {
-        final SharedPreferencesAsync preferences = SharedPreferencesAsync();
+        final preferences = SharedPreferencesAsync();
         await preferences.clear();
         return preferences;
       }
@@ -307,7 +307,7 @@ void main() {
 
       testWidgets('containsKey', (WidgetTester _) async {
         final SharedPreferencesAsync preferences = await getPreferences();
-        const String key = 'testKey';
+        const key = 'testKey';
 
         expect(false, await preferences.containsKey(key));
 
@@ -360,17 +360,16 @@ void main() {
         }, throwsA(isA<TypeError>()));
       });
 
-      testWidgets(
-        'throws TypeError when returned getString type is incorrect',
-        (WidgetTester _) async {
-          final SharedPreferencesAsync preferences = await getPreferences();
-          await preferences.setInt(stringKey, testInt);
+      testWidgets('throws TypeError when returned getString type is incorrect', (
+        WidgetTester _,
+      ) async {
+        final SharedPreferencesAsync preferences = await getPreferences();
+        await preferences.setInt(stringKey, testInt);
 
-          expect(() async {
-            await preferences.getString(stringKey);
-          }, throwsA(isA<TypeError>()));
-        },
-      );
+        expect(() async {
+          await preferences.getString(stringKey);
+        }, throwsA(isA<TypeError>()));
+      });
 
       testWidgets('throws TypeError when returned getInt type is incorrect', (
         WidgetTester _,
@@ -383,89 +382,78 @@ void main() {
         }, throwsA(isA<TypeError>()));
       });
 
-      testWidgets(
-        'throws TypeError when returned getDouble type is incorrect',
-        (WidgetTester _) async {
-          final SharedPreferencesAsync preferences = await getPreferences();
-          await preferences.setString(stringKey, testString);
+      testWidgets('throws TypeError when returned getDouble type is incorrect', (
+        WidgetTester _,
+      ) async {
+        final SharedPreferencesAsync preferences = await getPreferences();
+        await preferences.setString(stringKey, testString);
 
-          expect(() async {
-            await preferences.getDouble(stringKey);
-          }, throwsA(isA<TypeError>()));
-        },
-      );
+        expect(() async {
+          await preferences.getDouble(stringKey);
+        }, throwsA(isA<TypeError>()));
+      });
 
-      testWidgets(
-        'throws TypeError when returned getStringList type is incorrect',
-        (WidgetTester _) async {
-          final SharedPreferencesAsync preferences = await getPreferences();
-          await preferences.setString(stringKey, testString);
+      testWidgets('throws TypeError when returned getStringList type is incorrect', (
+        WidgetTester _,
+      ) async {
+        final SharedPreferencesAsync preferences = await getPreferences();
+        await preferences.setString(stringKey, testString);
 
-          expect(() async {
-            await preferences.getStringList(stringKey);
-          }, throwsA(isA<TypeError>()));
-        },
-      );
+        expect(() async {
+          await preferences.getStringList(stringKey);
+        }, throwsA(isA<TypeError>()));
+      });
     });
 
     group('withCache', () {
-      Future<(SharedPreferencesWithCache, Map<String, Object?>)>
-      getPreferences() async {
-        final Map<String, Object?> cache = <String, Object?>{};
-        final SharedPreferencesWithCache preferences =
-            await SharedPreferencesWithCache.create(
-              cache: cache,
-              cacheOptions: const SharedPreferencesWithCacheOptions(),
-            );
+      Future<(SharedPreferencesWithCache, Map<String, Object?>)> getPreferences() async {
+        final cache = <String, Object?>{};
+        final SharedPreferencesWithCache preferences = await SharedPreferencesWithCache.create(
+          cache: cache,
+          cacheOptions: const SharedPreferencesWithCacheOptions(),
+        );
         await preferences.clear();
         return (preferences, cache);
       }
 
       testWidgets('set and get String', (WidgetTester _) async {
-        final (SharedPreferencesWithCache preferences, _) =
-            await getPreferences();
+        final (SharedPreferencesWithCache preferences, _) = await getPreferences();
 
         await preferences.setString(stringKey, testString);
         expect(preferences.getString(stringKey), testString);
       });
 
       testWidgets('set and get bool', (WidgetTester _) async {
-        final (SharedPreferencesWithCache preferences, _) =
-            await getPreferences();
+        final (SharedPreferencesWithCache preferences, _) = await getPreferences();
 
         await preferences.setBool(boolKey, testBool);
         expect(preferences.getBool(boolKey), testBool);
       });
 
       testWidgets('set and get int', (WidgetTester _) async {
-        final (SharedPreferencesWithCache preferences, _) =
-            await getPreferences();
+        final (SharedPreferencesWithCache preferences, _) = await getPreferences();
 
         await preferences.setInt(intKey, testInt);
         expect(preferences.getInt(intKey), testInt);
       });
 
       testWidgets('set and get double', (WidgetTester _) async {
-        final (SharedPreferencesWithCache preferences, _) =
-            await getPreferences();
+        final (SharedPreferencesWithCache preferences, _) = await getPreferences();
 
         await preferences.setDouble(doubleKey, testDouble);
         expect(preferences.getDouble(doubleKey), testDouble);
       });
 
       testWidgets('set and get StringList', (WidgetTester _) async {
-        final (SharedPreferencesWithCache preferences, _) =
-            await getPreferences();
+        final (SharedPreferencesWithCache preferences, _) = await getPreferences();
 
         await preferences.setStringList(listKey, testList);
         expect(preferences.getStringList(listKey), testList);
       });
 
       testWidgets('reloading', (WidgetTester _) async {
-        final (
-          SharedPreferencesWithCache preferences,
-          Map<String, Object?> cache,
-        ) = await getPreferences();
+        final (SharedPreferencesWithCache preferences, Map<String, Object?> cache) =
+            await getPreferences();
         await preferences.clear();
         await preferences.setString(stringKey, testString);
         expect(preferences.getString(stringKey), testString);
@@ -478,9 +466,8 @@ void main() {
       });
 
       testWidgets('containsKey', (WidgetTester _) async {
-        final (SharedPreferencesWithCache preferences, _) =
-            await getPreferences();
-        const String key = 'testKey';
+        final (SharedPreferencesWithCache preferences, _) = await getPreferences();
+        const key = 'testKey';
 
         expect(false, preferences.containsKey(key));
 
@@ -489,8 +476,7 @@ void main() {
       });
 
       testWidgets('getKeys', (WidgetTester _) async {
-        final (SharedPreferencesWithCache preferences, _) =
-            await getPreferences();
+        final (SharedPreferencesWithCache preferences, _) = await getPreferences();
         await Future.wait(<Future<void>>[
           preferences.setString(stringKey, testString),
           preferences.setBool(boolKey, testBool),
@@ -510,8 +496,7 @@ void main() {
       });
 
       testWidgets('clear', (WidgetTester _) async {
-        final (SharedPreferencesWithCache preferences, _) =
-            await getPreferences();
+        final (SharedPreferencesWithCache preferences, _) = await getPreferences();
         await Future.wait(<Future<void>>[
           preferences.setString(stringKey, testString),
           preferences.setBool(boolKey, testBool),
@@ -529,96 +514,71 @@ void main() {
     });
 
     group('withCache with filter', () {
-      Future<(SharedPreferencesWithCache, Map<String, Object?>)>
-      getPreferences() async {
-        final Map<String, Object?> cache = <String, Object?>{};
-        final SharedPreferencesWithCache preferences =
-            await SharedPreferencesWithCache.create(
-              cache: cache,
-              cacheOptions: const SharedPreferencesWithCacheOptions(
-                allowList: <String>{
-                  stringKey,
-                  boolKey,
-                  intKey,
-                  doubleKey,
-                  listKey,
-                },
-              ),
-            );
+      Future<(SharedPreferencesWithCache, Map<String, Object?>)> getPreferences() async {
+        final cache = <String, Object?>{};
+        final SharedPreferencesWithCache preferences = await SharedPreferencesWithCache.create(
+          cache: cache,
+          cacheOptions: const SharedPreferencesWithCacheOptions(
+            allowList: <String>{stringKey, boolKey, intKey, doubleKey, listKey},
+          ),
+        );
         await preferences.clear();
         return (preferences, cache);
       }
 
-      testWidgets('throws ArgumentError if key is not included in filter', (
-        WidgetTester _,
-      ) async {
-        final (SharedPreferencesWithCache preferences, _) =
-            await getPreferences();
-        const String key = 'testKey';
+      testWidgets('throws ArgumentError if key is not included in filter', (WidgetTester _) async {
+        final (SharedPreferencesWithCache preferences, _) = await getPreferences();
+        const key = 'testKey';
 
-        expect(
-          () async => preferences.setString(key, 'test'),
-          throwsArgumentError,
-        );
+        expect(() async => preferences.setString(key, 'test'), throwsArgumentError);
       });
 
       testWidgets('set and get String', (WidgetTester _) async {
-        final (SharedPreferencesWithCache preferences, _) =
-            await getPreferences();
+        final (SharedPreferencesWithCache preferences, _) = await getPreferences();
 
         await preferences.setString(stringKey, testString);
         expect(preferences.getString(stringKey), testString);
       });
 
       testWidgets('set and get bool', (WidgetTester _) async {
-        final (SharedPreferencesWithCache preferences, _) =
-            await getPreferences();
+        final (SharedPreferencesWithCache preferences, _) = await getPreferences();
 
         await preferences.setBool(boolKey, testBool);
         expect(preferences.getBool(boolKey), testBool);
       });
 
       testWidgets('set and get int', (WidgetTester _) async {
-        final (SharedPreferencesWithCache preferences, _) =
-            await getPreferences();
+        final (SharedPreferencesWithCache preferences, _) = await getPreferences();
 
         await preferences.setInt(intKey, testInt);
         expect(preferences.getInt(intKey), testInt);
       });
 
       testWidgets('set and get double', (WidgetTester _) async {
-        final (SharedPreferencesWithCache preferences, _) =
-            await getPreferences();
+        final (SharedPreferencesWithCache preferences, _) = await getPreferences();
 
         await preferences.setDouble(doubleKey, testDouble);
         expect(preferences.getDouble(doubleKey), testDouble);
       });
 
       testWidgets('set and get StringList', (WidgetTester _) async {
-        final (SharedPreferencesWithCache preferences, _) =
-            await getPreferences();
+        final (SharedPreferencesWithCache preferences, _) = await getPreferences();
 
         await preferences.setStringList(listKey, testList);
         expect(preferences.getStringList(listKey), testList);
       });
 
-      testWidgets('get StringList handles List<Object?>', (
-        WidgetTester _,
-      ) async {
-        final (
-          SharedPreferencesWithCache preferences,
-          Map<String, Object?> cache,
-        ) = await getPreferences();
-        final List<Object?> listObject = <Object?>['one', 'two'];
+      testWidgets('get StringList handles List<Object?>', (WidgetTester _) async {
+        final (SharedPreferencesWithCache preferences, Map<String, Object?> cache) =
+            await getPreferences();
+        final listObject = <Object?>['one', 'two'];
         cache[listKey] = listObject;
         expect(preferences.getStringList(listKey), listObject);
       });
 
       testWidgets('reloading', (WidgetTester _) async {
-        final (
-          SharedPreferencesWithCache preferences,
-          Map<String, Object?> cache,
-        ) = await getPreferences();
+        final (SharedPreferencesWithCache preferences, Map<String, Object?> cache) =
+            await getPreferences();
         await preferences.clear();
         await preferences.setString(stringKey, testString);
         expect(preferences.getString(stringKey), testString);
@@ -631,8 +591,7 @@ void main() {
       });
 
       testWidgets('containsKey', (WidgetTester _) async {
-        final (SharedPreferencesWithCache preferences, _) =
-            await getPreferences();
+        final (SharedPreferencesWithCache preferences, _) = await getPreferences();
 
         expect(false, preferences.containsKey(stringKey));
 
@@ -641,8 +600,7 @@ void main() {
       });
 
       testWidgets('getKeys', (WidgetTester _) async {
-        final (SharedPreferencesWithCache preferences, _) =
-            await getPreferences();
+        final (SharedPreferencesWithCache preferences, _) = await getPreferences();
         await Future.wait(<Future<void>>[
           preferences.setString(stringKey, testString),
           preferences.setBool(boolKey, testBool),
@@ -662,8 +620,7 @@ void main() {
       });
 
       testWidgets('clear', (WidgetTester _) async {
-        final (SharedPreferencesWithCache preferences, _) =
-            await getPreferences();
+        final (SharedPreferencesWithCache preferences, _) = await getPreferences();
         await Future.wait(<Future<void>>[
           preferences.setString(stringKey, testString),
           preferences.setBool(boolKey, testBool),

@@ -34,30 +34,33 @@ class UpdateDependencyCommand extends PackageLoopingCommand {
     super.processRunner,
     super.gitDir,
     http.Client? httpClient,
-  }) : _pubVersionFinder =
-            PubVersionFinder(httpClient: httpClient ?? http.Client()) {
+  }) : _pubVersionFinder = PubVersionFinder(httpClient: httpClient ?? http.Client()) {
+    argParser.addOption(_pubPackageFlag, help: 'A pub package to update.');
     argParser.addOption(
-      _pubPackageFlag,
-      help: 'A pub package to update.',
+      _androidDependency,
+      help: 'An Android dependency to update.',
+      allowed: <String>[
+        _AndroidDependencyType.gradle,
+        _AndroidDependencyType.androidGradlePlugin,
+        _AndroidDependencyType.kotlinGradlePlugin,
+        _AndroidDependencyType.compileSdk,
+        _AndroidDependencyType.compileSdkForExamples,
+      ],
+      allowedHelp: <String, String>{
+        _AndroidDependencyType.gradle: 'Updates Gradle version used in plugin example apps.',
+        _AndroidDependencyType.androidGradlePlugin:
+            'Updates AGP version used in plugin example apps.',
+        _AndroidDependencyType.kotlinGradlePlugin:
+            'Updates KGP version used in plugin example apps.',
+        _AndroidDependencyType.compileSdk: 'Updates compileSdk version used to compile plugins.',
+        _AndroidDependencyType.compileSdkForExamples:
+            'Updates compileSdk version used to compile plugin examples.',
+      },
     );
-    argParser.addOption(_androidDependency,
-        help: 'An Android dependency to update.',
-        allowed: <String>[
-          _AndroidDepdencyType.gradle,
-          _AndroidDepdencyType.compileSdk,
-          _AndroidDepdencyType.compileSdkForExamples,
-        ],
-        allowedHelp: <String, String>{
-          _AndroidDepdencyType.gradle:
-              'Updates Gradle version used in plugin example apps.',
-          _AndroidDepdencyType.compileSdk:
-              'Updates compileSdk version used to compile plugins.',
-          _AndroidDepdencyType.compileSdkForExamples:
-              'Updates compileSdk version used to compile plugin examples.',
-        });
     argParser.addOption(
       _versionFlag,
-      help: 'The version to update to.\n\n'
+      help:
+          'The version to update to.\n\n'
           '- For pub, defaults to the latest published version if not '
           'provided. This can be any constraint that pubspec.yaml allows; a '
           'specific version will be treated as the exact version for '
@@ -87,20 +90,16 @@ class UpdateDependencyCommand extends PackageLoopingCommand {
   bool get hasLongOutput => false;
 
   @override
-  PackageLoopingType get packageLoopingType =>
-      PackageLoopingType.includeAllSubpackages;
+  PackageLoopingType get packageLoopingType => PackageLoopingType.includeAllSubpackages;
 
   @override
   Future<void> initializeRun() async {
-    const Set<String> targetFlags = <String>{
-      _pubPackageFlag,
-      _androidDependency
-    };
-    final Set<String> passedTargetFlags =
-        targetFlags.where((String flag) => argResults![flag] != null).toSet();
+    const targetFlags = <String>{_pubPackageFlag, _androidDependency};
+    final Set<String> passedTargetFlags = targetFlags
+        .where((String flag) => argResults![flag] != null)
+        .toSet();
     if (passedTargetFlags.length != 1) {
-      printError(
-          'Exactly one of the target flags must be provided: (${targetFlags.join(', ')})');
+      printError('Exactly one of the target flags must be provided: (${targetFlags.join(', ')})');
       throw ToolExit(_exitIncorrectTargetDependency);
     }
 
@@ -109,8 +108,9 @@ class UpdateDependencyCommand extends PackageLoopingCommand {
     if (_targetPubPackage != null) {
       final String? version = getNullableStringArg(_versionFlag);
       if (version == null) {
-        final PubVersionFinderResponse response = await _pubVersionFinder
-            .getPackageVersion(packageName: _targetPubPackage!);
+        final PubVersionFinderResponse response = await _pubVersionFinder.getPackageVersion(
+          packageName: _targetPubPackage,
+        );
         switch (response.result) {
           case PubVersionFinderResult.success:
             _targetVersion = response.versions.first.toString();
@@ -137,30 +137,41 @@ ${response.httpResponse.body}
       if (version == null) {
         printError('A version must be provided to update this dependency.');
         throw ToolExit(_exitNoTargetVersion);
-      } else if (_targetAndroidDependency == _AndroidDepdencyType.gradle) {
-        final RegExp validGradleVersionPattern = RegExp(r'^\d+(?:\.\d+){1,2}$');
-        final bool isValidGradleVersion =
-            validGradleVersionPattern.stringMatch(version) == version;
-        if (!isValidGradleVersion) {
-          printError(
-              'A version with a valid format (maximum 2-3 numbers separated by period) must be provided.');
+      } else if (_targetAndroidDependency == _AndroidDependencyType.gradle ||
+          _targetAndroidDependency == _AndroidDependencyType.androidGradlePlugin) {
+        final validGradleAGPVersionPattern = RegExp(r'^\d{1,2}\.\d{1,2}(?:\.\d)?$');
+        final isValidGradleAGPVersion =
+            validGradleAGPVersionPattern.stringMatch(version) == version;
+        if (!isValidGradleAGPVersion) {
+          printError('''
+A version with a valid format (maximum 2-3 numbers separated by 1-2 periods) must be provided.
+            1. The first number must have one or two digits
+            2. The second number must have one or two digits
+            3. If present, the third number must have a single digit''');
           throw ToolExit(_exitInvalidTargetVersion);
         }
-      } else if (_targetAndroidDependency == _AndroidDepdencyType.compileSdk ||
-          _targetAndroidDependency ==
-              _AndroidDepdencyType.compileSdkForExamples) {
-        final RegExp validSdkVersion = RegExp(r'^\d{1,2}$');
-        final bool isValidSdkVersion =
-            validSdkVersion.stringMatch(version) == version;
+      } else if (_targetAndroidDependency == _AndroidDependencyType.kotlinGradlePlugin) {
+        final validKgpVersionPattern = RegExp(r'^\d\.\d\.\d{1,2}$');
+        final isValidKgpVersion = validKgpVersionPattern.stringMatch(version) == version;
+        if (!isValidKgpVersion) {
+          printError('''
+A version with a valid format (3 numbers separated by 2 periods) must be provided.
+            1. The first number must have one digit
+            2. The second number must have one digit
+            3. The third number must have one or two digits''');
+          throw ToolExit(_exitInvalidTargetVersion);
+        }
+      } else if (_targetAndroidDependency == _AndroidDependencyType.compileSdk ||
+          _targetAndroidDependency == _AndroidDependencyType.compileSdkForExamples) {
+        final validSdkVersion = RegExp(r'^\d{1,2}$');
+        final isValidSdkVersion = validSdkVersion.stringMatch(version) == version;
         if (!isValidSdkVersion) {
-          printError(
-              'A valid Android SDK version number (1-2 digit numbers) must be provided.');
+          printError('A valid Android SDK version number (1-2 digit numbers) must be provided.');
           throw ToolExit(_exitInvalidTargetVersion);
         }
       } else {
         // TODO(camsim99): Add other supported Android dependencies like the min/target Android SDK and AGP.
-        printError(
-            'Target Android dependency $_targetAndroidDependency is unrecognized.');
+        printError('Target Android dependency $_targetAndroidDependency is unrecognized.');
         throw ToolExit(_exitIncorrectTargetDependency);
       }
       _targetVersion = version;
@@ -175,7 +186,7 @@ ${response.httpResponse.body}
   @override
   Future<PackageResult> runForPackage(RepositoryPackage package) async {
     if (_targetPubPackage != null) {
-      return _runForPubDependency(package, _targetPubPackage!);
+      return _runForPubDependency(package, _targetPubPackage);
     }
     if (_targetAndroidDependency != null) {
       return _runForAndroidDependency(package);
@@ -188,10 +199,8 @@ ${response.httpResponse.body}
 
   /// Handles all of the updates for [package] when the target dependency is
   /// a pub dependency.
-  Future<PackageResult> _runForPubDependency(
-      RepositoryPackage package, String dependency) async {
-    final _PubDependencyInfo? dependencyInfo =
-        _getPubDependencyInfo(package, dependency);
+  Future<PackageResult> _runForPubDependency(RepositoryPackage package, String dependency) async {
+    final _PubDependencyInfo? dependencyInfo = _getPubDependencyInfo(package, dependency);
     if (dependencyInfo == null) {
       return PackageResult.skip('Does not depend on $dependency');
     } else if (!dependencyInfo.hosted) {
@@ -199,12 +208,11 @@ ${response.httpResponse.body}
     }
 
     // Determine the target version constraint.
-    final String sectionKey = dependencyInfo.type == _PubDependencyType.dev
+    final sectionKey = dependencyInfo.type == _PubDependencyType.dev
         ? 'dev_dependencies'
         : 'dependencies';
     final String versionString;
-    final VersionConstraint parsedConstraint =
-        VersionConstraint.parse(_targetVersion);
+    final parsedConstraint = VersionConstraint.parse(_targetVersion);
     // If the provided string was a constraint, or if it's a specific
     // version but the package has a pinned dependency, use it as-is.
     if (dependencyInfo.pinned ||
@@ -222,12 +230,8 @@ ${response.httpResponse.body}
     if (versionString == dependencyInfo.constraintString) {
       return PackageResult.skip('Already depends on $versionString');
     }
-    final YamlEditor editablePubspec =
-        YamlEditor(package.pubspecFile.readAsStringSync());
-    editablePubspec.update(
-      <String>[sectionKey, dependency],
-      versionString,
-    );
+    final editablePubspec = YamlEditor(package.pubspecFile.readAsStringSync());
+    editablePubspec.update(<String>[sectionKey, dependency], versionString);
     package.pubspecFile.writeAsStringSync(editablePubspec.toString());
 
     // Do any dependency-specific extra processing.
@@ -248,91 +252,109 @@ ${response.httpResponse.body}
 
   /// Handles all of the updates for [package] when the target dependency is
   /// an Android dependency.
-  Future<PackageResult> _runForAndroidDependency(
-      RepositoryPackage package) async {
-    if (_targetAndroidDependency == _AndroidDepdencyType.compileSdk) {
+  Future<PackageResult> _runForAndroidDependency(RepositoryPackage package) async {
+    if (_targetAndroidDependency == _AndroidDependencyType.compileSdk) {
       return _runForCompileSdkVersion(package);
-    } else if (_targetAndroidDependency == _AndroidDepdencyType.gradle ||
-        _targetAndroidDependency ==
-            _AndroidDepdencyType.compileSdkForExamples) {
+    } else if (_targetAndroidDependency == _AndroidDependencyType.gradle ||
+        _targetAndroidDependency == _AndroidDependencyType.compileSdkForExamples ||
+        _targetAndroidDependency == _AndroidDependencyType.androidGradlePlugin ||
+        _targetAndroidDependency == _AndroidDependencyType.kotlinGradlePlugin) {
       return _runForAndroidDependencyOnExamples(package);
     }
 
     return PackageResult.fail(<String>[
-      'Target Android dependency $_androidDependency is unrecognized.'
+      'Target Android dependency $_androidDependency is unrecognized.',
     ]);
   }
 
-  Future<PackageResult> _runForAndroidDependencyOnExamples(
-      RepositoryPackage package) async {
+  Future<PackageResult> _runForAndroidDependencyOnExamples(RepositoryPackage package) async {
     final Iterable<RepositoryPackage> packageExamples = package.getExamples();
-    bool updateRanForExamples = false;
-    for (final RepositoryPackage example in packageExamples) {
+    var updateRanForExamples = false;
+    for (final example in packageExamples) {
       if (!example.platformDirectory(FlutterPlatform.android).existsSync()) {
         continue;
       }
 
       updateRanForExamples = true;
-      final Directory androidDirectory =
-          example.platformDirectory(FlutterPlatform.android);
-      final List<File> filesToUpdate = <File>[];
+      final Directory androidDirectory = example.platformDirectory(FlutterPlatform.android);
+      final filesToUpdate = <File>[];
       final RegExp dependencyVersionPattern;
       final String newDependencyVersionEntry;
 
-      if (_targetAndroidDependency == _AndroidDepdencyType.gradle) {
-        if (androidDirectory
-            .childDirectory('gradle')
-            .childDirectory('wrapper')
-            .existsSync()) {
-          filesToUpdate.add(androidDirectory
-              .childDirectory('gradle')
-              .childDirectory('wrapper')
-              .childFile('gradle-wrapper.properties'));
+      if (_targetAndroidDependency == _AndroidDependencyType.gradle) {
+        if (androidDirectory.childDirectory('gradle').childDirectory('wrapper').existsSync()) {
+          filesToUpdate.add(
+            androidDirectory
+                .childDirectory('gradle')
+                .childDirectory('wrapper')
+                .childFile('gradle-wrapper.properties'),
+          );
         }
         if (androidDirectory
             .childDirectory('app')
             .childDirectory('gradle')
             .childDirectory('wrapper')
             .existsSync()) {
-          filesToUpdate.add(androidDirectory
-              .childDirectory('app')
-              .childDirectory('gradle')
-              .childDirectory('wrapper')
-              .childFile('gradle-wrapper.properties'));
+          filesToUpdate.add(
+            androidDirectory
+                .childDirectory('app')
+                .childDirectory('gradle')
+                .childDirectory('wrapper')
+                .childFile('gradle-wrapper.properties'),
+          );
         }
-        dependencyVersionPattern =
-            RegExp(r'^\s*distributionUrl\s*=\s*.*\.zip', multiLine: true);
+        dependencyVersionPattern = RegExp(r'^\s*distributionUrl\s*=\s*.*\.zip', multiLine: true);
         // TODO(camsim99): Validate current AGP version against target Gradle
         // version: https://github.com/flutter/flutter/issues/133887.
         newDependencyVersionEntry =
             'distributionUrl=https\\://services.gradle.org/distributions/gradle-$_targetVersion-all.zip';
-      } else if (_targetAndroidDependency ==
-          _AndroidDepdencyType.compileSdkForExamples) {
-        filesToUpdate.add(
-            androidDirectory.childDirectory('app').childFile('build.gradle'));
+      } else if (_targetAndroidDependency == _AndroidDependencyType.compileSdkForExamples) {
+        filesToUpdate.add(androidDirectory.childDirectory('app').childFile('build.gradle'));
         dependencyVersionPattern = RegExp(
-            r'(compileSdk|compileSdkVersion) (\d{1,2}|flutter.compileSdkVersion)');
+          r'(compileSdk|compileSdkVersion) (\d{1,2}|flutter.compileSdkVersion)',
+        );
         newDependencyVersionEntry = 'compileSdk $_targetVersion';
+      } else if (_targetAndroidDependency == _AndroidDependencyType.androidGradlePlugin) {
+        if (androidDirectory.childFile('settings.gradle').existsSync()) {
+          filesToUpdate.add(androidDirectory.childFile('settings.gradle'));
+        }
+        dependencyVersionPattern = RegExp(
+          r'^\s*id\s+"com\.android\.application"\s+version\s+"(\d{1,2}\.\d{1,2}(?:\.\d)?)"\s+apply\s+false\s*$',
+          multiLine: true,
+        );
+        newDependencyVersionEntry =
+            'id "com.android.application" version "$_targetVersion" apply false';
+      } else if (_targetAndroidDependency == _AndroidDependencyType.kotlinGradlePlugin) {
+        if (androidDirectory.childFile('settings.gradle').existsSync()) {
+          filesToUpdate.add(androidDirectory.childFile('settings.gradle'));
+        }
+        dependencyVersionPattern = RegExp(
+          r'^\s*id\s+"org\.jetbrains\.kotlin\.android"\s+version\s+"(\d\.\d\.\d{1,2})"\s+apply\s+false\s*$',
+          multiLine: true,
+        );
+        newDependencyVersionEntry =
+            '    id "org.jetbrains.kotlin.android" version "$_targetVersion" apply false';
       } else {
-        printError(
-            'Target Android dependency $_targetAndroidDependency is unrecognized.');
+        printError('Target Android dependency $_targetAndroidDependency is unrecognized.');
         throw ToolExit(_exitIncorrectTargetDependency);
       }
 
-      for (final File fileToUpdate in filesToUpdate) {
+      for (final fileToUpdate in filesToUpdate) {
         final String oldFileToUpdateContents = fileToUpdate.readAsStringSync();
 
         if (!dependencyVersionPattern.hasMatch(oldFileToUpdateContents)) {
           return PackageResult.fail(<String>[
-            'Unable to find a $_targetAndroidDependency version entry to update for ${example.displayName}.'
+            'Unable to find a $_targetAndroidDependency version entry to update for ${example.displayName}.',
           ]);
         }
 
         print(
-            '${indentation}Updating ${getRelativePosixPath(example.directory, from: package.directory)} to "$_targetVersion"');
-        final String newGradleWrapperPropertiesContents =
-            oldFileToUpdateContents.replaceFirst(
-                dependencyVersionPattern, newDependencyVersionEntry);
+          '${indentation}Updating ${getRelativePosixPath(example.directory, from: package.directory)} to "$_targetVersion"',
+        );
+        final String newGradleWrapperPropertiesContents = oldFileToUpdateContents.replaceFirst(
+          dependencyVersionPattern,
+          newDependencyVersionEntry,
+        );
 
         fileToUpdate.writeAsStringSync(newGradleWrapperPropertiesContents);
       }
@@ -342,32 +364,31 @@ ${response.httpResponse.body}
         : PackageResult.skip('No example apps run on Android.');
   }
 
-  Future<PackageResult> _runForCompileSdkVersion(
-      RepositoryPackage package) async {
+  Future<PackageResult> _runForCompileSdkVersion(RepositoryPackage package) async {
     if (!package.platformDirectory(FlutterPlatform.android).existsSync()) {
-      return PackageResult.skip(
-          'Package ${package.displayName} does not run on Android.');
+      return PackageResult.skip('Package ${package.displayName} does not run on Android.');
     } else if (package.isExample) {
       // We skip examples for this command.
       return PackageResult.skip(
-          'Package ${package.displayName} is not a top-level package; run with "compileSdkForExamples" to update.');
+        'Package ${package.displayName} is not a top-level package; run with "compileSdkForExamples" to update.',
+      );
     }
     final File buildConfigurationFile = package
         .platformDirectory(FlutterPlatform.android)
         .childFile('build.gradle');
-    final String buildConfigurationContents =
-        buildConfigurationFile.readAsStringSync();
-    final RegExp validCompileSdkVersion =
-        RegExp(r'(compileSdk|compileSdkVersion) \d{1,2}');
+    final String buildConfigurationContents = buildConfigurationFile.readAsStringSync();
+    final validCompileSdkVersion = RegExp(r'(compileSdk|compileSdkVersion) \d{1,2}');
 
     if (!validCompileSdkVersion.hasMatch(buildConfigurationContents)) {
       return PackageResult.fail(<String>[
-        'Unable to find a compileSdk version entry to update for ${package.displayName}.'
+        'Unable to find a compileSdk version entry to update for ${package.displayName}.',
       ]);
     }
     print('${indentation}Updating ${package.directory} to "$_targetVersion"');
-    final String newBuildConfigurationContents = buildConfigurationContents
-        .replaceFirst(validCompileSdkVersion, 'compileSdk $_targetVersion');
+    final String newBuildConfigurationContents = buildConfigurationContents.replaceFirst(
+      validCompileSdkVersion,
+      'compileSdk $_targetVersion',
+    );
     buildConfigurationFile.writeAsStringSync(newBuildConfigurationContents);
 
     return PackageResult.success();
@@ -375,8 +396,7 @@ ${response.httpResponse.body}
 
   /// Returns information about the current dependency of [package] on
   /// the package named [dependencyName], or null if there is no dependency.
-  _PubDependencyInfo? _getPubDependencyInfo(
-      RepositoryPackage package, String dependencyName) {
+  _PubDependencyInfo? _getPubDependencyInfo(RepositoryPackage package, String dependencyName) {
     final Pubspec pubspec = package.parsePubspec();
 
     Dependency? dependency;
@@ -411,10 +431,9 @@ ${response.httpResponse.body}
     if (!pigeonsDir.existsSync()) {
       return <File>[];
     }
-    return pigeonsDir
-        .listSync()
-        .whereType<File>()
-        .where((File file) => file.basename.endsWith('.dart'));
+    return pigeonsDir.listSync().whereType<File>().where(
+      (File file) => file.basename.endsWith('.dart'),
+    );
   }
 
   /// Re-runs Pigeon generation for [package].
@@ -431,22 +450,25 @@ ${response.httpResponse.body}
     }
 
     print('${indentation}Running pub get...');
-    if (!await runPubGet(package, processRunner, platform,
-        streamOutput: false)) {
+    if (!await runPubGet(package, processRunner, platform, streamOutput: false)) {
       printError('${indentation}Fetching dependencies failed');
       return false;
     }
 
     print('${indentation}Updating Pigeon files...');
-    for (final File input in inputs) {
-      final String relativePath =
-          getRelativePosixPath(input, from: package.directory);
-      final io.ProcessResult pigeonResult = await processRunner.run(
-          'dart', <String>['run', 'pigeon', '--input', relativePath],
-          workingDir: package.directory);
+    for (final input in inputs) {
+      final String relativePath = getRelativePosixPath(input, from: package.directory);
+      final io.ProcessResult pigeonResult = await processRunner.run('dart', <String>[
+        'run',
+        'pigeon',
+        '--input',
+        relativePath,
+      ], workingDir: package.directory);
       if (pigeonResult.exitCode != 0) {
-        printError('dart run pigeon failed (${pigeonResult.exitCode}):\n'
-            '${pigeonResult.stdout}\n${pigeonResult.stderr}\n');
+        printError(
+          'dart run pigeon failed (${pigeonResult.exitCode}):\n'
+          '${pigeonResult.stdout}\n${pigeonResult.stderr}\n',
+        );
         return false;
       }
     }
@@ -457,32 +479,28 @@ ${response.httpResponse.body}
   Future<bool> _regenerateMocks(RepositoryPackage package) async {
     final Pubspec pubspec = package.parsePubspec();
     if (!pubspec.devDependencies.keys.contains('build_runner')) {
-      print(
-          '${indentation}No build_runner dependency; skipping mock regeneration.');
+      print('${indentation}No build_runner dependency; skipping mock regeneration.');
       return true;
     }
 
     print('${indentation}Running pub get...');
-    if (!await runPubGet(package, processRunner, platform,
-        streamOutput: false)) {
+    if (!await runPubGet(package, processRunner, platform, streamOutput: false)) {
       printError('${indentation}Fetching dependencies failed');
       return false;
     }
 
     print('${indentation}Updating mocks...');
-    final io.ProcessResult buildRunnerResult = await processRunner.run(
-        'dart',
-        <String>[
-          'run',
-          'build_runner',
-          'build',
-          '--delete-conflicting-outputs'
-        ],
-        workingDir: package.directory);
+    final io.ProcessResult buildRunnerResult = await processRunner.run('dart', <String>[
+      'run',
+      'build_runner',
+      'build',
+      '--delete-conflicting-outputs',
+    ], workingDir: package.directory);
     if (buildRunnerResult.exitCode != 0) {
       printError(
-          '"dart run build_runner build" failed (${buildRunnerResult.exitCode}):\n'
-          '${buildRunnerResult.stdout}\n${buildRunnerResult.stderr}\n');
+        '"dart run build_runner build" failed (${buildRunnerResult.exitCode}):\n'
+        '${buildRunnerResult.stdout}\n${buildRunnerResult.stderr}\n',
+      );
       return false;
     }
     return true;
@@ -490,8 +508,12 @@ ${response.httpResponse.body}
 }
 
 class _PubDependencyInfo {
-  const _PubDependencyInfo(this.type,
-      {required this.pinned, required this.hosted, this.constraintString});
+  const _PubDependencyInfo(
+    this.type, {
+    required this.pinned,
+    required this.hosted,
+    this.constraintString,
+  });
   final _PubDependencyType type;
   final bool pinned;
   final bool hosted;
@@ -500,8 +522,10 @@ class _PubDependencyInfo {
 
 enum _PubDependencyType { normal, dev }
 
-class _AndroidDepdencyType {
+class _AndroidDependencyType {
   static const String gradle = 'gradle';
+  static const String androidGradlePlugin = 'androidGradlePlugin';
+  static const String kotlinGradlePlugin = 'kotlinGradlePlugin';
   static const String compileSdk = 'compileSdk';
   static const String compileSdkForExamples = 'compileSdkForExamples';
 }

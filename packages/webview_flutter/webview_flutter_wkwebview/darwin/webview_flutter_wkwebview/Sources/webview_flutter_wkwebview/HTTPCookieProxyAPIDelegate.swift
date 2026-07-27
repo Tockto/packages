@@ -14,7 +14,7 @@ class HTTPCookieProxyAPIDelegate: PigeonApiDelegateHTTPCookie {
   ) throws -> HTTPCookie {
     let registrar = pigeonApi.pigeonRegistrar as! ProxyAPIRegistrar
 
-    let keyValueTuples = try! properties.map<[(HTTPCookiePropertyKey, Any)], PigeonError> {
+    let keyValueTuples = try properties.map {
       key, value in
 
       let newKey: HTTPCookiePropertyKey
@@ -110,6 +110,7 @@ class HTTPCookieProxyAPIDelegate: PigeonApiDelegateHTTPCookie {
       return (newKey, value)
     }
 
-    return Dictionary(uniqueKeysWithValues: keyValueTuples)
+    // Use newest value in case of duplicates
+    return Dictionary(keyValueTuples, uniquingKeysWith: { _, last in last })
   }
 }

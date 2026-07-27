@@ -26,12 +26,13 @@ class MyApp extends StatelessWidget {
           appBar: AppBar(
             title: const Text('Google Fonts Demo'),
             bottom: const TabBar(
-              tabs: <Widget>[Tab(text: 'Simple'), Tab(text: 'Select a font')],
+              tabs: <Widget>[
+                Tab(text: 'Simple'),
+                Tab(text: 'Select a font'),
+              ],
             ),
           ),
-          body: const TabBarView(
-            children: <Widget>[ExampleSimple(), ExampleFontSelection()],
-          ),
+          body: const TabBarView(children: <Widget>[ExampleSimple(), ExampleFontSelection()]),
         ),
       ),
     );

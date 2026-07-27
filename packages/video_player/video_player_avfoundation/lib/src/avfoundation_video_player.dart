@@ -8,7 +8,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:video_player_platform_interface/video_player_platform_interface.dart';
 
-import 'messages.g.dart';
+import 'video_player_instance_messages.g.dart';
+import 'video_player_plugin_messages.g.dart';
 
 /// The non-test implementation of `_apiProvider`.
 VideoPlayerInstanceApi _productionApiProvider(int playerId) {
@@ -21,24 +22,16 @@ class AVFoundationVideoPlayer extends VideoPlayerPlatform {
   /// Creates a new AVFoundation-based video player implementation instance.
   AVFoundationVideoPlayer({
     @visibleForTesting AVFoundationVideoPlayerApi? pluginApi,
-    @visibleForTesting
-    VideoPlayerInstanceApi Function(int playerId)? playerProvider,
+    @visibleForTesting VideoPlayerInstanceApi Function(int playerId)? playerApiProvider,
   }) : _api = pluginApi ?? AVFoundationVideoPlayerApi(),
-       _playerProvider = playerProvider ?? _productionApiProvider;
+       _playerApiProvider = playerApiProvider ?? _productionApiProvider;
 
   final AVFoundationVideoPlayerApi _api;
   // A method to create VideoPlayerInstanceApi instances, which can be
   // overridden for testing.
-  final VideoPlayerInstanceApi Function(int mapId) _playerProvider;
+  final VideoPlayerInstanceApi Function(int mapId) _playerApiProvider;
 
-  /// A map that associates player ID with a view state.
-  /// This is used to determine which view type to use when building a view.
-  @visibleForTesting
-  final Map<int, VideoPlayerViewState> playerViewStates =
-      <int, VideoPlayerViewState>{};
-
-  final Map<int, VideoPlayerInstanceApi> _players =
-      <int, VideoPlayerInstanceApi>{};
+  final Map<int, _PlayerInstance> _players = <int, _PlayerInstance>{};
 
   /// Registers this class as the default instance of [VideoPlayerPlatform].
   static void registerWith() {
@@ -52,9 +45,8 @@ class AVFoundationVideoPlayer extends VideoPlayerPlatform {
 
   @override
   Future<void> dispose(int playerId) async {
-    final VideoPlayerInstanceApi? player = _players.remove(playerId);
+    final _PlayerInstance? player = _players.remove(playerId);
     await player?.dispose();
-    playerViewStates.remove(playerId);
   }
 
   @override
@@ -79,9 +71,7 @@ class AVFoundationVideoPlayer extends VideoPlayerPlatform {
       case DataSourceType.asset:
         final String? asset = dataSource.asset;
         if (asset == null) {
-          throw ArgumentError(
-            '"asset" must be non-null for an asset data source',
-          );
+          throw ArgumentError('"asset" must be non-null for an asset data source');
         }
         uri = await _api.getAssetUrl(asset, dataSource.package);
         if (uri == null) {
@@ -100,27 +90,21 @@ class AVFoundationVideoPlayer extends VideoPlayerPlatform {
     if (uri == null) {
       throw ArgumentError('Unable to construct a video asset from $options');
     }
-    final CreationOptions pigeonCreationOptions = CreationOptions(
-      uri: uri,
-      httpHeaders: dataSource.httpHeaders,
-    );
+    final pigeonCreationOptions = CreationOptions(uri: uri, httpHeaders: dataSource.httpHeaders);
 
     final int playerId;
     final VideoPlayerViewState state;
     switch (viewType) {
       case VideoViewType.gpuTextureView:
       case VideoViewType.textureView:
-        final TexturePlayerIds ids = await _api.createForTextureView(
-          pigeonCreationOptions,
-        );
+        final TexturePlayerIds ids = await _api.createForTextureView(pigeonCreationOptions);
         playerId = ids.playerId;
         state = VideoPlayerTextureViewState(textureId: ids.textureId);
       case VideoViewType.platformView:
         playerId = await _api.createForPlatformView(pigeonCreationOptions);
         state = const VideoPlayerPlatformViewState();
     }
-    playerViewStates[playerId] = state;
-    ensureApiInitialized(playerId);
+    ensurePlayerInitialized(playerId, state);
 
     return playerId;
   }
@@ -128,9 +112,16 @@ class AVFoundationVideoPlayer extends VideoPlayerPlatform {
   /// Returns the API instance for [playerId], creating it if it doesn't already
   /// exist.
   @visibleForTesting
-  VideoPlayerInstanceApi ensureApiInitialized(int playerId) {
-    return _players.putIfAbsent(playerId, () {
-      return _playerProvider(playerId);
+  void ensurePlayerInitialized(int playerId, VideoPlayerViewState viewState) {
+    _players.putIfAbsent(playerId, () {
+      return _PlayerInstance(
+        _playerApiProvider(playerId),
+        viewState,
+        eventChannel: EventChannel(
+          // This must match the channel name used in FVPVideoPlayerPlugin.m.
+          'flutter.dev/videoPlayer/videoEvents$playerId',
+        ),
+      );
     });
   }
 
@@ -163,53 +154,144 @@ class AVFoundationVideoPlayer extends VideoPlayerPlatform {
 
   @override
   Future<void> seekTo(int playerId, Duration position) {
-    return _playerWith(id: playerId).seekTo(position.inMilliseconds);
+    return _playerWith(id: playerId).seekTo(position);
   }
 
   @override
   Future<Duration> getPosition(int playerId) async {
-    final int position = await _playerWith(id: playerId).getPosition();
-    return Duration(milliseconds: position);
+    return _playerWith(id: playerId).getPosition();
   }
 
   @override
   Stream<VideoEvent> videoEventsFor(int playerId) {
-    return _eventChannelFor(playerId).receiveBroadcastStream().map((
-      dynamic event,
-    ) {
-      final Map<dynamic, dynamic> map = event as Map<dynamic, dynamic>;
-      return switch (map['event']) {
-        'initialized' => VideoEvent(
-          eventType: VideoEventType.initialized,
-          duration: Duration(milliseconds: map['duration'] as int),
-          size: Size(
-            (map['width'] as num?)?.toDouble() ?? 0.0,
-            (map['height'] as num?)?.toDouble() ?? 0.0,
-          ),
-        ),
-        'completed' => VideoEvent(eventType: VideoEventType.completed),
-        'bufferingUpdate' => VideoEvent(
-          buffered: (map['values'] as List<dynamic>)
-              .map<DurationRange>(_toDurationRange)
-              .toList(),
-          eventType: VideoEventType.bufferingUpdate,
-        ),
-        'bufferingStart' => VideoEvent(
-          eventType: VideoEventType.bufferingStart,
-        ),
-        'bufferingEnd' => VideoEvent(eventType: VideoEventType.bufferingEnd),
-        'isPlayingStateUpdate' => VideoEvent(
-          eventType: VideoEventType.isPlayingStateUpdate,
-          isPlaying: map['isPlaying'] as bool,
-        ),
-        _ => VideoEvent(eventType: VideoEventType.unknown),
-      };
-    });
+    return _playerWith(id: playerId).videoEvents;
   }
 
   @override
   Future<void> setMixWithOthers(bool mixWithOthers) {
     return _api.setMixWithOthers(mixWithOthers);
+  }
+
+  @override
+  Future<void> setPreventsDisplaySleepDuringVideoPlayback(
+    int playerId,
+    bool preventsDisplaySleepDuringVideoPlayback,
+  ) {
+    return _playerWith(
+      id: playerId,
+    ).setPreventsDisplaySleepDuringVideoPlayback(preventsDisplaySleepDuringVideoPlayback);
+  }
+
+  @override
+  Future<List<VideoAudioTrack>> getAudioTracks(int playerId) async {
+    final List<MediaSelectionAudioTrackData> nativeData = await _playerWith(
+      id: playerId,
+    ).getAudioTracks();
+    final tracks = <VideoAudioTrack>[];
+
+    for (final track in nativeData) {
+      final String? label = track.commonMetadataTitle ?? track.displayName;
+      tracks.add(
+        VideoAudioTrack(
+          id: track.index.toString(),
+          label: label,
+          language: track.languageCode,
+          isSelected: track.isSelected,
+        ),
+      );
+    }
+
+    return tracks;
+  }
+
+  @override
+  Future<void> selectAudioTrack(int playerId, String trackId) {
+    final int trackIndex = int.parse(trackId);
+    return _playerWith(id: playerId).selectAudioTrack(trackIndex);
+  }
+
+  @override
+  bool isAudioTrackSupportAvailable() {
+    // iOS/macOS with AVFoundation supports audio track selection
+    return true;
+  }
+
+  @override
+  Future<List<VideoTrack>> getVideoTracks(int playerId) async {
+    final NativeVideoTrackData nativeData = await _playerWith(id: playerId).getVideoTracks();
+    final tracks = <VideoTrack>[];
+
+    // Convert HLS variant tracks (iOS 15+)
+    if (nativeData.mediaSelectionTracks != null) {
+      for (final MediaSelectionVideoTrackData track in nativeData.mediaSelectionTracks!) {
+        // Use bitrate as the track ID for HLS variants
+        final trackId = 'variant_${track.bitrate ?? track.variantIndex}';
+        // Generate label from resolution if not provided
+        final String? label =
+            track.label ??
+            (track.width != null && track.height != null ? '${track.height}p' : null);
+        tracks.add(
+          VideoTrack(
+            id: trackId,
+            isSelected: track.isSelected,
+            label: label,
+            bitrate: track.bitrate,
+            width: track.width,
+            height: track.height,
+            frameRate: track.frameRate,
+            codec: track.codec,
+          ),
+        );
+      }
+    }
+
+    // Convert asset tracks (for regular videos)
+    if (nativeData.assetTracks != null) {
+      for (final AssetVideoTrackData track in nativeData.assetTracks!) {
+        final trackId = 'asset_${track.trackId}';
+        // Generate label from resolution if not provided
+        final String? label =
+            track.label ??
+            (track.width != null && track.height != null ? '${track.height}p' : null);
+        tracks.add(
+          VideoTrack(
+            id: trackId,
+            isSelected: track.isSelected,
+            label: label,
+            width: track.width,
+            height: track.height,
+            frameRate: track.frameRate,
+            codec: track.codec,
+          ),
+        );
+      }
+    }
+
+    return tracks;
+  }
+
+  @override
+  Future<void> selectVideoTrack(int playerId, VideoTrack? track) async {
+    if (track == null) {
+      // Auto quality - pass 0 to clear preferredPeakBitRate
+      await _playerWith(id: playerId).selectVideoTrack(0);
+      return;
+    }
+
+    // Use bitrate directly from the track for HLS quality selection
+    if (track.bitrate != null) {
+      await _playerWith(id: playerId).selectVideoTrack(track.bitrate!);
+      return;
+    }
+
+    // For asset tracks without bitrate, we can't really select them differently
+    // Just ignore the selection for non-HLS content
+  }
+
+  @override
+  bool isVideoTrackSupportAvailable() {
+    // iOS with AVFoundation supports video track selection
+    return true;
   }
 
   @override
@@ -220,22 +302,16 @@ class AVFoundationVideoPlayer extends VideoPlayerPlatform {
   @override
   Widget buildViewWithOptions(VideoViewOptions options) {
     final int playerId = options.playerId;
-    final VideoPlayerViewState? viewState = playerViewStates[playerId];
+    final VideoPlayerViewState viewState = _playerWith(id: playerId).viewState;
 
     return switch (viewState) {
-      VideoPlayerTextureViewState(:final int textureId) => Texture(
-        textureId: textureId,
-      ),
+      VideoPlayerTextureViewState(:final int textureId) => Texture(textureId: textureId),
       VideoPlayerPlatformViewState() => _buildPlatformView(playerId),
-      null => throw Exception(
-        'Could not find corresponding view type for playerId: $playerId',
-      ),
     };
   }
 
   Widget _buildPlatformView(int playerId) {
-    final PlatformVideoViewCreationParams creationParams =
-        PlatformVideoViewCreationParams(playerId: playerId);
+    final creationParams = PlatformVideoViewCreationParams(playerId: playerId);
 
     return IgnorePointer(
       // IgnorePointer so that GestureDetector can be used above the platform view.
@@ -247,19 +323,107 @@ class AVFoundationVideoPlayer extends VideoPlayerPlatform {
     );
   }
 
-  EventChannel _eventChannelFor(int playerId) {
-    return EventChannel('flutter.io/videoPlayer/videoEvents$playerId');
+  _PlayerInstance _playerWith({required int id}) {
+    final _PlayerInstance? player = _players[id];
+    return player ?? (throw StateError('No active player with ID $id.'));
+  }
+}
+
+/// An instance of a video player, corresponding to a single player ID in
+/// [AVFoundationVideoPlayer].
+class _PlayerInstance {
+  _PlayerInstance(this._api, this.viewState, {required EventChannel eventChannel})
+    : _eventChannel = eventChannel;
+
+  final VideoPlayerInstanceApi _api;
+  final VideoPlayerViewState viewState;
+  final EventChannel _eventChannel;
+  final StreamController<VideoEvent> _eventStreamController =
+      StreamController<VideoEvent>.broadcast();
+  StreamSubscription<dynamic>? _eventSubscription;
+
+  Future<void> play() => _api.play();
+
+  Future<void> pause() => _api.pause();
+
+  Future<void> setLooping(bool looping) => _api.setLooping(looping);
+
+  Future<void> setVolume(double volume) => _api.setVolume(volume);
+
+  Future<void> setPlaybackSpeed(double speed) => _api.setPlaybackSpeed(speed);
+
+  Future<void> setPreventsDisplaySleepDuringVideoPlayback(
+    bool preventsDisplaySleepDuringVideoPlayback,
+  ) => _api.setPreventsDisplaySleepDuringVideoPlayback(preventsDisplaySleepDuringVideoPlayback);
+
+  Future<void> seekTo(Duration position) {
+    return _api.seekTo(position.inMilliseconds);
   }
 
-  VideoPlayerInstanceApi _playerWith({required int id}) {
-    final VideoPlayerInstanceApi? player = _players[id];
-    return player ?? (throw StateError('No active player with ID $id.'));
+  Future<Duration> getPosition() async {
+    return Duration(milliseconds: await _api.getPosition());
+  }
+
+  Future<List<MediaSelectionAudioTrackData>> getAudioTracks() => _api.getAudioTracks();
+
+  Future<void> selectAudioTrack(int trackIndex) => _api.selectAudioTrack(trackIndex);
+
+  Stream<VideoEvent> get videoEvents {
+    _eventSubscription ??= _eventChannel.receiveBroadcastStream().listen(
+      _onStreamEvent,
+      onError: (Object e) {
+        _eventStreamController.addError(e);
+      },
+    );
+
+    return _eventStreamController.stream;
+  }
+
+  Future<NativeVideoTrackData> getVideoTracks() {
+    return _api.getVideoTracks();
+  }
+
+  Future<void> selectVideoTrack(int bitrate) {
+    return _api.selectVideoTrack(bitrate);
+  }
+
+  Future<void> dispose() async {
+    await _eventSubscription?.cancel();
+    unawaited(_eventStreamController.close());
+    await _api.dispose();
+  }
+
+  void _onStreamEvent(dynamic event) {
+    final map = event as Map<dynamic, dynamic>;
+    // The strings here must all match the strings in FVPEventBridge.m.
+    _eventStreamController.add(switch (map['event']) {
+      'initialized' => VideoEvent(
+        eventType: VideoEventType.initialized,
+        duration: Duration(milliseconds: map['duration'] as int),
+        size: Size(
+          (map['width'] as num?)?.toDouble() ?? 0.0,
+          (map['height'] as num?)?.toDouble() ?? 0.0,
+        ),
+      ),
+      'completed' => VideoEvent(eventType: VideoEventType.completed),
+      'bufferingUpdate' => VideoEvent(
+        buffered: (map['values'] as List<dynamic>).map<DurationRange>(_toDurationRange).toList(),
+        eventType: VideoEventType.bufferingUpdate,
+      ),
+      'bufferingStart' => VideoEvent(eventType: VideoEventType.bufferingStart),
+      'bufferingEnd' => VideoEvent(eventType: VideoEventType.bufferingEnd),
+      'isPlayingStateUpdate' => VideoEvent(
+        eventType: VideoEventType.isPlayingStateUpdate,
+        isPlaying: map['isPlaying'] as bool,
+      ),
+      _ => VideoEvent(eventType: VideoEventType.unknown),
+    });
   }
 
   DurationRange _toDurationRange(dynamic value) {
-    final List<dynamic> pair = value as List<dynamic>;
-    final int startMilliseconds = pair[0] as int;
-    final int durationMilliseconds = pair[1] as int;
+    final pair = value as List<dynamic>;
+    final startMilliseconds = pair[0] as int;
+    final durationMilliseconds = pair[1] as int;
     return DurationRange(
       Duration(milliseconds: startMilliseconds),
       Duration(milliseconds: startMilliseconds + durationMilliseconds),

@@ -17,6 +17,7 @@ import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 // Import for iOS/macOS features.
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
+
 // #enddocregion platform_imports
 
 void main() => runApp(const MaterialApp(home: WebViewExample()));
@@ -135,8 +136,7 @@ class _WebViewExampleState extends State<WebViewExample> {
       params = const PlatformWebViewControllerCreationParams();
     }
 
-    final WebViewController controller =
-        WebViewController.fromPlatformCreationParams(params);
+    final controller = WebViewController.fromPlatformCreationParams(params);
     // #enddocregion platform_features
 
     controller
@@ -183,9 +183,7 @@ Page resource error:
       ..addJavaScriptChannel(
         'Toaster',
         onMessageReceived: (JavaScriptMessage message) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(message.message)));
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message.message)));
         },
       )
       ..loadRequest(Uri.parse('https://flutter.dev'));
@@ -198,8 +196,7 @@ Page resource error:
     // #docregion platform_features
     if (controller.platform is AndroidWebViewController) {
       AndroidWebViewController.enableDebugging(true);
-      (controller.platform as AndroidWebViewController)
-          .setMediaPlaybackRequiresUserGesture(false);
+      (controller.platform as AndroidWebViewController).setMediaPlaybackRequiresUserGesture(false);
     }
     // #enddocregion platform_features
 
@@ -228,9 +225,7 @@ Page resource error:
       onPressed: () async {
         final String? url = await _controller.currentUrl();
         if (mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text('Favorited $url')));
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Favorited $url')));
         }
       },
       child: const Icon(Icons.favorite),
@@ -238,10 +233,8 @@ Page resource error:
   }
 
   Future<void> openDialog(HttpAuthRequest httpRequest) async {
-    final TextEditingController usernameTextController =
-        TextEditingController();
-    final TextEditingController passwordTextController =
-        TextEditingController();
+    final usernameTextController = TextEditingController();
+    final passwordTextController = TextEditingController();
 
     return showDialog(
       context: context,
@@ -356,70 +349,57 @@ class SampleMenu extends StatelessWidget {
             _promptForUrl(context);
         }
       },
-      itemBuilder:
-          (BuildContext context) => <PopupMenuItem<MenuOptions>>[
-            const PopupMenuItem<MenuOptions>(
-              value: MenuOptions.showUserAgent,
-              child: Text('Show user agent'),
-            ),
-            const PopupMenuItem<MenuOptions>(
-              value: MenuOptions.listCookies,
-              child: Text('List cookies'),
-            ),
-            const PopupMenuItem<MenuOptions>(
-              value: MenuOptions.clearCookies,
-              child: Text('Clear cookies'),
-            ),
-            const PopupMenuItem<MenuOptions>(
-              value: MenuOptions.addToCache,
-              child: Text('Add to cache'),
-            ),
-            const PopupMenuItem<MenuOptions>(
-              value: MenuOptions.listCache,
-              child: Text('List cache'),
-            ),
-            const PopupMenuItem<MenuOptions>(
-              value: MenuOptions.clearCache,
-              child: Text('Clear cache'),
-            ),
-            const PopupMenuItem<MenuOptions>(
-              value: MenuOptions.navigationDelegate,
-              child: Text('Navigation Delegate example'),
-            ),
-            const PopupMenuItem<MenuOptions>(
-              value: MenuOptions.doPostRequest,
-              child: Text('Post Request'),
-            ),
-            const PopupMenuItem<MenuOptions>(
-              value: MenuOptions.loadHtmlString,
-              child: Text('Load HTML string'),
-            ),
-            const PopupMenuItem<MenuOptions>(
-              value: MenuOptions.loadLocalFile,
-              child: Text('Load local file'),
-            ),
-            const PopupMenuItem<MenuOptions>(
-              value: MenuOptions.loadFlutterAsset,
-              child: Text('Load Flutter Asset'),
-            ),
-            const PopupMenuItem<MenuOptions>(
-              key: ValueKey<String>('ShowTransparentBackgroundExample'),
-              value: MenuOptions.transparentBackground,
-              child: Text('Transparent background example'),
-            ),
-            const PopupMenuItem<MenuOptions>(
-              value: MenuOptions.setCookie,
-              child: Text('Set cookie'),
-            ),
-            const PopupMenuItem<MenuOptions>(
-              value: MenuOptions.logExample,
-              child: Text('Log example'),
-            ),
-            const PopupMenuItem<MenuOptions>(
-              value: MenuOptions.basicAuthentication,
-              child: Text('Basic Authentication Example'),
-            ),
-          ],
+      itemBuilder: (BuildContext context) => <PopupMenuItem<MenuOptions>>[
+        const PopupMenuItem<MenuOptions>(
+          value: MenuOptions.showUserAgent,
+          child: Text('Show user agent'),
+        ),
+        const PopupMenuItem<MenuOptions>(
+          value: MenuOptions.listCookies,
+          child: Text('List cookies'),
+        ),
+        const PopupMenuItem<MenuOptions>(
+          value: MenuOptions.clearCookies,
+          child: Text('Clear cookies'),
+        ),
+        const PopupMenuItem<MenuOptions>(
+          value: MenuOptions.addToCache,
+          child: Text('Add to cache'),
+        ),
+        const PopupMenuItem<MenuOptions>(value: MenuOptions.listCache, child: Text('List cache')),
+        const PopupMenuItem<MenuOptions>(value: MenuOptions.clearCache, child: Text('Clear cache')),
+        const PopupMenuItem<MenuOptions>(
+          value: MenuOptions.navigationDelegate,
+          child: Text('Navigation Delegate example'),
+        ),
+        const PopupMenuItem<MenuOptions>(
+          value: MenuOptions.doPostRequest,
+          child: Text('Post Request'),
+        ),
+        const PopupMenuItem<MenuOptions>(
+          value: MenuOptions.loadHtmlString,
+          child: Text('Load HTML string'),
+        ),
+        const PopupMenuItem<MenuOptions>(
+          value: MenuOptions.loadLocalFile,
+          child: Text('Load local file'),
+        ),
+        const PopupMenuItem<MenuOptions>(
+          value: MenuOptions.loadFlutterAsset,
+          child: Text('Load Flutter Asset'),
+        ),
+        const PopupMenuItem<MenuOptions>(
+          key: ValueKey<String>('ShowTransparentBackgroundExample'),
+          value: MenuOptions.transparentBackground,
+          child: Text('Transparent background example'),
+        ),
+        const PopupMenuItem<MenuOptions>(value: MenuOptions.setCookie, child: Text('Set cookie')),
+        const PopupMenuItem<MenuOptions>(value: MenuOptions.logExample, child: Text('Log example')),
+        const PopupMenuItem<MenuOptions>(
+          value: MenuOptions.basicAuthentication,
+          child: Text('Basic Authentication Example'),
+        ),
+      ],
     );
   }
 
@@ -432,9 +412,15 @@ class SampleMenu extends StatelessWidget {
   }
 
   Future<void> _onListCookies(BuildContext context) async {
-    final String cookies =
-        await webViewController.runJavaScriptReturningResult('document.cookie')
-            as String;
+    final Uri? domain = Uri.tryParse((await webViewController.currentUrl()) ?? '');
+
+    final List<WebViewCookie> cookies;
+    if (domain == null) {
+      cookies = [];
+    } else {
+      cookies = await cookieManager.getCookies(domain: domain);
+    }
+
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -453,9 +439,9 @@ class SampleMenu extends StatelessWidget {
       'caches.open("test_caches_entry"); localStorage["test_localStorage"] = "dummy_entry";',
     );
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Added a test entry to cache.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Added a test entry to cache.')));
     }
   }
 
@@ -472,46 +458,31 @@ class SampleMenu extends StatelessWidget {
     await webViewController.clearCache();
     await webViewController.clearLocalStorage();
     if (context.mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Cache cleared.')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Cache cleared.')));
     }
   }
 
   Future<void> _onClearCookies(BuildContext context) async {
     final bool hadCookies = await cookieManager.clearCookies();
-    String message = 'There were cookies. Now, they are gone!';
+    var message = 'There were cookies. Now, they are gone!';
     if (!hadCookies) {
       message = 'There are no cookies.';
     }
     if (context.mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(message)));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
     }
   }
 
   Future<void> _onNavigationDelegateExample() {
-    final String contentBase64 = base64Encode(
-      const Utf8Encoder().convert(kNavigationExamplePage),
-    );
-    return webViewController.loadRequest(
-      Uri.parse('data:text/html;base64,$contentBase64'),
-    );
+    final String contentBase64 = base64Encode(const Utf8Encoder().convert(kNavigationExamplePage));
+    return webViewController.loadRequest(Uri.parse('data:text/html;base64,$contentBase64'));
   }
 
   Future<void> _onSetCookie() async {
     await cookieManager.setCookie(
-      const WebViewCookie(
-        name: 'foo',
-        value: 'bar',
-        domain: 'httpbin.org',
-        path: '/anything',
-      ),
+      const WebViewCookie(name: 'foo', value: 'bar', domain: 'httpbin.org', path: '/anything'),
     );
-    await webViewController.loadRequest(
-      Uri.parse('https://httpbin.org/anything'),
-    );
+    await webViewController.loadRequest(Uri.parse('https://httpbin.org/anything'));
   }
 
   Future<void> _onDoPostRequest() {
@@ -540,13 +511,13 @@ class SampleMenu extends StatelessWidget {
     return webViewController.loadHtmlString(kTransparentBackgroundPage);
   }
 
-  Widget _getCookieList(String cookies) {
-    if (cookies == '""') {
+  Widget _getCookieList(List<WebViewCookie> cookies) {
+    if (cookies.isEmpty) {
       return Container();
     }
-    final List<String> cookieList = cookies.split(';');
-    final Iterable<Text> cookieWidgets = cookieList.map(
-      (String cookie) => Text(cookie),
+
+    final Iterable<Text> cookieWidgets = cookies.map(
+      (WebViewCookie cookie) => Text(cookie.toString()),
     );
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
@@ -557,9 +528,7 @@ class SampleMenu extends StatelessWidget {
 
   static Future<String> _prepareLocalFile() async {
     final String tmpDir = (await getTemporaryDirectory()).path;
-    final File indexFile = File(
-      <String>{tmpDir, 'www', 'index.html'}.join(Platform.pathSeparator),
-    );
+    final indexFile = File(<String>{tmpDir, 'www', 'index.html'}.join(Platform.pathSeparator));
 
     await indexFile.create(recursive: true);
     await indexFile.writeAsString(kLocalExamplePage);
@@ -568,19 +537,15 @@ class SampleMenu extends StatelessWidget {
   }
 
   Future<void> _onLogExample() {
-    webViewController.setOnConsoleMessage((
-      JavaScriptConsoleMessage consoleMessage,
-    ) {
-      debugPrint(
-        '== JS == ${consoleMessage.level.name}: ${consoleMessage.message}',
-      );
+    webViewController.setOnConsoleMessage((JavaScriptConsoleMessage consoleMessage) {
+      debugPrint('== JS == ${consoleMessage.level.name}: ${consoleMessage.message}');
     });
 
     return webViewController.loadHtmlString(kLogExamplePage);
   }
 
   Future<void> _promptForUrl(BuildContext context) {
-    final TextEditingController urlTextController = TextEditingController();
+    final urlTextController = TextEditingController();
 
     return showDialog<String>(
       context: context,
@@ -628,9 +593,9 @@ class NavigationControls extends StatelessWidget {
               await webViewController.goBack();
             } else {
               if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('No back history item')),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(const SnackBar(content: Text('No back history item')));
               }
             }
           },
@@ -642,17 +607,14 @@ class NavigationControls extends StatelessWidget {
               await webViewController.goForward();
             } else {
               if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('No forward history item')),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(const SnackBar(content: Text('No forward history item')));
               }
             }
           },
         ),
-        IconButton(
-          icon: const Icon(Icons.replay),
-          onPressed: () => webViewController.reload(),
-        ),
+        IconButton(icon: const Icon(Icons.replay), onPressed: () => webViewController.reload()),
       ],
     );
   }

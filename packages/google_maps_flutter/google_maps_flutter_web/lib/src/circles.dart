@@ -30,8 +30,8 @@ class CirclesController extends GeometryController {
 
   void _addCircle(Circle circle) {
     final gmaps.CircleOptions circleOptions = _circleOptionsFromCircle(circle);
-    final gmaps.Circle gmCircle = gmaps.Circle(circleOptions)..map = googleMap;
-    final CircleController controller = CircleController(
+    final gmCircle = gmaps.Circle(circleOptions)..map = googleMap;
+    final controller = CircleController(
       circle: gmCircle,
       consumeTapEvents: circle.consumeTapEvents,
       onTap: () {
@@ -47,8 +47,7 @@ class CirclesController extends GeometryController {
   }
 
   void _changeCircle(Circle circle) {
-    final CircleController? circleController =
-        _circleIdToController[circle.circleId];
+    final CircleController? circleController = _circleIdToController[circle.circleId];
     circleController?.update(_circleOptionsFromCircle(circle));
   }
 

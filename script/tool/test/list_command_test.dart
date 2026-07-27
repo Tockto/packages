@@ -18,10 +18,10 @@ void main() {
 
     setUp(() {
       mockPlatform = MockPlatform();
-      (:packagesDir, processRunner: _, gitProcessRunner: _, gitDir: _) =
-          configureBaseCommandMocks(platform: mockPlatform);
-      final ListCommand command =
-          ListCommand(packagesDir, platform: mockPlatform);
+      (:packagesDir, processRunner: _, gitProcessRunner: _, gitDir: _) = configureBaseCommandMocks(
+        platform: mockPlatform,
+      );
+      final command = ListCommand(packagesDir, platform: mockPlatform);
 
       runner = CommandRunner<void>('list_test', 'Test for $ListCommand');
       runner.addCommand(command);
@@ -31,26 +31,23 @@ void main() {
       createFakePackage('package1', packagesDir);
       createFakePlugin('plugin2', packagesDir);
 
-      final List<String> plugins =
-          await runCapturingPrint(runner, <String>['list', '--type=package']);
+      final List<String> plugins = await runCapturingPrint(runner, <String>[
+        'list',
+        '--type=package',
+      ]);
 
-      expect(
-        plugins,
-        orderedEquals(<String>[
-          '/packages/package1',
-          '/packages/plugin2',
-        ]),
-      );
+      expect(plugins, orderedEquals(<String>['/packages/package1', '/packages/plugin2']));
     });
 
     test('lists examples', () async {
       createFakePlugin('plugin1', packagesDir);
-      createFakePlugin('plugin2', packagesDir,
-          examples: <String>['example1', 'example2']);
+      createFakePlugin('plugin2', packagesDir, examples: <String>['example1', 'example2']);
       createFakePlugin('plugin3', packagesDir, examples: <String>[]);
 
-      final List<String> examples =
-          await runCapturingPrint(runner, <String>['list', '--type=example']);
+      final List<String> examples = await runCapturingPrint(runner, <String>[
+        'list',
+        '--type=example',
+      ]);
 
       expect(
         examples,
@@ -64,12 +61,13 @@ void main() {
 
     test('lists packages and subpackages', () async {
       createFakePackage('package1', packagesDir);
-      createFakePlugin('plugin2', packagesDir,
-          examples: <String>['example1', 'example2']);
+      createFakePlugin('plugin2', packagesDir, examples: <String>['example1', 'example2']);
       createFakePlugin('plugin3', packagesDir, examples: <String>[]);
 
-      final List<String> packages = await runCapturingPrint(
-          runner, <String>['list', '--type=package-or-subpackage']);
+      final List<String> packages = await runCapturingPrint(runner, <String>[
+        'list',
+        '--type=package-or-subpackage',
+      ]);
 
       expect(
         packages,
@@ -86,12 +84,13 @@ void main() {
 
     test('lists files', () async {
       createFakePlugin('plugin1', packagesDir);
-      createFakePlugin('plugin2', packagesDir,
-          examples: <String>['example1', 'example2']);
+      createFakePlugin('plugin2', packagesDir, examples: <String>['example1', 'example2']);
       createFakePlugin('plugin3', packagesDir, examples: <String>[]);
 
-      final List<String> examples =
-          await runCapturingPrint(runner, <String>['list', '--type=file']);
+      final List<String> examples = await runCapturingPrint(runner, <String>[
+        'list',
+        '--type=file',
+      ]);
 
       expect(
         examples,
@@ -120,15 +119,13 @@ void main() {
 
       // Create a federated plugin by creating a directory under the packages
       // directory with several packages underneath.
-      final Directory federatedPluginDir =
-          packagesDir.childDirectory('my_plugin')..createSync();
+      final Directory federatedPluginDir = packagesDir.childDirectory('my_plugin')..createSync();
       createFakePlugin('my_plugin', federatedPluginDir);
       createFakePlugin('my_plugin_web', federatedPluginDir);
       createFakePlugin('my_plugin_macos', federatedPluginDir);
 
       // Test without specifying `--type`.
-      final List<String> plugins =
-          await runCapturingPrint(runner, <String>['list']);
+      final List<String> plugins = await runCapturingPrint(runner, <String>['list']);
 
       expect(
         plugins,
@@ -146,23 +143,18 @@ void main() {
 
       // Create a federated plugin by creating a directory under the packages
       // directory with several packages underneath.
-      final Directory federatedPluginDir =
-          packagesDir.childDirectory('my_plugin')..createSync();
+      final Directory federatedPluginDir = packagesDir.childDirectory('my_plugin')..createSync();
       createFakePlugin('my_plugin', federatedPluginDir);
       createFakePlugin('my_plugin_web', federatedPluginDir);
       createFakePlugin('my_plugin_macos', federatedPluginDir);
 
-      List<String> plugins = await runCapturingPrint(
-          runner, <String>['list', '--packages=plugin1']);
-      expect(
-        plugins,
-        unorderedEquals(<String>[
-          '/packages/plugin1',
-        ]),
-      );
+      List<String> plugins = await runCapturingPrint(runner, <String>[
+        'list',
+        '--packages=plugin1',
+      ]);
+      expect(plugins, unorderedEquals(<String>['/packages/plugin1']));
 
-      plugins = await runCapturingPrint(
-          runner, <String>['list', '--packages=my_plugin']);
+      plugins = await runCapturingPrint(runner, <String>['list', '--packages=my_plugin']);
       expect(
         plugins,
         unorderedEquals(<String>[
@@ -172,23 +164,19 @@ void main() {
         ]),
       );
 
-      plugins = await runCapturingPrint(
-          runner, <String>['list', '--packages=my_plugin/my_plugin_web']);
-      expect(
-        plugins,
-        unorderedEquals(<String>[
-          '/packages/my_plugin/my_plugin_web',
-        ]),
-      );
+      plugins = await runCapturingPrint(runner, <String>[
+        'list',
+        '--packages=my_plugin/my_plugin_web',
+      ]);
+      expect(plugins, unorderedEquals(<String>['/packages/my_plugin/my_plugin_web']));
 
-      plugins = await runCapturingPrint(runner,
-          <String>['list', '--packages=my_plugin/my_plugin_web,plugin1']);
+      plugins = await runCapturingPrint(runner, <String>[
+        'list',
+        '--packages=my_plugin/my_plugin_web,plugin1',
+      ]);
       expect(
         plugins,
-        unorderedEquals(<String>[
-          '/packages/plugin1',
-          '/packages/my_plugin/my_plugin_web',
-        ]),
+        unorderedEquals(<String>['/packages/plugin1', '/packages/my_plugin/my_plugin_web']),
       );
     });
   });

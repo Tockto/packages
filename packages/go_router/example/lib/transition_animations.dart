@@ -29,21 +29,20 @@ final GoRouter _router = GoRouter(
               key: state.pageKey,
               child: const DetailsScreen(),
               transitionDuration: const Duration(milliseconds: 150),
-              transitionsBuilder: (
-                BuildContext context,
-                Animation<double> animation,
-                Animation<double> secondaryAnimation,
-                Widget child,
-              ) {
-                // Change the opacity of the screen using a Curve based on the the animation's
-                // value
-                return FadeTransition(
-                  opacity: CurveTween(
-                    curve: Curves.easeInOut,
-                  ).animate(animation),
-                  child: child,
-                );
-              },
+              transitionsBuilder:
+                  (
+                    BuildContext context,
+                    Animation<double> animation,
+                    Animation<double> secondaryAnimation,
+                    Widget child,
+                  ) {
+                    // Change the opacity of the screen using a Curve based on the the animation's
+                    // value
+                    return FadeTransition(
+                      opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
+                      child: child,
+                    );
+                  },
             );
           },
         ),
@@ -57,7 +56,7 @@ final GoRouter _router = GoRouter(
               barrierColor: Colors.black38,
               opaque: false,
               transitionDuration: Duration.zero,
-              transitionsBuilder: (_, __, ___, Widget child) => child,
+              transitionsBuilder: (_, _, _, Widget child) => child,
             );
           },
         ),
@@ -72,14 +71,15 @@ final GoRouter _router = GoRouter(
               opaque: false,
               transitionDuration: const Duration(milliseconds: 500),
               reverseTransitionDuration: const Duration(milliseconds: 200),
-              transitionsBuilder: (
-                BuildContext context,
-                Animation<double> animation,
-                Animation<double> secondaryAnimation,
-                Widget child,
-              ) {
-                return FadeTransition(opacity: animation, child: child);
-              },
+              transitionsBuilder:
+                  (
+                    BuildContext context,
+                    Animation<double> animation,
+                    Animation<double> secondaryAnimation,
+                    Widget child,
+                  ) {
+                    return FadeTransition(opacity: animation, child: child);
+                  },
             );
           },
         ),
@@ -123,11 +123,8 @@ class HomeScreen extends StatelessWidget {
             ),
             const SizedBox(height: 48),
             ElevatedButton(
-              onPressed:
-                  () => context.go('/custom-reverse-transition-duration'),
-              child: const Text(
-                'Go to the Custom Reverse Transition Duration Screen',
-              ),
+              onPressed: () => context.go('/custom-reverse-transition-duration'),
+              child: const Text('Go to the Custom Reverse Transition Duration Screen'),
             ),
           ],
         ),

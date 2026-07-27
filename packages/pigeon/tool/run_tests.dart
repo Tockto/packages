@@ -28,7 +28,7 @@ void _validateTestCoverage(List<List<String>> shards) {
 
   if (missing.isNotEmpty) {
     print('The following test suites are not being run on any host:');
-    for (final String suite in missing) {
+    for (final suite in missing) {
       print('  $suite');
     }
     exit(1);
@@ -39,8 +39,7 @@ Future<void> _validateGeneratedTestFiles() async {
   await _validateGeneratedFiles(
     (String baseDir) => generateTestPigeons(baseDir: baseDir),
     generationMessage: 'Generating test output',
-    incorrectFilesMessage:
-        'The following files are not updated, or not formatted correctly:',
+    incorrectFilesMessage: 'The following files are not updated, or not formatted correctly:',
   );
 }
 
@@ -114,14 +113,12 @@ Future<void> _validateGeneratedFiles(
     repositoryRoot: repositoryRoot,
     relativePigeonPath: relativePigeonPath,
   );
-  final Set<String> extensions =
-      languagesToValidate
-          .map((GeneratorLanguage lang) => _extensionsForLanguage(lang))
-          .flattened
-          .toSet();
+  final Set<String> extensions = languagesToValidate
+      .map((GeneratorLanguage lang) => _extensionsForLanguage(lang))
+      .flattened
+      .toSet();
   final Iterable<String> filteredFiles = modifiedFiles.where(
-    (String path) =>
-        extensions.contains(p.extension(path).replaceFirst('.', '')),
+    (String path) => extensions.contains(p.extension(path).replaceFirst('.', '')),
   );
 
   if (filteredFiles.isEmpty) {
@@ -186,7 +183,7 @@ Future<List<String>> _modifiedFiles({
 
 Future<void> main(List<String> args) async {
   // Run most tests on Linux, since Linux tends to be the easiest and cheapest.
-  const List<String> linuxHostTests = <String>[
+  const linuxHostTests = <String>[
     commandLineTests,
     androidJavaUnitTests,
     androidJavaLint,
@@ -197,7 +194,7 @@ Future<void> main(List<String> args) async {
     linuxUnitTests,
     linuxIntegrationTests,
   ];
-  const List<String> macOSHostTests = <String>[
+  const macOSHostTests = <String>[
     iOSObjCUnitTests,
     // Currently these are testing exactly the same thing as
     // macOS*IntegrationTests, so we don't need to run both by default. This
@@ -211,10 +208,7 @@ Future<void> main(List<String> args) async {
     macOSSwiftIntegrationTests,
   ];
   // Run Windows tests on Windows, since that's the only place they can run.
-  const List<String> windowsHostTests = <String>[
-    windowsUnitTests,
-    windowsIntegrationTests,
-  ];
+  const windowsHostTests = <String>[windowsUnitTests, windowsIntegrationTests];
 
   _validateTestCoverage(<List<String>>[
     linuxHostTests,

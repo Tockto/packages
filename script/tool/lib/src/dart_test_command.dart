@@ -24,12 +24,7 @@ enum _TestPlatform {
 /// A command to run Dart unit tests for packages.
 class DartTestCommand extends PackageLoopingCommand {
   /// Creates an instance of the test command.
-  DartTestCommand(
-    super.packagesDir, {
-    super.processRunner,
-    super.platform,
-    super.gitDir,
-  }) {
+  DartTestCommand(super.packagesDir, {super.processRunner, super.platform, super.gitDir}) {
     argParser.addOption(
       kEnableExperiment,
       defaultsTo: '',
@@ -40,11 +35,11 @@ class DartTestCommand extends PackageLoopingCommand {
     );
     argParser.addOption(
       _platformFlag,
-      help: 'Runs tests on the given platform instead of the default platform '
+      help:
+          'Runs tests on the given platform instead of the default platform '
           '("vm" in most cases, "chrome" for web plugin implementations).',
     );
-    argParser.addFlag(kWebWasmFlag,
-        help: 'Compile to WebAssembly rather than JavaScript');
+    argParser.addFlag(kWebWasmFlag, help: 'Compile to WebAssembly rather than JavaScript');
   }
 
   static const String _platformFlag = 'platform';
@@ -59,12 +54,12 @@ class DartTestCommand extends PackageLoopingCommand {
   List<String> get aliases => <String>['test', 'test-dart'];
 
   @override
-  final String description = 'Runs the Dart tests for all packages.\n\n'
+  final String description =
+      'Runs the Dart tests for all packages.\n\n'
       'This command requires "flutter" to be in your path.';
 
   @override
-  PackageLoopingType get packageLoopingType =>
-      PackageLoopingType.includeAllSubpackages;
+  PackageLoopingType get packageLoopingType => PackageLoopingType.includeAllSubpackages;
 
   @override
   bool shouldIgnoreFile(String path) {
@@ -85,16 +80,13 @@ class DartTestCommand extends PackageLoopingCommand {
     // federated plugin implementations) on web, since there's no reason to
     // expect them to work.
     final bool webPlatform = platform != null && platform != 'vm';
-    final bool explicitVMPlatform = platform == 'vm';
-    final bool isWebOnlyPluginImplementation = pluginSupportsPlatform(
-            platformWeb, package,
-            requiredMode: PlatformSupport.inline) &&
+    final explicitVMPlatform = platform == 'vm';
+    final bool isWebOnlyPluginImplementation =
+        pluginSupportsPlatform(platformWeb, package, requiredMode: PlatformSupport.inline) &&
         package.directory.basename.endsWith('_web');
     if (webPlatform) {
-      if (isFlutterPlugin(package) &&
-          !pluginSupportsPlatform(platformWeb, package)) {
-        return PackageResult.skip(
-            "Non-web plugin tests don't need web testing.");
+      if (isFlutterPlugin(package) && !pluginSupportsPlatform(platformWeb, package)) {
+        return PackageResult.skip("Non-web plugin tests don't need web testing.");
       }
       if (_testOnTarget(package) == _TestPlatform.vm) {
         // This explict skip is necessary because trying to run tests in a mode
@@ -132,29 +124,31 @@ class DartTestCommand extends PackageLoopingCommand {
   }
 
   /// Runs the Dart tests for a Flutter package, returning true on success.
-  Future<bool> _runFlutterTests(RepositoryPackage package,
-      {String? platform, bool wasm = false}) async {
+  Future<bool> _runFlutterTests(
+    RepositoryPackage package, {
+    String? platform,
+    bool wasm = false,
+  }) async {
     final String experiment = getStringArg(kEnableExperiment);
 
-    final int exitCode = await processRunner.runAndStream(
-      flutterCommand,
-      <String>[
-        'test',
-        '--color',
-        if (experiment.isNotEmpty) '--enable-experiment=$experiment',
-        // Flutter defaults to VM mode (under a different name) and explicitly
-        // setting it is deprecated, so pass nothing in that case.
-        if (platform != null && platform != 'vm') '--platform=$platform',
-        if (wasm) '--wasm',
-      ],
-      workingDir: package.directory,
-    );
+    final int exitCode = await processRunner.runAndStream(flutterCommand, <String>[
+      'test',
+      '--color',
+      if (experiment.isNotEmpty) '--enable-experiment=$experiment',
+      // Flutter defaults to VM mode (under a different name) and explicitly
+      // setting it is deprecated, so pass nothing in that case.
+      if (platform != null && platform != 'vm') '--platform=$platform',
+      if (wasm) '--wasm',
+    ], workingDir: package.directory);
     return exitCode == 0;
   }
 
   /// Runs the Dart tests for a non-Flutter package, returning true on success.
-  Future<bool> _runDartTests(RepositoryPackage package,
-      {String? platform, bool wasm = false}) async {
+  Future<bool> _runDartTests(
+    RepositoryPackage package, {
+    String? platform,
+    bool wasm = false,
+  }) async {
     // Unlike `flutter test`, `dart run test` does not automatically get
     // packages
     if (!await runPubGet(package, processRunner, super.platform)) {
@@ -164,17 +158,13 @@ class DartTestCommand extends PackageLoopingCommand {
 
     final String experiment = getStringArg(kEnableExperiment);
 
-    final int exitCode = await processRunner.runAndStream(
-      'dart',
-      <String>[
-        'run',
-        if (experiment.isNotEmpty) '--enable-experiment=$experiment',
-        'test',
-        if (platform != null) '--platform=$platform',
-        if (wasm) '--compiler=dart2wasm',
-      ],
-      workingDir: package.directory,
-    );
+    final int exitCode = await processRunner.runAndStream('dart', <String>[
+      'run',
+      if (experiment.isNotEmpty) '--enable-experiment=$experiment',
+      'test',
+      if (platform != null) '--platform=$platform',
+      if (wasm) '--compiler=dart2wasm',
+    ], workingDir: package.directory);
 
     return exitCode == 0;
   }
@@ -187,7 +177,7 @@ class DartTestCommand extends PackageLoopingCommand {
     if (!testConfig.existsSync()) {
       return null;
     }
-    final RegExp testOnRegex = RegExp(r'^test_on:\s*([a-z].*[a-z])\s*$');
+    final testOnRegex = RegExp(r'^test_on:\s*([a-z].*[a-z])\s*$');
     for (final String line in testConfig.readAsLinesSync()) {
       final RegExpMatch? match = testOnRegex.firstMatch(line);
       if (match != null) {
@@ -204,10 +194,12 @@ class DartTestCommand extends PackageLoopingCommand {
           case 'browser':
             return _TestPlatform.browser;
           default:
-            printError('Unknown "test_on" value: "$targetFilter"\n'
-                "If this value needs to be supported for this package's tests, "
-                'please update the repository tooling to support more test_on '
-                'modes.');
+            printError(
+              'Unknown "test_on" value: "$targetFilter"\n'
+              "If this value needs to be supported for this package's tests, "
+              'please update the repository tooling to support more test_on '
+              'modes.',
+            );
             throw ToolExit(_exitUnknownTestPlatform);
         }
       }

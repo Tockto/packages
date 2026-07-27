@@ -1,3 +1,56 @@
+## 2.4.27
+
+* Converts legacy backend to Kotlin.
+
+## 2.4.26
+
+* Updates internal implementation to use Kotlin Pigeon.
+
+## 2.4.25
+
+* Bumps the test-dependencies group across 2 directories with 1 update.
+* Updates minimum supported SDK version to Flutter 3.38/Dart 3.10.
+
+## 2.4.24
+
+* Migrates to Built-in Kotlin to support AGP 9.
+* Updates minimum supported SDK version to Flutter 3.44/Dart 3.12.
+
+## 2.4.23
+
+* Fixes dartdoc comments that accidentally used HTML.
+
+## 2.4.22
+
+* Updates build files from Groovy to Kotlin.
+
+## 2.4.21
+
+* Reverts `androidx.datastore:datastore` to 1.1.7 due to a regression 16 KB
+  page size support in 1.2.0.
+* Updates minimum supported SDK version to Flutter 3.35/Dart 3.9.
+
+## 2.4.20
+
+* Bumps androidx.datastore:datastore from 1.1.7 to 1.2.0.
+
+## 2.4.19
+
+* Bumps kotlin_version to 2.3.0.
+
+## 2.4.18
+
+* Bumps kotlin_version to 2.2.21.
+
+## 2.4.17
+
+* Bumps com.android.tools.build:gradle from 8.12.1 to 8.13.1.
+
+## 2.4.16
+
+* Updates to Pigeon 26.
+* Updates minimum supported SDK version to Flutter 3.32/Dart 3.8.
+
 ## 2.4.15
 
 * Resolves Gradle 9 deprecations.

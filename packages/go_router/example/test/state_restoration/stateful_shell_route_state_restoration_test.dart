@@ -8,14 +8,12 @@ import 'package:go_router_examples/state_restoration/stateful_shell_route_state_
 
 void main() {
   testWidgets('StatefulShellRoute navigation location and route state '
-      'is restored when restorationIds are provided', (
-    WidgetTester tester,
-  ) async {
-    const String homeLabel = 'Home';
-    const String profileLabel = 'Profile';
+      'is restored when restorationIds are provided', (WidgetTester tester) async {
+    const homeLabel = 'Home';
+    const profileLabel = 'Profile';
 
-    const String homeText = 'homeText';
-    const String profileText = 'profileText';
+    const homeText = 'homeText';
+    const profileText = 'profileText';
 
     await tester.pumpWidget(const App());
     expect(find.widgetWithText(TextField, homeLabel), findsOneWidget);

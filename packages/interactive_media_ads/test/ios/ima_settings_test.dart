@@ -21,10 +21,8 @@ void main() {
     test('language', () async {
       final MockIMASettings mockIMASettings = _mockIMASettings();
 
-      const String language = 'en';
-      final IOSImaSettings settings = IOSImaSettings(
-        const PlatformImaSettingsCreationParams(language: language),
-      );
+      const language = 'en';
+      final settings = IOSImaSettings(const PlatformImaSettingsCreationParams(language: language));
 
       // Trigger lazy initialization.
       // ignore: unnecessary_statements
@@ -36,10 +34,8 @@ void main() {
     test('setAutoPlayAdBreaks', () async {
       final MockIMASettings mockIMASettings = _mockIMASettings();
 
-      const bool autoPlayAdBreaks = true;
-      final IOSImaSettings settings = IOSImaSettings(
-        const PlatformImaSettingsCreationParams(),
-      );
+      const autoPlayAdBreaks = true;
+      final settings = IOSImaSettings(const PlatformImaSettingsCreationParams());
       await settings.setAutoPlayAdBreaks(autoPlayAdBreaks);
 
       verify(mockIMASettings.setAutoPlayAdBreaks(autoPlayAdBreaks));
@@ -48,10 +44,8 @@ void main() {
     test('setDebugMode', () async {
       final MockIMASettings mockIMASettings = _mockIMASettings();
 
-      const bool debugMode = false;
-      final IOSImaSettings settings = IOSImaSettings(
-        const PlatformImaSettingsCreationParams(),
-      );
+      const debugMode = false;
+      final settings = IOSImaSettings(const PlatformImaSettingsCreationParams());
       await settings.setDebugMode(debugMode);
 
       verify(mockIMASettings.setEnableDebugMode(debugMode));
@@ -60,10 +54,8 @@ void main() {
     test('setFeatureFlags', () async {
       final MockIMASettings mockIMASettings = _mockIMASettings();
 
-      const Map<String, String> featureFlags = <String, String>{'a': 'flag'};
-      final IOSImaSettings settings = IOSImaSettings(
-        const PlatformImaSettingsCreationParams(),
-      );
+      const featureFlags = <String, String>{'a': 'flag'};
+      final settings = IOSImaSettings(const PlatformImaSettingsCreationParams());
       await settings.setFeatureFlags(featureFlags);
 
       verify(mockIMASettings.setFeatureFlags(featureFlags));
@@ -72,10 +64,8 @@ void main() {
     test('setMaxRedirects', () async {
       final MockIMASettings mockIMASettings = _mockIMASettings();
 
-      const int maxRedirects = 12;
-      final IOSImaSettings settings = IOSImaSettings(
-        const PlatformImaSettingsCreationParams(),
-      );
+      const maxRedirects = 12;
+      final settings = IOSImaSettings(const PlatformImaSettingsCreationParams());
       await settings.setMaxRedirects(maxRedirects);
 
       verify(mockIMASettings.setMaxRedirects(maxRedirects));
@@ -84,10 +74,8 @@ void main() {
     test('setPlayerType', () async {
       final MockIMASettings mockIMASettings = _mockIMASettings();
 
-      const String playerType = 'playerType';
-      final IOSImaSettings settings = IOSImaSettings(
-        const PlatformImaSettingsCreationParams(),
-      );
+      const playerType = 'playerType';
+      final settings = IOSImaSettings(const PlatformImaSettingsCreationParams());
       await settings.setPlayerType(playerType);
 
       verify(mockIMASettings.setPlayerType(playerType));
@@ -96,10 +84,8 @@ void main() {
     test('setPlayerVersion', () async {
       final MockIMASettings mockIMASettings = _mockIMASettings();
 
-      const String playerVersion = 'playerVersion';
-      final IOSImaSettings settings = IOSImaSettings(
-        const PlatformImaSettingsCreationParams(),
-      );
+      const playerVersion = 'playerVersion';
+      final settings = IOSImaSettings(const PlatformImaSettingsCreationParams());
       await settings.setPlayerVersion(playerVersion);
 
       verify(mockIMASettings.setPlayerVersion(playerVersion));
@@ -108,10 +94,8 @@ void main() {
     test('setPpid', () async {
       final MockIMASettings mockIMASettings = _mockIMASettings();
 
-      const String ppid = 'ppid';
-      final IOSImaSettings settings = IOSImaSettings(
-        const PlatformImaSettingsCreationParams(),
-      );
+      const ppid = 'ppid';
+      final settings = IOSImaSettings(const PlatformImaSettingsCreationParams());
       await settings.setPpid(ppid);
 
       verify(mockIMASettings.setPPID(ppid));
@@ -120,10 +104,8 @@ void main() {
     test('setSessionID', () async {
       final MockIMASettings mockIMASettings = _mockIMASettings();
 
-      const String sessionID = 'sessionID';
-      final IOSImaSettings settings = IOSImaSettings(
-        const PlatformImaSettingsCreationParams(),
-      );
+      const sessionID = 'sessionID';
+      final settings = IOSImaSettings(const PlatformImaSettingsCreationParams());
       await settings.setSessionID(sessionID);
 
       verify(mockIMASettings.setSessionID(sessionID));
@@ -132,7 +114,7 @@ void main() {
 }
 
 MockIMASettings _mockIMASettings() {
-  final MockIMASettings mockIMASettings = MockIMASettings();
+  final mockIMASettings = MockIMASettings();
   PigeonOverrides.iMASettings_new = () => mockIMASettings;
 
   return mockIMASettings;

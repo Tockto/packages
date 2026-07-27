@@ -7,6 +7,7 @@
 
 import 'dart:async';
 import 'dart:io';
+import 'dart:math' as math show max;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -43,16 +44,11 @@ class VideoPlayerValue {
   });
 
   /// Returns an instance for a video that hasn't been loaded.
-  const VideoPlayerValue.uninitialized()
-    : this(duration: Duration.zero, isInitialized: false);
+  const VideoPlayerValue.uninitialized() : this(duration: Duration.zero, isInitialized: false);
 
   /// Returns an instance with the given [errorDescription].
   const VideoPlayerValue.erroneous(String errorDescription)
-    : this(
-        duration: Duration.zero,
-        isInitialized: false,
-        errorDescription: errorDescription,
-      );
+    : this(duration: Duration.zero, isInitialized: false, errorDescription: errorDescription);
 
   /// The total duration of the video.
   ///
@@ -176,21 +172,16 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
   /// The name of the asset is given by the [dataSource] argument and must not be
   /// null. The [package] argument must be non-null when the asset comes from a
   /// package and null otherwise.
-  MiniController.asset(
-    this.dataSource, {
-    this.package,
-    this.viewType = VideoViewType.textureView,
-  }) : dataSourceType = DataSourceType.asset,
-       super(const VideoPlayerValue(duration: Duration.zero));
+  MiniController.asset(this.dataSource, {this.package, this.viewType = VideoViewType.textureView})
+    : dataSourceType = DataSourceType.asset,
+      super(const VideoPlayerValue(duration: Duration.zero));
 
   /// Constructs a [MiniController] playing a video from obtained from
   /// the network.
-  MiniController.network(
-    this.dataSource, {
-    this.viewType = VideoViewType.textureView,
-  }) : dataSourceType = DataSourceType.network,
-       package = null,
-       super(const VideoPlayerValue(duration: Duration.zero));
+  MiniController.network(this.dataSource, {this.viewType = VideoViewType.textureView})
+    : dataSourceType = DataSourceType.network,
+      package = null,
+      super(const VideoPlayerValue(duration: Duration.zero));
 
   /// Constructs a [MiniController] playing a video from obtained from a file.
   MiniController.file(File file, {this.viewType = VideoViewType.textureView})
@@ -240,32 +231,21 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
           package: package,
         );
       case DataSourceType.network:
-        dataSourceDescription = DataSource(
-          sourceType: DataSourceType.network,
-          uri: dataSource,
-        );
+        dataSourceDescription = DataSource(sourceType: DataSourceType.network, uri: dataSource);
       case DataSourceType.file:
-        dataSourceDescription = DataSource(
-          sourceType: DataSourceType.file,
-          uri: dataSource,
-        );
+        dataSourceDescription = DataSource(sourceType: DataSourceType.file, uri: dataSource);
       case DataSourceType.contentUri:
-        dataSourceDescription = DataSource(
-          sourceType: DataSourceType.contentUri,
-          uri: dataSource,
-        );
+        dataSourceDescription = DataSource(sourceType: DataSourceType.contentUri, uri: dataSource);
     }
 
-    final VideoCreationOptions creationOptions = VideoCreationOptions(
+    final creationOptions = VideoCreationOptions(
       dataSource: dataSourceDescription,
       viewType: viewType,
     );
 
-    _playerId =
-        (await _platform.createWithOptions(creationOptions)) ??
-        kUninitializedPlayerId;
+    _playerId = (await _platform.createWithOptions(creationOptions)) ?? kUninitializedPlayerId;
     _creatingCompleter!.complete(null);
-    final Completer<void> initializingCompleter = Completer<void>();
+    final initializingCompleter = Completer<void>();
 
     void eventListener(VideoEvent event) {
       switch (event.eventType) {
@@ -296,7 +276,7 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
     }
 
     void errorListener(Object obj) {
-      final PlatformException e = obj as PlatformException;
+      final e = obj as PlatformException;
       value = VideoPlayerValue.erroneous(e.message!);
       _timer?.cancel();
       if (!initializingCompleter.isCompleted) {
@@ -338,9 +318,7 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
     if (value.isPlaying) {
       await _platform.play(_playerId);
 
-      _timer = Timer.periodic(const Duration(milliseconds: 500), (
-        Timer timer,
-      ) async {
+      _timer = Timer.periodic(const Duration(milliseconds: 500), (Timer timer) async {
         final Duration? newPosition = await position;
         if (newPosition == null) {
           return;
@@ -433,9 +411,9 @@ class _VideoPlayerState extends State<VideoPlayer> {
   }
 
   @override
-  void deactivate() {
-    super.deactivate();
+  void dispose() {
     widget.controller.removeListener(_listener);
+    super.dispose();
   }
 
   @override
@@ -444,9 +422,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
         ? Container()
         : _VideoPlayerWithRotation(
             rotation: widget.controller.value.rotationCorrection,
-            child: _platform.buildViewWithOptions(
-              VideoViewOptions(playerId: _playerId),
-            ),
+            child: _platform.buildViewWithOptions(VideoViewOptions(playerId: _playerId)),
           );
   }
 }
@@ -482,7 +458,7 @@ class _VideoScrubberState extends State<_VideoScrubber> {
   @override
   Widget build(BuildContext context) {
     void seekToRelativePosition(Offset globalPosition) {
-      final RenderBox box = context.findRenderObject()! as RenderBox;
+      final box = context.findRenderObject()! as RenderBox;
       final Offset tapPos = box.globalToLocal(globalPosition);
       final double relative = tapPos.dx / box.size.width;
       final Duration position = controller.value.duration * relative;
@@ -535,40 +511,39 @@ class _VideoProgressIndicatorState extends State<VideoProgressIndicator> {
   }
 
   @override
-  void deactivate() {
+  void dispose() {
     controller.removeListener(listener);
-    super.deactivate();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    const Color playedColor = Color.fromRGBO(255, 0, 0, 0.7);
-    const Color bufferedColor = Color.fromRGBO(50, 50, 200, 0.2);
-    const Color backgroundColor = Color.fromRGBO(200, 200, 200, 0.5);
+    const playedColor = Color.fromRGBO(255, 0, 0, 0.7);
+    const bufferedColor = Color.fromRGBO(50, 50, 200, 0.2);
+    const backgroundColor = Color.fromRGBO(200, 200, 200, 0.5);
 
-    Widget progressIndicator;
+    final Widget progressIndicator;
     if (controller.value.isInitialized) {
       final int duration = controller.value.duration.inMilliseconds;
       final int position = controller.value.position.inMilliseconds;
 
-      int maxBuffering = 0;
-      for (final DurationRange range in controller.value.buffered) {
-        final int end = range.end.inMilliseconds;
-        if (end > maxBuffering) {
-          maxBuffering = end;
-        }
-      }
+      final double maxBuffering = duration == 0.0
+          ? 0.0
+          : controller.value.buffered
+                    .map((DurationRange range) => range.end.inMilliseconds)
+                    .fold(0, math.max) /
+                duration;
 
       progressIndicator = Stack(
         fit: StackFit.passthrough,
         children: <Widget>[
           LinearProgressIndicator(
-            value: maxBuffering / duration,
+            value: maxBuffering,
             valueColor: const AlwaysStoppedAnimation<Color>(bufferedColor),
             backgroundColor: backgroundColor,
           ),
           LinearProgressIndicator(
-            value: position / duration,
+            value: duration == 0.0 ? 0.0 : position / duration,
             valueColor: const AlwaysStoppedAnimation<Color>(playedColor),
             backgroundColor: Colors.transparent,
           ),
@@ -582,10 +557,7 @@ class _VideoProgressIndicatorState extends State<VideoProgressIndicator> {
     }
     return _VideoScrubber(
       controller: controller,
-      child: Padding(
-        padding: const EdgeInsets.only(top: 5.0),
-        child: progressIndicator,
-      ),
+      child: Padding(padding: const EdgeInsets.only(top: 5.0), child: progressIndicator),
     );
   }
 }

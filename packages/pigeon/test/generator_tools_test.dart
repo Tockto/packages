@@ -10,7 +10,7 @@ bool _equalSet<T>(Set<T> x, Set<T> y) {
   if (x.length != y.length) {
     return false;
   }
-  for (final T object in x) {
+  for (final object in x) {
     if (!y.contains(object)) {
       return false;
     }
@@ -49,18 +49,18 @@ final Class emptyClass = Class(
 
 void main() {
   test('test merge maps', () {
-    final Map<String, Object> source = <String, Object>{
+    final source = <String, Object>{
       '1': '1',
       '2': <String, Object>{'1': '1', '3': '3'},
       '3': '3', // not modified
     };
-    final Map<String, Object> modification = <String, Object>{
+    final modification = <String, Object>{
       '1': '2', // modify
       '2': <String, Object>{
         '2': '2', // added
       },
     };
-    final Map<String, Object> expected = <String, Object>{
+    final expected = <String, Object>{
       '1': '2',
       '2': <String, Object>{'1': '1', '2': '2', '3': '3'},
       '3': '3',
@@ -69,7 +69,7 @@ void main() {
   });
 
   test('get codec types from all classes and enums', () {
-    final Root root = Root(
+    final root = Root(
       classes: <Class>[
         Class(
           name: 'name',
@@ -94,7 +94,7 @@ void main() {
   });
 
   test('getEnumeratedTypes:ed type arguments', () {
-    final Root root = Root(
+    final root = Root(
       apis: <Api>[
         AstFlutterApi(
           name: 'Api',
@@ -129,11 +129,7 @@ void main() {
           fields: <NamedType>[
             NamedType(
               name: 'bar',
-              type: TypeDeclaration(
-                baseName: 'Bar',
-                isNullable: true,
-                associatedClass: emptyClass,
-              ),
+              type: TypeDeclaration(baseName: 'Bar', isNullable: true, associatedClass: emptyClass),
             ),
           ],
         ),
@@ -151,18 +147,12 @@ void main() {
     );
     final List<EnumeratedType> classes = getEnumeratedTypes(root).toList();
     expect(classes.length, 2);
-    expect(
-      classes.where((EnumeratedType element) => element.name == 'Foo').length,
-      1,
-    );
-    expect(
-      classes.where((EnumeratedType element) => element.name == 'Bar').length,
-      1,
-    );
+    expect(classes.where((EnumeratedType element) => element.name == 'Foo').length, 1);
+    expect(classes.where((EnumeratedType element) => element.name == 'Bar').length, 1);
   });
 
   test('getEnumeratedTypes: Object', () {
-    final Root root = Root(
+    final root = Root(
       apis: <Api>[
         AstFlutterApi(
           name: 'Api1',
@@ -202,14 +192,11 @@ void main() {
     );
     final List<EnumeratedType> classes = getEnumeratedTypes(root).toList();
     expect(classes.length, 1);
-    expect(
-      classes.where((EnumeratedType element) => element.name == 'Foo').length,
-      1,
-    );
+    expect(classes.where((EnumeratedType element) => element.name == 'Foo').length, 1);
   });
 
   test('getEnumeratedTypes:ue entries', () {
-    final Root root = Root(
+    final root = Root(
       apis: <Api>[
         AstFlutterApi(
           name: 'Api1',
@@ -267,28 +254,23 @@ void main() {
     );
     final List<EnumeratedType> classes = getEnumeratedTypes(root).toList();
     expect(classes.length, 1);
-    expect(
-      classes.where((EnumeratedType element) => element.name == 'Foo').length,
-      1,
-    );
+    expect(classes.where((EnumeratedType element) => element.name == 'Foo').length, 1);
   });
 
   test('deduces package name successfully', () {
-    final String? dartPackageName = deducePackageName(
-      './pigeons/core_tests.dart',
-    );
+    final String? dartPackageName = deducePackageName('./pigeons/core_tests.dart');
 
     expect(dartPackageName, 'pigeon');
   });
 
   test('recursiveGetSuperClassApisChain', () {
-    final AstProxyApi superClassOfSuperClassApi = AstProxyApi(
+    final superClassOfSuperClassApi = AstProxyApi(
       name: 'Api3',
       methods: <Method>[],
       constructors: <Constructor>[],
       fields: <ApiField>[],
     );
-    final AstProxyApi superClassApi = AstProxyApi(
+    final superClassApi = AstProxyApi(
       name: 'Api2',
       methods: <Method>[],
       constructors: <Constructor>[],
@@ -299,7 +281,7 @@ void main() {
         associatedProxyApi: superClassOfSuperClassApi,
       ),
     );
-    final AstProxyApi api = AstProxyApi(
+    final api = AstProxyApi(
       name: 'Api',
       methods: <Method>[],
       constructors: <Constructor>[],
@@ -313,27 +295,24 @@ void main() {
 
     expect(
       api.allSuperClasses().toList(),
-      containsAllInOrder(<AstProxyApi>[
-        superClassApi,
-        superClassOfSuperClassApi,
-      ]),
+      containsAllInOrder(<AstProxyApi>[superClassApi, superClassOfSuperClassApi]),
     );
   });
 
   test('recursiveFindAllInterfacesApis', () {
-    final AstProxyApi interfaceOfInterfaceApi2 = AstProxyApi(
+    final interfaceOfInterfaceApi2 = AstProxyApi(
       name: 'Api5',
       methods: <Method>[],
       constructors: <Constructor>[],
       fields: <ApiField>[],
     );
-    final AstProxyApi interfaceOfInterfaceApi = AstProxyApi(
+    final interfaceOfInterfaceApi = AstProxyApi(
       name: 'Api4',
       methods: <Method>[],
       constructors: <Constructor>[],
       fields: <ApiField>[],
     );
-    final AstProxyApi interfaceApi2 = AstProxyApi(
+    final interfaceApi2 = AstProxyApi(
       name: 'Api3',
       methods: <Method>[],
       constructors: <Constructor>[],
@@ -346,7 +325,7 @@ void main() {
         ),
       },
     );
-    final AstProxyApi interfaceApi = AstProxyApi(
+    final interfaceApi = AstProxyApi(
       name: 'Api2',
       methods: <Method>[],
       constructors: <Constructor>[],
@@ -364,22 +343,14 @@ void main() {
         ),
       },
     );
-    final AstProxyApi api = AstProxyApi(
+    final api = AstProxyApi(
       name: 'Api',
       methods: <Method>[],
       constructors: <Constructor>[],
       fields: <ApiField>[],
       interfaces: <TypeDeclaration>{
-        TypeDeclaration(
-          baseName: 'Api2',
-          isNullable: false,
-          associatedProxyApi: interfaceApi,
-        ),
-        TypeDeclaration(
-          baseName: 'Api3',
-          isNullable: false,
-          associatedProxyApi: interfaceApi2,
-        ),
+        TypeDeclaration(baseName: 'Api2', isNullable: false, associatedProxyApi: interfaceApi),
+        TypeDeclaration(baseName: 'Api3', isNullable: false, associatedProxyApi: interfaceApi2),
       },
     );
 
@@ -394,56 +365,41 @@ void main() {
     );
   });
 
-  test(
-    'recursiveFindAllInterfacesApis throws error if api recursively implements itself',
-    () {
-      final AstProxyApi a = AstProxyApi(
-        name: 'A',
-        methods: <Method>[],
-        constructors: <Constructor>[],
-        fields: <ApiField>[],
-      );
-      final AstProxyApi b = AstProxyApi(
-        name: 'B',
-        methods: <Method>[],
-        constructors: <Constructor>[],
-        fields: <ApiField>[],
-      );
-      final AstProxyApi c = AstProxyApi(
-        name: 'C',
-        methods: <Method>[],
-        constructors: <Constructor>[],
-        fields: <ApiField>[],
-      );
+  test('recursiveFindAllInterfacesApis throws error if api recursively implements itself', () {
+    final a = AstProxyApi(
+      name: 'A',
+      methods: <Method>[],
+      constructors: <Constructor>[],
+      fields: <ApiField>[],
+    );
+    final b = AstProxyApi(
+      name: 'B',
+      methods: <Method>[],
+      constructors: <Constructor>[],
+      fields: <ApiField>[],
+    );
+    final c = AstProxyApi(
+      name: 'C',
+      methods: <Method>[],
+      constructors: <Constructor>[],
+      fields: <ApiField>[],
+    );
 
-      a.interfaces = <TypeDeclaration>{
-        TypeDeclaration(
-          baseName: 'B',
-          isNullable: false,
-          associatedProxyApi: b,
-        ),
-      };
-      b.interfaces = <TypeDeclaration>{
-        TypeDeclaration(
-          baseName: 'C',
-          isNullable: false,
-          associatedProxyApi: c,
-        ),
-      };
-      c.interfaces = <TypeDeclaration>{
-        TypeDeclaration(
-          baseName: 'A',
-          isNullable: false,
-          associatedProxyApi: a,
-        ),
-      };
+    a.interfaces = <TypeDeclaration>{
+      TypeDeclaration(baseName: 'B', isNullable: false, associatedProxyApi: b),
+    };
+    b.interfaces = <TypeDeclaration>{
+      TypeDeclaration(baseName: 'C', isNullable: false, associatedProxyApi: c),
+    };
+    c.interfaces = <TypeDeclaration>{
+      TypeDeclaration(baseName: 'A', isNullable: false, associatedProxyApi: a),
+    };
 
-      expect(() => a.apisOfInterfaces(), throwsArgumentError);
-    },
-  );
+    expect(() => a.apisOfInterfaces(), throwsArgumentError);
+  });
 
   test('findHighestApiRequirement', () {
-    final TypeDeclaration typeWithoutMinApi = TypeDeclaration(
+    final typeWithoutMinApi = TypeDeclaration(
       baseName: 'TypeWithoutMinApi',
       isNullable: false,
       associatedProxyApi: AstProxyApi(
@@ -454,7 +410,7 @@ void main() {
       ),
     );
 
-    final TypeDeclaration typeWithMinApi = TypeDeclaration(
+    final typeWithMinApi = TypeDeclaration(
       baseName: 'TypeWithMinApi',
       isNullable: false,
       associatedProxyApi: AstProxyApi(
@@ -465,7 +421,7 @@ void main() {
       ),
     );
 
-    final TypeDeclaration typeWithHighestMinApi = TypeDeclaration(
+    final typeWithHighestMinApi = TypeDeclaration(
       baseName: 'TypeWithHighestMinApi',
       isNullable: false,
       associatedProxyApi: AstProxyApi(
@@ -476,32 +432,26 @@ void main() {
       ),
     );
 
-    final ({TypeDeclaration type, int version})? result =
-        findHighestApiRequirement(
-          <TypeDeclaration>[
-            typeWithoutMinApi,
-            typeWithMinApi,
-            typeWithHighestMinApi,
-          ],
-          onGetApiRequirement: (TypeDeclaration type) {
-            if (type == typeWithMinApi) {
-              return 1;
-            } else if (type == typeWithHighestMinApi) {
-              return 2;
-            }
+    final ({TypeDeclaration type, int version})? result = findHighestApiRequirement(
+      <TypeDeclaration>[typeWithoutMinApi, typeWithMinApi, typeWithHighestMinApi],
+      onGetApiRequirement: (TypeDeclaration type) {
+        if (type == typeWithMinApi) {
+          return 1;
+        } else if (type == typeWithHighestMinApi) {
+          return 2;
+        }
 
-            return null;
-          },
-          onCompare: (int one, int two) => one.compareTo(two),
-        );
+        return null;
+      },
+      onCompare: (int one, int two) => one.compareTo(two),
+    );
 
     expect(result?.type, typeWithHighestMinApi);
     expect(result?.version, 2);
   });
 
   test('Indent.format trims indentation', () {
-    final StringBuffer buffer = StringBuffer();
-    final Indent indent = Indent(buffer);
+    final indent = Indent();
 
     indent.format('''
       void myMethod() {
@@ -509,7 +459,7 @@ void main() {
         print('hello');
       }''');
 
-    expect(buffer.toString(), '''
+    expect(indent.toString(), '''
 void myMethod() {
 
   print('hello');

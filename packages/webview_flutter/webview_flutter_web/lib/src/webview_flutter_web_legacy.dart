@@ -169,12 +169,7 @@ class WebWebViewPlatformController implements WebViewPlatformController {
 
   @override
   Future<void> loadHtmlString(String html, {String? baseUrl}) async {
-    _element.src =
-        Uri.dataFromString(
-          html,
-          mimeType: 'text/html',
-          encoding: utf8,
-        ).toString();
+    _element.src = Uri.dataFromString(html, mimeType: 'text/html', encoding: utf8).toString();
   }
 
   @override
@@ -182,7 +177,7 @@ class WebWebViewPlatformController implements WebViewPlatformController {
     if (!request.uri.hasScheme) {
       throw ArgumentError('WebViewRequest#uri is required to have a scheme.');
     }
-    final web.Response response =
+    final response =
         await _httpRequestFactory.request(
               request.uri.toString(),
               method: request.method.serialize(),
@@ -191,15 +186,13 @@ class WebWebViewPlatformController implements WebViewPlatformController {
             )
             as web.Response;
 
-    final String contentType =
-        response.headers.get('content-type') ?? 'text/html';
+    final String contentType = response.headers.get('content-type') ?? 'text/html';
 
-    _element.src =
-        Uri.dataFromString(
-          (await response.text().toDart).toDart,
-          mimeType: contentType,
-          encoding: utf8,
-        ).toString();
+    _element.src = Uri.dataFromString(
+      (await response.text().toDart).toDart,
+      mimeType: contentType,
+      encoding: utf8,
+    ).toString();
   }
 
   @override

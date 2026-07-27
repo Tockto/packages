@@ -11,18 +11,11 @@ import 'package:json_annotation/json_annotation.dart';
 
 import '../../store_kit_wrappers.dart';
 import '../channel.dart';
+import '../in_app_purchase_apis.dart';
 import '../in_app_purchase_storekit_platform.dart';
 import '../messages.g.dart';
 
 part 'sk_payment_queue_wrapper.g.dart';
-
-InAppPurchaseAPI _hostApi = InAppPurchaseAPI();
-
-/// Set up pigeon API.
-@visibleForTesting
-void setInAppPurchaseHostApi(InAppPurchaseAPI api) {
-  _hostApi = api;
-}
 
 /// A wrapper around
 /// [`SKPaymentQueue`](https://developer.apple.com/documentation/storekit/skpaymentqueue?language=objc).
@@ -54,23 +47,21 @@ class SKPaymentQueueWrapper {
   ///
   /// Returns `null` if the user's device is below iOS 13.0 or macOS 10.15.
   Future<SKStorefrontWrapper?> storefront() async {
-    return SKStorefrontWrapper.convertFromPigeon(await _hostApi.storefront());
+    return SKStorefrontWrapper.convertFromPigeon(await hostApi.storefront());
   }
 
   /// Calls [`-[SKPaymentQueue transactions]`](https://developer.apple.com/documentation/storekit/skpaymentqueue/1506026-transactions?language=objc).
   Future<List<SKPaymentTransactionWrapper>> transactions() async {
-    final List<SKPaymentTransactionMessage?> pigeonMsgs = await _hostApi
-        .transactions();
+    final List<SKPaymentTransactionMessage?> pigeonMsgs = await hostApi.transactions();
     return pigeonMsgs
         .map(
-          (SKPaymentTransactionMessage? msg) =>
-              SKPaymentTransactionWrapper.convertFromPigeon(msg!),
+          (SKPaymentTransactionMessage? msg) => SKPaymentTransactionWrapper.convertFromPigeon(msg!),
         )
         .toList();
   }
 
   /// Calls [`-[SKPaymentQueue canMakePayments:]`](https://developer.apple.com/documentation/storekit/skpaymentqueue/1506139-canmakepayments?language=objc).
-  static Future<bool> canMakePayments() async => _hostApi.canMakePayments();
+  static Future<bool> canMakePayments() async => hostApi.canMakePayments();
 
   /// Sets an observer to listen to all incoming transaction events.
   ///
@@ -88,16 +79,14 @@ class SKPaymentQueueWrapper {
   ///
   /// Call this method when the first listener is subscribed to the
   /// [InAppPurchaseStoreKitPlatform.purchaseStream].
-  Future<void> startObservingTransactionQueue() =>
-      _hostApi.startObservingPaymentQueue();
+  Future<void> startObservingTransactionQueue() => hostApi.startObservingPaymentQueue();
 
   /// Instructs the iOS implementation to remove the transaction observer and
   /// stop listening to it.
   ///
   /// Call this when there are no longer any listeners subscribed to the
   /// [InAppPurchaseStoreKitPlatform.purchaseStream].
-  Future<void> stopObservingTransactionQueue() =>
-      _hostApi.stopObservingPaymentQueue();
+  Future<void> stopObservingTransactionQueue() => hostApi.stopObservingPaymentQueue();
 
   /// Sets an implementation of the [SKPaymentQueueDelegateWrapper].
   ///
@@ -111,13 +100,11 @@ class SKPaymentQueueWrapper {
   /// default behaviour will apply (see [documentation](https://developer.apple.com/documentation/storekit/skpaymentqueue/3182429-delegate?language=objc)).
   Future<void> setDelegate(SKPaymentQueueDelegateWrapper? delegate) async {
     if (delegate == null) {
-      await _hostApi.removePaymentQueueDelegate();
+      await hostApi.removePaymentQueueDelegate();
       paymentQueueDelegateChannel.setMethodCallHandler(null);
     } else {
-      await _hostApi.registerPaymentQueueDelegate();
-      paymentQueueDelegateChannel.setMethodCallHandler(
-        handlePaymentQueueDelegateCallbacks,
-      );
+      await hostApi.registerPaymentQueueDelegate();
+      paymentQueueDelegateChannel.setMethodCallHandler(handlePaymentQueueDelegateCallbacks);
     }
 
     _paymentQueueDelegate = delegate;
@@ -149,7 +136,7 @@ class SKPaymentQueueWrapper {
       '[in_app_purchase]: Trying to add a payment without an observer. One must be set using `SkPaymentQueueWrapper.setTransactionObserver` before the app launches.',
     );
 
-    await _hostApi.addPayment(payment.toMap());
+    await hostApi.addPayment(payment.toMap());
   }
 
   /// Finishes a transaction and removes it from the queue.
@@ -163,11 +150,9 @@ class SKPaymentQueueWrapper {
   ///
   /// This method calls StoreKit's [`-[SKPaymentQueue
   /// finishTransaction:]`](https://developer.apple.com/documentation/storekit/skpaymentqueue/1506003-finishtransaction?language=objc).
-  Future<void> finishTransaction(
-    SKPaymentTransactionWrapper transaction,
-  ) async {
+  Future<void> finishTransaction(SKPaymentTransactionWrapper transaction) async {
     final Map<String, String?> requestMap = transaction.toFinishMap();
-    await _hostApi.finishTransaction(requestMap);
+    await hostApi.finishTransaction(requestMap);
   }
 
   /// Restore previously purchased transactions.
@@ -191,7 +176,7 @@ class SKPaymentQueueWrapper {
   /// or [`-[SKPayment restoreCompletedTransactionsWithApplicationUsername:]`](https://developer.apple.com/documentation/storekit/skpaymentqueue/1505992-restorecompletedtransactionswith?language=objc)
   /// depending on whether the `applicationUserName` is set.
   Future<void> restoreTransactions({String? applicationUserName}) async {
-    await _hostApi.restoreTransactions(applicationUserName);
+    await hostApi.restoreTransactions(applicationUserName);
   }
 
   /// Present Code Redemption Sheet
@@ -201,7 +186,7 @@ class SKPaymentQueueWrapper {
   /// This method triggers [`-[SKPayment
   /// presentCodeRedemptionSheet]`](https://developer.apple.com/documentation/storekit/skpaymentqueue/3566726-presentcoderedemptionsheet?language=objc)
   Future<void> presentCodeRedemptionSheet() async {
-    await _hostApi.presentCodeRedemptionSheet();
+    await hostApi.presentCodeRedemptionSheet();
   }
 
   /// Shows the price consent sheet if the user has not yet responded to a
@@ -213,7 +198,7 @@ class SKPaymentQueueWrapper {
   ///
   /// See documentation of StoreKit's [`-[SKPaymentQueue showPriceConsentIfNeeded]`](https://developer.apple.com/documentation/storekit/skpaymentqueue/3521327-showpriceconsentifneeded?language=objc).
   Future<void> showPriceConsentIfNeeded() async {
-    await _hostApi.showPriceConsentIfNeeded();
+    await hostApi.showPriceConsentIfNeeded();
   }
 
   /// Triage a method channel call from the platform and triggers the correct observer method.
@@ -230,23 +215,25 @@ class SKPaymentQueueWrapper {
     switch (call.method) {
       case 'updatedTransactions':
         {
-          final List<SKPaymentTransactionWrapper> transactions =
-              _getTransactionList(call.arguments as List<dynamic>);
+          final List<SKPaymentTransactionWrapper> transactions = _getTransactionList(
+            call.arguments as List<dynamic>,
+          );
           return Future<void>(() {
             observer.updatedTransactions(transactions: transactions);
           });
         }
       case 'removedTransactions':
         {
-          final List<SKPaymentTransactionWrapper> transactions =
-              _getTransactionList(call.arguments as List<dynamic>);
+          final List<SKPaymentTransactionWrapper> transactions = _getTransactionList(
+            call.arguments as List<dynamic>,
+          );
           return Future<void>(() {
             observer.removedTransactions(transactions: transactions);
           });
         }
       case 'restoreCompletedTransactionsFailed':
         {
-          final SKError error = SKError.fromJson(
+          final error = SKError.fromJson(
             Map<String, dynamic>.from(call.arguments as Map<dynamic, dynamic>),
           );
           return Future<void>(() {
@@ -261,21 +248,15 @@ class SKPaymentQueueWrapper {
         }
       case 'shouldAddStorePayment':
         {
-          final Map<Object?, Object?> arguments =
-              call.arguments as Map<Object?, Object?>;
-          final SKPaymentWrapper payment = SKPaymentWrapper.fromJson(
-            (arguments['payment']! as Map<dynamic, dynamic>)
-                .cast<String, dynamic>(),
+          final arguments = call.arguments as Map<Object?, Object?>;
+          final payment = SKPaymentWrapper.fromJson(
+            (arguments['payment']! as Map<dynamic, dynamic>).cast<String, dynamic>(),
           );
-          final SKProductWrapper product = SKProductWrapper.fromJson(
-            (arguments['product']! as Map<dynamic, dynamic>)
-                .cast<String, dynamic>(),
+          final product = SKProductWrapper.fromJson(
+            (arguments['product']! as Map<dynamic, dynamic>).cast<String, dynamic>(),
           );
           return Future<void>(() {
-            if (observer.shouldAddStorePayment(
-              payment: payment,
-              product: product,
-            )) {
+            if (observer.shouldAddStorePayment(payment: payment, product: product)) {
               SKPaymentQueueWrapper().addPayment(payment);
             }
           });
@@ -290,14 +271,10 @@ class SKPaymentQueueWrapper {
   }
 
   // Get transaction wrapper object list from arguments.
-  List<SKPaymentTransactionWrapper> _getTransactionList(
-    List<dynamic> transactionsData,
-  ) {
+  List<SKPaymentTransactionWrapper> _getTransactionList(List<dynamic> transactionsData) {
     return transactionsData.map<SKPaymentTransactionWrapper>((dynamic map) {
       return SKPaymentTransactionWrapper.fromJson(
-        Map.castFrom<dynamic, dynamic, String, dynamic>(
-          map as Map<dynamic, dynamic>,
-        ),
+        Map.castFrom<dynamic, dynamic, String, dynamic>(map as Map<dynamic, dynamic>),
       );
     }).toList();
   }
@@ -317,16 +294,12 @@ class SKPaymentQueueWrapper {
     final SKPaymentQueueDelegateWrapper delegate = _paymentQueueDelegate!;
     switch (call.method) {
       case 'shouldContinueTransaction':
-        final Map<Object?, Object?> arguments =
-            call.arguments as Map<Object?, Object?>;
-        final SKPaymentTransactionWrapper transaction =
-            SKPaymentTransactionWrapper.fromJson(
-              (arguments['transaction']! as Map<dynamic, dynamic>)
-                  .cast<String, dynamic>(),
-            );
-        final SKStorefrontWrapper storefront = SKStorefrontWrapper.fromJson(
-          (arguments['storefront']! as Map<dynamic, dynamic>)
-              .cast<String, dynamic>(),
+        final arguments = call.arguments as Map<Object?, Object?>;
+        final transaction = SKPaymentTransactionWrapper.fromJson(
+          (arguments['transaction']! as Map<dynamic, dynamic>).cast<String, dynamic>(),
+        );
+        final storefront = SKStorefrontWrapper.fromJson(
+          (arguments['storefront']! as Map<dynamic, dynamic>).cast<String, dynamic>(),
         );
         return delegate.shouldContinueTransaction(transaction, storefront);
       case 'shouldShowPriceConsent':
@@ -336,8 +309,7 @@ class SKPaymentQueueWrapper {
     }
     throw PlatformException(
       code: 'no_such_callback',
-      message:
-          'Did not recognize the payment queue delegate callback ${call.method}.',
+      message: 'Did not recognize the payment queue delegate callback ${call.method}.',
     );
   }
 }
@@ -348,11 +320,7 @@ class SKPaymentQueueWrapper {
 @JsonSerializable()
 class SKError {
   /// Creates a new [SKError] object with the provided information.
-  const SKError({
-    required this.code,
-    required this.domain,
-    required this.userInfo,
-  });
+  const SKError({required this.code, required this.domain, required this.userInfo});
 
   /// Constructs an instance of this from a key-value map of data.
   ///
@@ -391,10 +359,7 @@ class SKError {
     return other is SKError &&
         other.code == code &&
         other.domain == domain &&
-        const DeepCollectionEquality.unordered().equals(
-          other.userInfo,
-          userInfo,
-        );
+        const DeepCollectionEquality.unordered().equals(other.userInfo, userInfo);
   }
 
   @override
@@ -539,9 +504,7 @@ class SKPaymentWrapper {
       quantity: msg.quantity,
       simulatesAskToBuyInSandbox: msg.simulatesAskToBuyInSandbox,
       requestData: msg.requestData,
-      paymentDiscount: SKPaymentDiscountWrapper.convertFromPigeon(
-        msg.paymentDiscount,
-      ),
+      paymentDiscount: SKPaymentDiscountWrapper.convertFromPigeon(msg.paymentDiscount),
     );
   }
 }
@@ -640,13 +603,10 @@ class SKPaymentDiscountWrapper {
   }
 
   @override
-  int get hashCode =>
-      Object.hash(identifier, keyIdentifier, nonce, signature, timestamp);
+  int get hashCode => Object.hash(identifier, keyIdentifier, nonce, signature, timestamp);
 
   /// Converts [SKPaymentDiscountMessage] into the dart equivalent
-  static SKPaymentDiscountWrapper? convertFromPigeon(
-    SKPaymentDiscountMessage? msg,
-  ) {
+  static SKPaymentDiscountWrapper? convertFromPigeon(SKPaymentDiscountMessage? msg) {
     if (msg == null) {
       return null;
     }

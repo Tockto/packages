@@ -28,22 +28,21 @@ void main() {
   });
 
   testWidgets('Initializing a polyline', (WidgetTester tester) async {
-    const Polyline p1 = Polyline(polylineId: PolylineId('polyline_1'));
+    const p1 = Polyline(polylineId: PolylineId('polyline_1'));
     await tester.pumpWidget(_mapWithPolylines(<Polyline>{p1}));
 
     final PlatformMapStateRecorder map = platform.lastCreatedMap;
     expect(map.polylineUpdates.last.polylinesToAdd.length, 1);
 
-    final Polyline initializedPolyline =
-        map.polylineUpdates.last.polylinesToAdd.first;
+    final Polyline initializedPolyline = map.polylineUpdates.last.polylinesToAdd.first;
     expect(initializedPolyline, equals(p1));
     expect(map.polylineUpdates.last.polylineIdsToRemove.isEmpty, true);
     expect(map.polylineUpdates.last.polylinesToChange.isEmpty, true);
   });
 
   testWidgets('Adding a polyline', (WidgetTester tester) async {
-    const Polyline p1 = Polyline(polylineId: PolylineId('polyline_1'));
-    const Polyline p2 = Polyline(polylineId: PolylineId('polyline_2'));
+    const p1 = Polyline(polylineId: PolylineId('polyline_1'));
+    const p2 = Polyline(polylineId: PolylineId('polyline_2'));
 
     await tester.pumpWidget(_mapWithPolylines(<Polyline>{p1}));
     await tester.pumpWidget(_mapWithPolylines(<Polyline>{p1, p2}));
@@ -51,8 +50,7 @@ void main() {
     final PlatformMapStateRecorder map = platform.lastCreatedMap;
     expect(map.polylineUpdates.last.polylinesToAdd.length, 1);
 
-    final Polyline addedPolyline =
-        map.polylineUpdates.last.polylinesToAdd.first;
+    final Polyline addedPolyline = map.polylineUpdates.last.polylinesToAdd.first;
     expect(addedPolyline, equals(p2));
 
     expect(map.polylineUpdates.last.polylineIdsToRemove.isEmpty, true);
@@ -61,28 +59,22 @@ void main() {
   });
 
   testWidgets('Removing a polyline', (WidgetTester tester) async {
-    const Polyline p1 = Polyline(polylineId: PolylineId('polyline_1'));
+    const p1 = Polyline(polylineId: PolylineId('polyline_1'));
 
     await tester.pumpWidget(_mapWithPolylines(<Polyline>{p1}));
     await tester.pumpWidget(_mapWithPolylines(<Polyline>{}));
 
     final PlatformMapStateRecorder map = platform.lastCreatedMap;
     expect(map.polylineUpdates.last.polylineIdsToRemove.length, 1);
-    expect(
-      map.polylineUpdates.last.polylineIdsToRemove.first,
-      equals(p1.polylineId),
-    );
+    expect(map.polylineUpdates.last.polylineIdsToRemove.first, equals(p1.polylineId));
 
     expect(map.polylineUpdates.last.polylinesToChange.isEmpty, true);
     expect(map.polylineUpdates.last.polylinesToAdd.isEmpty, true);
   });
 
   testWidgets('Updating a polyline', (WidgetTester tester) async {
-    const Polyline p1 = Polyline(polylineId: PolylineId('polyline_1'));
-    const Polyline p2 = Polyline(
-      polylineId: PolylineId('polyline_1'),
-      geodesic: true,
-    );
+    const p1 = Polyline(polylineId: PolylineId('polyline_1'));
+    const p2 = Polyline(polylineId: PolylineId('polyline_1'), geodesic: true);
 
     await tester.pumpWidget(_mapWithPolylines(<Polyline>{p1}));
     await tester.pumpWidget(_mapWithPolylines(<Polyline>{p2}));
@@ -96,11 +88,8 @@ void main() {
   });
 
   testWidgets('Updating a polyline', (WidgetTester tester) async {
-    const Polyline p1 = Polyline(polylineId: PolylineId('polyline_1'));
-    const Polyline p2 = Polyline(
-      polylineId: PolylineId('polyline_1'),
-      geodesic: true,
-    );
+    const p1 = Polyline(polylineId: PolylineId('polyline_1'));
+    const p2 = Polyline(polylineId: PolylineId('polyline_1'), geodesic: true);
 
     await tester.pumpWidget(_mapWithPolylines(<Polyline>{p1}));
     await tester.pumpWidget(_mapWithPolylines(<Polyline>{p2}));
@@ -114,11 +103,8 @@ void main() {
   });
 
   testWidgets('Mutate a polyline', (WidgetTester tester) async {
-    final List<LatLng> points = <LatLng>[const LatLng(0.0, 0.0)];
-    final Polyline p1 = Polyline(
-      polylineId: const PolylineId('polyline_1'),
-      points: points,
-    );
+    final points = <LatLng>[const LatLng(0.0, 0.0)];
+    final p1 = Polyline(polylineId: const PolylineId('polyline_1'), points: points);
     await tester.pumpWidget(_mapWithPolylines(<Polyline>{p1}));
 
     p1.points.add(const LatLng(1.0, 1.0));
@@ -133,12 +119,12 @@ void main() {
   });
 
   testWidgets('Multi Update', (WidgetTester tester) async {
-    Polyline p1 = const Polyline(polylineId: PolylineId('polyline_1'));
-    Polyline p2 = const Polyline(polylineId: PolylineId('polyline_2'));
-    final Set<Polyline> prev = <Polyline>{p1, p2};
+    var p1 = const Polyline(polylineId: PolylineId('polyline_1'));
+    var p2 = const Polyline(polylineId: PolylineId('polyline_2'));
+    final prev = <Polyline>{p1, p2};
     p1 = const Polyline(polylineId: PolylineId('polyline_1'), visible: false);
     p2 = const Polyline(polylineId: PolylineId('polyline_2'), geodesic: true);
-    final Set<Polyline> cur = <Polyline>{p1, p2};
+    final cur = <Polyline>{p1, p2};
 
     await tester.pumpWidget(_mapWithPolylines(prev));
     await tester.pumpWidget(_mapWithPolylines(cur));
@@ -151,14 +137,14 @@ void main() {
   });
 
   testWidgets('Multi Update', (WidgetTester tester) async {
-    Polyline p2 = const Polyline(polylineId: PolylineId('polyline_2'));
-    const Polyline p3 = Polyline(polylineId: PolylineId('polyline_3'));
-    final Set<Polyline> prev = <Polyline>{p2, p3};
+    var p2 = const Polyline(polylineId: PolylineId('polyline_2'));
+    const p3 = Polyline(polylineId: PolylineId('polyline_3'));
+    final prev = <Polyline>{p2, p3};
 
     // p1 is added, p2 is updated, p3 is removed.
-    const Polyline p1 = Polyline(polylineId: PolylineId('polyline_1'));
+    const p1 = Polyline(polylineId: PolylineId('polyline_1'));
     p2 = const Polyline(polylineId: PolylineId('polyline_2'), geodesic: true);
-    final Set<Polyline> cur = <Polyline>{p1, p2};
+    final cur = <Polyline>{p1, p2};
 
     await tester.pumpWidget(_mapWithPolylines(prev));
     await tester.pumpWidget(_mapWithPolylines(cur));
@@ -171,19 +157,16 @@ void main() {
 
     expect(map.polylineUpdates.last.polylinesToChange.first, equals(p2));
     expect(map.polylineUpdates.last.polylinesToAdd.first, equals(p1));
-    expect(
-      map.polylineUpdates.last.polylineIdsToRemove.first,
-      equals(p3.polylineId),
-    );
+    expect(map.polylineUpdates.last.polylineIdsToRemove.first, equals(p3.polylineId));
   });
 
   testWidgets('Partial Update', (WidgetTester tester) async {
-    const Polyline p1 = Polyline(polylineId: PolylineId('polyline_1'));
-    const Polyline p2 = Polyline(polylineId: PolylineId('polyline_2'));
-    Polyline p3 = const Polyline(polylineId: PolylineId('polyline_3'));
-    final Set<Polyline> prev = <Polyline>{p1, p2, p3};
+    const p1 = Polyline(polylineId: PolylineId('polyline_1'));
+    const p2 = Polyline(polylineId: PolylineId('polyline_2'));
+    var p3 = const Polyline(polylineId: PolylineId('polyline_3'));
+    final prev = <Polyline>{p1, p2, p3};
     p3 = const Polyline(polylineId: PolylineId('polyline_3'), geodesic: true);
-    final Set<Polyline> cur = <Polyline>{p1, p2, p3};
+    final cur = <Polyline>{p1, p2, p3};
 
     await tester.pumpWidget(_mapWithPolylines(prev));
     await tester.pumpWidget(_mapWithPolylines(cur));
@@ -196,10 +179,10 @@ void main() {
   });
 
   testWidgets('Update non platform related attr', (WidgetTester tester) async {
-    Polyline p1 = const Polyline(polylineId: PolylineId('polyline_1'));
-    final Set<Polyline> prev = <Polyline>{p1};
+    var p1 = const Polyline(polylineId: PolylineId('polyline_1'));
+    final prev = <Polyline>{p1};
     p1 = Polyline(polylineId: const PolylineId('polyline_1'), onTap: () {});
-    final Set<Polyline> cur = <Polyline>{p1};
+    final cur = <Polyline>{p1};
 
     await tester.pumpWidget(_mapWithPolylines(prev));
     await tester.pumpWidget(_mapWithPolylines(cur));
@@ -214,16 +197,10 @@ void main() {
   testWidgets('multi-update with delays', (WidgetTester tester) async {
     platform.simulatePlatformDelay = true;
 
-    const Polyline p1 = Polyline(polylineId: PolylineId('polyline_1'));
-    const Polyline p2 = Polyline(polylineId: PolylineId('polyline_2'));
-    const Polyline p3 = Polyline(
-      polylineId: PolylineId('polyline_3'),
-      width: 1,
-    );
-    const Polyline p3updated = Polyline(
-      polylineId: PolylineId('polyline_3'),
-      width: 2,
-    );
+    const p1 = Polyline(polylineId: PolylineId('polyline_1'));
+    const p2 = Polyline(polylineId: PolylineId('polyline_2'));
+    const p3 = Polyline(polylineId: PolylineId('polyline_3'), width: 1);
+    const p3updated = Polyline(polylineId: PolylineId('polyline_3'), width: 2);
 
     // First remove one and add another, then update the new one.
     await tester.pumpWidget(_mapWithPolylines(<Polyline>{p1, p2}));
@@ -240,9 +217,7 @@ void main() {
 
     expect(map.polylineUpdates[1].polylinesToChange.isEmpty, true);
     expect(map.polylineUpdates[1].polylinesToAdd, <Polyline>{p3});
-    expect(map.polylineUpdates[1].polylineIdsToRemove, <PolylineId>{
-      p2.polylineId,
-    });
+    expect(map.polylineUpdates[1].polylineIdsToRemove, <PolylineId>{p2.polylineId});
 
     expect(map.polylineUpdates[2].polylinesToChange, <Polyline>{p3updated});
     expect(map.polylineUpdates[2].polylinesToAdd.isEmpty, true);

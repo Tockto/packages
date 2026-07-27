@@ -3,12 +3,17 @@
 // found in the LICENSE file.
 
 import 'package:file_selector_platform_interface/file_selector_platform_interface.dart';
+import 'package:flutter/foundation.dart' show visibleForTesting;
 
 import 'src/messages.g.dart';
 
 /// An implementation of [FileSelectorPlatform] for Windows.
 class FileSelectorWindows extends FileSelectorPlatform {
-  final FileSelectorApi _hostApi = FileSelectorApi();
+  /// Creates a new plugin implementation instance.
+  FileSelectorWindows({@visibleForTesting FileSelectorApi? api})
+    : _hostApi = api ?? FileSelectorApi();
+
+  final FileSelectorApi _hostApi;
 
   /// Registers the Windows implementation.
   static void registerWith() {
@@ -22,9 +27,7 @@ class FileSelectorWindows extends FileSelectorPlatform {
     String? confirmButtonText,
   }) async {
     final FileDialogResult result = await _hostApi.showOpenDialog(
-      SelectionOptions(
-        allowedTypes: _typeGroupsFromXTypeGroups(acceptedTypeGroups),
-      ),
+      SelectionOptions(allowedTypes: _typeGroupsFromXTypeGroups(acceptedTypeGroups)),
       initialDirectory,
       confirmButtonText,
     );
@@ -72,9 +75,7 @@ class FileSelectorWindows extends FileSelectorPlatform {
     SaveDialogOptions options = const SaveDialogOptions(),
   }) async {
     final FileDialogResult result = await _hostApi.showSaveDialog(
-      SelectionOptions(
-        allowedTypes: _typeGroupsFromXTypeGroups(acceptedTypeGroups),
-      ),
+      SelectionOptions(allowedTypes: _typeGroupsFromXTypeGroups(acceptedTypeGroups)),
       options.initialDirectory,
       options.suggestedName,
       options.confirmButtonText,
@@ -83,17 +84,13 @@ class FileSelectorWindows extends FileSelectorPlatform {
     return result.paths.isEmpty
         ? null
         : FileSaveLocation(
-          result.paths.first,
-          activeFilter:
-              groupIndex == null ? null : acceptedTypeGroups?[groupIndex],
-        );
+            result.paths.first,
+            activeFilter: groupIndex == null ? null : acceptedTypeGroups?[groupIndex],
+          );
   }
 
   @override
-  Future<String?> getDirectoryPath({
-    String? initialDirectory,
-    String? confirmButtonText,
-  }) async {
+  Future<String?> getDirectoryPath({String? initialDirectory, String? confirmButtonText}) async {
     final FileDialogResult result = await _hostApi.showOpenDialog(
       SelectionOptions(selectFolders: true, allowedTypes: <TypeGroup>[]),
       initialDirectory,
@@ -108,11 +105,7 @@ class FileSelectorWindows extends FileSelectorPlatform {
     String? confirmButtonText,
   }) async {
     final FileDialogResult result = await _hostApi.showOpenDialog(
-      SelectionOptions(
-        allowMultiple: true,
-        selectFolders: true,
-        allowedTypes: <TypeGroup>[],
-      ),
+      SelectionOptions(allowMultiple: true, selectFolders: true, allowedTypes: <TypeGroup>[]),
       initialDirectory,
       confirmButtonText,
     );
@@ -130,9 +123,6 @@ List<TypeGroup> _typeGroupsFromXTypeGroups(List<XTypeGroup>? xtypes) {
         'anything is non-empty.',
       );
     }
-    return TypeGroup(
-      label: xtype.label ?? '',
-      extensions: xtype.extensions ?? <String>[],
-    );
+    return TypeGroup(label: xtype.label ?? '', extensions: xtype.extensions ?? <String>[]);
   }).toList();
 }

@@ -1,3 +1,68 @@
+## 2.12.0
+
+* Fixes a [bug](https://github.com/flutter/flutter/issues/176575) where some videos report an incorrect duration when initialized without a video duration.
+
+## 2.11.0
+
+* Adds `backBufferDurationMs` to `CreationOptions` to configure ExoPlayer `DefaultLoadControl` back buffer duration.
+
+## 2.10.0
+
+* Implements `getVideoTracks()` and `selectVideoTrack()` methods for video track (quality) selection using ExoPlayer.
+
+## 2.9.7
+
+* Fixes a [bug](https://github.com/flutter/flutter/issues/184241) where the video freezes after returning from a full-screen transition on Android.
+
+## 2.9.6
+
+* Migrates to Built-in Kotlin to support AGP 9.
+* Updates minimum supported SDK version to Flutter 3.44/Dart 3.12.
+
+## 2.9.5
+
+* Updates build files from Groovy to Kotlin.
+
+## 2.9.4
+
+* Updates `androidx.media3` to 1.9.2.
+
+## 2.9.3
+
+* Updates `androidx.media3` to 1.9.1.
+
+## 2.9.2
+
+* Bumps kotlin_version to 2.3.0.
+
+## 2.9.1
+
+* Updates to Pigeon 26.1.5.
+
+## 2.9.0
+
+* Implements `getAudioTracks()` and `selectAudioTrack()` methods for Android using ExoPlayer.
+
+## 2.8.22
+
+* Bumps kotlin_version to 2.2.21.
+
+## 2.8.21
+
+* Bumps com.android.tools.build:gradle from 8.12.1 to 8.13.1.
+
+## 2.8.20
+
+* Bumps `exoplayer_version` from 1.5.1 to 1.8.0.
+
+## 2.8.19
+
+* Updates to Pigeon 26.
+
+## 2.8.18
+
+* Removed mockito-inline and updated to mockito-core 5.17.0.
+
 ## 2.8.17
 
 * Moves video event processing logic to Dart, and fixes an issue where buffer
@@ -163,7 +228,6 @@
 ## 2.7.2
 
 * Updates minimum supported SDK version to Flutter 3.24/Dart 3.5.
-
 * Re-adds Impeller support.
 
 ## 2.7.1

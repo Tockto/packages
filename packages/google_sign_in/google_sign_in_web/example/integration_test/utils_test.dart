@@ -18,9 +18,8 @@ void main() {
 
   group('gisResponsesToAuthenticationEvent', () {
     testWidgets('happy case', (_) async {
-      final AuthenticationEventSignIn signIn =
-          gisResponsesToAuthenticationEvent(goodCredential)!
-              as AuthenticationEventSignIn;
+      final signIn =
+          gisResponsesToAuthenticationEvent(goodCredential)! as AuthenticationEventSignIn;
       final GoogleSignInUserData data = signIn.user;
 
       expect(data.displayName, 'Vincent Adultman');
@@ -31,9 +30,8 @@ void main() {
     });
 
     testWidgets('happy case (minimal)', (_) async {
-      final AuthenticationEventSignIn signIn =
-          gisResponsesToAuthenticationEvent(minimalCredential)!
-              as AuthenticationEventSignIn;
+      final signIn =
+          gisResponsesToAuthenticationEvent(minimalCredential)! as AuthenticationEventSignIn;
       final GoogleSignInUserData data = signIn.user;
 
       expect(data.displayName, isNull);
@@ -52,38 +50,29 @@ void main() {
     });
 
     testWidgets('invalid payload -> null', (_) async {
-      final CredentialResponse response = jsifyAs<CredentialResponse>(
-        <String, Object?>{
-          'credential': 'some-bogus.thing-that-is-not.valid-jwt',
-        },
-      );
+      final CredentialResponse response = jsifyAs<CredentialResponse>(<String, Object?>{
+        'credential': 'some-bogus.thing-that-is-not.valid-jwt',
+      });
       expect(gisResponsesToAuthenticationEvent(response), isNull);
     });
   });
 
   group('getCredentialResponseExpirationTimestamp', () {
     testWidgets('Good payload -> data', (_) async {
-      final DateTime? expiration = getCredentialResponseExpirationTimestamp(
-        expiredCredential,
-      );
+      final DateTime? expiration = getCredentialResponseExpirationTimestamp(expiredCredential);
 
       expect(expiration, isNotNull);
       expect(expiration!.millisecondsSinceEpoch, 1430330400 * 1000);
     });
 
     testWidgets('No expiration -> null', (_) async {
-      expect(
-        getCredentialResponseExpirationTimestamp(minimalCredential),
-        isNull,
-      );
+      expect(getCredentialResponseExpirationTimestamp(minimalCredential), isNull);
     });
 
     testWidgets('Bad data -> null', (_) async {
-      final CredentialResponse bogus = jsifyAs<CredentialResponse>(
-        <String, Object?>{
-          'credential': 'some-bogus.thing-that-is-not.valid-jwt',
-        },
-      );
+      final CredentialResponse bogus = jsifyAs<CredentialResponse>(<String, Object?>{
+        'credential': 'some-bogus.thing-that-is-not.valid-jwt',
+      });
 
       expect(getCredentialResponseExpirationTimestamp(bogus), isNull);
     });
@@ -97,13 +86,7 @@ void main() {
       expect(data, containsPair('name', 'Vincent Adultman'));
       expect(data, containsPair('email', 'adultman@example.com'));
       expect(data, containsPair('sub', '123456'));
-      expect(
-        data,
-        containsPair(
-          'picture',
-          'https://thispersondoesnotexist.com/image?x=.jpg',
-        ),
-      );
+      expect(data, containsPair('picture', 'https://thispersondoesnotexist.com/image?x=.jpg'));
     });
 
     testWidgets('happy case (minimal) -> data', (_) async {
@@ -141,13 +124,7 @@ void main() {
       expect(data, containsPair('name', 'Vincent Adultman'));
       expect(data, containsPair('email', 'adultman@example.com'));
       expect(data, containsPair('sub', '123456'));
-      expect(
-        data,
-        containsPair(
-          'picture',
-          'https://thispersondoesnotexist.com/image?x=.jpg',
-        ),
-      );
+      expect(data, containsPair('picture', 'https://thispersondoesnotexist.com/image?x=.jpg'));
     });
 
     testWidgets('Proper JSON payload -> data', (_) async {
@@ -188,7 +165,7 @@ void main() {
     });
 
     testWidgets('Non base-64 payload -> null', (_) async {
-      const String payload = 'not-base-64-at-all';
+      const payload = 'not-base-64-at-all';
 
       final Map<String, Object?>? data = decodeJwtPayload(payload);
 

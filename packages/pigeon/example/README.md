@@ -23,8 +23,7 @@ needed for your project.
     gobjectHeaderOut: 'linux/messages.g.h',
     gobjectSourceOut: 'linux/messages.g.cc',
     gobjectOptions: GObjectOptions(),
-    kotlinOut:
-        'android/app/src/main/kotlin/dev/flutter/pigeon_example_app/Messages.g.kt',
+    kotlinOut: 'android/app/src/main/kotlin/dev/flutter/pigeon_example_app/Messages.g.kt',
     kotlinOptions: KotlinOptions(),
     javaOut: 'android/app/src/main/java/io/flutter/plugins/Messages.java',
     javaOptions: JavaOptions(),
@@ -62,7 +61,7 @@ enum Code { one, two }
 class MessageData {
   MessageData({required this.code, required this.data});
   String? name;
-  String? description;
+  String? messageDescription;
   Code code;
   Map<String, String> data;
 }
@@ -79,6 +78,7 @@ abstract class ExampleHostApi {
   @async
   bool sendMessage(MessageData message);
 }
+
 ```
 
 ### Dart
@@ -103,10 +103,10 @@ Future<int> add(int a, int b) async {
 /// Sends message through host api using `MessageData` class
 /// and api `sendMessage` method.
 Future<bool> sendMessage(String messageText) {
-  final MessageData message = MessageData(
+  final message = MessageData(
     code: Code.one,
     data: <String, String>{'header': 'this is a header'},
-    description: 'uri text',
+    messageDescription: 'uri text',
   );
   try {
     return _api.sendMessage(message);
@@ -115,6 +115,7 @@ Future<bool> sendMessage(String messageText) {
     return Future<bool>(() => true);
   }
 }
+
 ```
 
 ### Swift
@@ -268,6 +269,7 @@ class _ExampleFlutterApi implements MessageFlutterApi {
     return aString ?? '';
   }
 }
+
 // ···
   MessageFlutterApi.setUp(_ExampleFlutterApi());
 ```
@@ -397,6 +399,7 @@ Stream<String> getEventStream() async* {
     }
   }
 }
+
 ```
 
 ### Swift

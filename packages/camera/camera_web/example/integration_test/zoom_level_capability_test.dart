@@ -17,12 +17,11 @@ void main() {
 
   group('ZoomLevelCapability', () {
     testWidgets('sets all properties', (WidgetTester tester) async {
-      const double minimum = 100.0;
-      const double maximum = 400.0;
-      final MediaStreamTrack videoTrack =
-          createJSInteropWrapper(MockMediaStreamTrack()) as MediaStreamTrack;
+      const minimum = 100.0;
+      const maximum = 400.0;
+      final videoTrack = createJSInteropWrapper(MockMediaStreamTrack()) as MediaStreamTrack;
 
-      final ZoomLevelCapability capability = ZoomLevelCapability(
+      final capability = ZoomLevelCapability(
         minimum: minimum,
         maximum: maximum,
         videoTrack: videoTrack,
@@ -34,22 +33,11 @@ void main() {
     });
 
     testWidgets('supports value equality', (WidgetTester tester) async {
-      final MediaStreamTrack videoTrack =
-          createJSInteropWrapper(MockMediaStreamTrack()) as MediaStreamTrack;
+      final videoTrack = createJSInteropWrapper(MockMediaStreamTrack()) as MediaStreamTrack;
 
       expect(
-        ZoomLevelCapability(
-          minimum: 0.0,
-          maximum: 100.0,
-          videoTrack: videoTrack,
-        ),
-        equals(
-          ZoomLevelCapability(
-            minimum: 0.0,
-            maximum: 100.0,
-            videoTrack: videoTrack,
-          ),
-        ),
+        ZoomLevelCapability(minimum: 0.0, maximum: 100.0, videoTrack: videoTrack),
+        equals(ZoomLevelCapability(minimum: 0.0, maximum: 100.0, videoTrack: videoTrack)),
       );
     });
   });

@@ -1,5 +1,25 @@
-## NEXT
+## 0.3.5+4
 
+* Adds a runnable `main` entry point and an additional `XFile.fromData`
+  demonstration to the example.
+
+## 0.3.5+3
+
+* Clarifies native XFile.mimeType documentation.
+* Updates minimum supported SDK version to Flutter 3.38/Dart 3.10.
+
+## 0.3.5+2
+
+* Separates "Save As" implementation details from XFile web class.
+
+## 0.3.5+1
+
+* Replaces README mentions of `dart:html` with `package:web`.
+* Updates minimum supported SDK version to Flutter 3.32/Dart 3.8.
+
+## 0.3.5
+
+* Fixes a bug where the bytes of an XFile, that is created using the `XFile.fromData` constructor, are ignored on web.
 * Updates minimum supported SDK version to Flutter 3.29/Dart 3.7.
 
 ## 0.3.4+2

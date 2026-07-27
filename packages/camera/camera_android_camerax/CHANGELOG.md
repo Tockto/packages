@@ -1,3 +1,117 @@
+## 0.7.4+2
+
+* Bumps cameraxVersion from 1.6.0 to 1.6.1.
+* Updates androidx.camera:camera-core from 1.6.0 to 1.6.1.
+* Updates androidx.camera:camera-camera2 from 1.6.0 to 1.6.1.
+* Updates androidx.camera:camera-lifecycle from 1.6.0 to 1.6.1.
+* Updates androidx.camera:camera-video from 1.6.0 to 1.6.1.
+
+## 0.7.4+1
+
+* Fixes a `StateError` ("Bad state: No element") in `setFocusMode(FocusMode.auto)`
+  when the current focus and metering action has no auto-focus points.
+
+## 0.7.4
+
+* Adds `setJpegImageQuality` for controlling JPEG compression quality.
+
+## 0.7.3
+
+* Fixes `videoBitrate` configuration being ignored during video recording.
+
+## 0.7.2+1
+
+* Migrates to Built-in Kotlin to support AGP 9.
+* Updates minimum supported SDK version to Flutter 3.44/Dart 3.12.
+
+## 0.7.2
+
+* Bumps camerax_version from 1.5.3 to 1.6.0.
+
+## 0.7.1+2
+
+* Fixes dartdoc comments that accidentally used HTML.
+
+## 0.7.1+1
+
+* Updates build files from Groovy to Kotlin.
+
+## 0.7.1
+
+* Removes outdated restrictions against concurrent camera use cases.
+
+## 0.7.0+1
+
+* Updates example to demonstrate correct exception handling for async return statements, ensuring exceptions thrown during return within try blocks are properly caught as per [dart-lang/sdk#44395](https://github.com/dart-lang/sdk/issues/44395).
+
+## 0.7.0
+
+* Adds video stabilization.
+
+## 0.6.30
+
+* Bump camerax_version from 1.5.2 to 1.5.3.
+
+## 0.6.29
+
+* Modifies lens direction logic to request the value from CameraX directly versus manual detection.
+
+## 0.6.28
+
+* Adds more descriptive error to camera error stream when image capture fails.
+
+## 0.6.27
+
+* Changes `availableCameras` to get the camera name from `Camera2CameraInfo.getCameraId`.
+
+## 0.6.26+3
+
+* Bumps kotlin_version to 2.3.0.
+
+## 0.6.26+2
+
+* Updates pigeon generation to prevent crash when objects call to Dart after a hot restart.
+
+## 0.6.26+1
+
+* Bumps camerax_version from 1.5.1 to 1.5.2.
+
+## 0.6.26
+
+* Removes internal native library Dart proxy.
+
+## 0.6.25+1
+
+* Bumps kotlin_version to 2.2.21.
+
+## 0.6.25
+
+* Adds support for `MediaSettings.fps` for camera preview, image streaming, and video recording.
+
+## 0.6.24+4
+
+* Allows for video recording without audio when permission RECORD_AUDIO is denied.
+
+## 0.6.24+3
+
+* Bumps com.android.tools.build:gradle from 8.12.1 to 8.13.1.
+
+## 0.6.24+2
+
+* Updates to Pigeon 26.
+
+## 0.6.24+1
+
+* Fixes crash in `DeviceOrientationManager` caused by `UnsupportedOperationException` when `getDisplay()` is called on a null or destroyed Activity during rotation.
+
+## 0.6.24
+
+* Change plugin to assume mp4 format for capture videos.
+
+## 0.6.23+5
+
+* Fixes `IllegalArgumentException` that could occur during image streaming when using NV21.
+
 ## 0.6.23+4
 
 * Updates examples to use the new RadioGroup API instead of deprecated Radio parameters.

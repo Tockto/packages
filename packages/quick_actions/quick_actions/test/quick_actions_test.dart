@@ -15,12 +15,12 @@ void main() {
     });
 
     test('constructor() should return valid QuickActions instance', () {
-      const QuickActions quickActions = QuickActions();
+      const quickActions = QuickActions();
       expect(quickActions, isNotNull);
     });
 
     test('initialize() PlatformInterface', () async {
-      const QuickActions quickActions = QuickActions();
+      const quickActions = QuickActions();
       void handler(String type) {}
 
       await quickActions.initialize(handler);
@@ -28,19 +28,17 @@ void main() {
     });
 
     test('setShortcutItems() PlatformInterface', () {
-      const QuickActions quickActions = QuickActions();
+      const quickActions = QuickActions();
       void handler(String type) {}
       quickActions.initialize(handler);
       quickActions.setShortcutItems(<ShortcutItem>[]);
 
       verify(QuickActionsPlatform.instance.initialize(handler)).called(1);
-      verify(
-        QuickActionsPlatform.instance.setShortcutItems(<ShortcutItem>[]),
-      ).called(1);
+      verify(QuickActionsPlatform.instance.setShortcutItems(<ShortcutItem>[])).called(1);
     });
 
     test('clearShortcutItems() PlatformInterface', () {
-      const QuickActions quickActions = QuickActions();
+      const quickActions = QuickActions();
       void handler(String type) {}
 
       quickActions.initialize(handler);
@@ -64,6 +62,6 @@ class MockQuickActionsPlatform extends Mock
       super.noSuchMethod(Invocation.method(#initialize, <Object?>[handler]));
 
   @override
-  Future<void> setShortcutItems(List<ShortcutItem>? items) async => super
-      .noSuchMethod(Invocation.method(#setShortcutItems, <Object?>[items]));
+  Future<void> setShortcutItems(List<ShortcutItem>? items) async =>
+      super.noSuchMethod(Invocation.method(#setShortcutItems, <Object?>[items]));
 }

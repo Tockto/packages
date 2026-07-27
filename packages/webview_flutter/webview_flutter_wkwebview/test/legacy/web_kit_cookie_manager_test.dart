@@ -8,13 +8,16 @@ import 'package:mockito/mockito.dart';
 import 'package:webview_flutter_platform_interface/src/webview_flutter_platform_interface_legacy.dart';
 import 'package:webview_flutter_wkwebview/src/common/web_kit.g.dart';
 import 'package:webview_flutter_wkwebview/src/legacy/wkwebview_cookie_manager.dart';
-import 'package:webview_flutter_wkwebview/src/webkit_proxy.dart';
 
 import 'web_kit_cookie_manager_test.mocks.dart';
 
 @GenerateMocks(<Type>[WKHTTPCookieStore, WKWebsiteDataStore])
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUp(() {
+    PigeonOverrides.pigeon_reset();
+  });
 
   group('WebKitWebViewWidget', () {
     late MockWKWebsiteDataStore mockWebsiteDataStore;
@@ -27,36 +30,33 @@ void main() {
     setUp(() {
       mockWebsiteDataStore = MockWKWebsiteDataStore();
       mockWKHttpCookieStore = MockWKHTTPCookieStore();
-      when(
-        mockWebsiteDataStore.httpCookieStore,
-      ).thenReturn(mockWKHttpCookieStore);
+      when(mockWebsiteDataStore.httpCookieStore).thenReturn(mockWKHttpCookieStore);
 
-      cookieManager = WKWebViewCookieManager(
-        websiteDataStore: mockWebsiteDataStore,
-        webKitProxy: WebKitProxy(
-          newHTTPCookie:
-              ({required Map<HttpCookiePropertyKey, Object> properties}) {
-                cookieProperties = properties;
-                return cookie = HTTPCookie.pigeon_detached(
-                  pigeon_instanceManager: TestInstanceManager(),
-                );
-              },
-        ),
-      );
+      PigeonOverrides.hTTPCookie_new =
+          ({
+            required Map<HttpCookiePropertyKey, Object> properties,
+            void Function(
+              NSObject instance,
+              String? keyPath,
+              NSObject? object,
+              Map<KeyValueChangeKey, Object?>? change,
+            )?
+            observeValue,
+          }) {
+            cookieProperties = properties;
+            return cookie = HTTPCookie.pigeon_detached();
+          };
+      cookieManager = WKWebViewCookieManager(websiteDataStore: mockWebsiteDataStore);
     });
 
     test('clearCookies', () async {
       when(
-        mockWebsiteDataStore.removeDataOfTypes(<WebsiteDataType>[
-          WebsiteDataType.cookies,
-        ], any),
+        mockWebsiteDataStore.removeDataOfTypes(<WebsiteDataType>[WebsiteDataType.cookies], any),
       ).thenAnswer((_) => Future<bool>.value(true));
       expect(cookieManager.clearCookies(), completion(true));
 
       when(
-        mockWebsiteDataStore.removeDataOfTypes(<WebsiteDataType>[
-          WebsiteDataType.cookies,
-        ], any),
+        mockWebsiteDataStore.removeDataOfTypes(<WebsiteDataType>[WebsiteDataType.cookies], any),
       ).thenAnswer((_) => Future<bool>.value(false));
       expect(cookieManager.clearCookies(), completion(false));
     });
@@ -78,20 +78,10 @@ void main() {
     test('setCookie throws argument error with invalid path', () async {
       expect(
         () => cookieManager.setCookie(
-          WebViewCookie(
-            name: 'a',
-            value: 'b',
-            domain: 'c',
-            path: String.fromCharCode(0x1F),
-          ),
+          WebViewCookie(name: 'a', value: 'b', domain: 'c', path: String.fromCharCode(0x1F)),
         ),
         throwsArgumentError,
       );
     });
   });
-}
-
-// Test InstanceManager that sets `onWeakReferenceRemoved` as a noop.
-class TestInstanceManager extends PigeonInstanceManager {
-  TestInstanceManager() : super(onWeakReferenceRemoved: (_) {});
 }

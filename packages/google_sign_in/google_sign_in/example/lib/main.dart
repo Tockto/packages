@@ -24,9 +24,7 @@ String? serverClientId;
 
 /// The scopes required by this application.
 // #docregion CheckAuthorization
-const List<String> scopes = <String>[
-  'https://www.googleapis.com/auth/contacts.readonly',
-];
+const List<String> scopes = <String>['https://www.googleapis.com/auth/contacts.readonly'];
 // #enddocregion CheckAuthorization
 
 void main() {
@@ -56,9 +54,7 @@ class _SignInDemoState extends State<SignInDemo> {
     // #docregion Setup
     final GoogleSignIn signIn = GoogleSignIn.instance;
     unawaited(
-      signIn.initialize(clientId: clientId, serverClientId: serverClientId).then((
-        _,
-      ) {
+      signIn.initialize(clientId: clientId, serverClientId: serverClientId).then((_) {
         signIn.authenticationEvents
             .listen(_handleAuthenticationEvent)
             .onError(_handleAuthenticationError);
@@ -72,21 +68,18 @@ class _SignInDemoState extends State<SignInDemo> {
     // #enddocregion Setup
   }
 
-  Future<void> _handleAuthenticationEvent(
-    GoogleSignInAuthenticationEvent event,
-  ) async {
+  Future<void> _handleAuthenticationEvent(GoogleSignInAuthenticationEvent event) async {
     // #docregion CheckAuthorization
     final GoogleSignInAccount? user = // ...
-    // #enddocregion CheckAuthorization
-    switch (event) {
-      GoogleSignInAuthenticationEventSignIn() => event.user,
-      GoogleSignInAuthenticationEventSignOut() => null,
-    };
+        // #enddocregion CheckAuthorization
+        switch (event) {
+          GoogleSignInAuthenticationEventSignIn() => event.user,
+          GoogleSignInAuthenticationEventSignOut() => null,
+        };
 
     // Check for existing authorization.
     // #docregion CheckAuthorization
-    final GoogleSignInClientAuthorization? authorization = await user
-        ?.authorizationClient
+    final GoogleSignInClientAuthorization? authorization = await user?.authorizationClient
         .authorizationForScopes(scopes);
     // #enddocregion CheckAuthorization
 
@@ -107,10 +100,9 @@ class _SignInDemoState extends State<SignInDemo> {
     setState(() {
       _currentUser = null;
       _isAuthorized = false;
-      _errorMessage =
-          e is GoogleSignInException
-              ? _errorMessageFromSignInException(e)
-              : 'Unknown error: $e';
+      _errorMessage = e is GoogleSignInException
+          ? _errorMessageFromSignInException(e)
+          : 'Unknown error: $e';
     });
   }
 
@@ -119,8 +111,9 @@ class _SignInDemoState extends State<SignInDemo> {
     setState(() {
       _contactText = 'Loading contact info...';
     });
-    final Map<String, String>? headers = await user.authorizationClient
-        .authorizationHeaders(scopes);
+    final Map<String, String>? headers = await user.authorizationClient.authorizationHeaders(
+      scopes,
+    );
     if (headers == null) {
       setState(() {
         _contactText = '';
@@ -153,8 +146,7 @@ class _SignInDemoState extends State<SignInDemo> {
       }
       return;
     }
-    final Map<String, dynamic> data =
-        json.decode(response.body) as Map<String, dynamic>;
+    final data = json.decode(response.body) as Map<String, dynamic>;
     final String? namedContact = _pickFirstNamedContact(data);
     setState(() {
       if (namedContact != null) {
@@ -166,20 +158,18 @@ class _SignInDemoState extends State<SignInDemo> {
   }
 
   String? _pickFirstNamedContact(Map<String, dynamic> data) {
-    final List<dynamic>? connections = data['connections'] as List<dynamic>?;
-    final Map<String, dynamic>? contact =
+    final connections = data['connections'] as List<dynamic>?;
+    final contact =
         connections?.firstWhere(
-              (dynamic contact) =>
-                  (contact as Map<Object?, dynamic>)['names'] != null,
+              (dynamic contact) => (contact as Map<Object?, dynamic>)['names'] != null,
               orElse: () => null,
             )
             as Map<String, dynamic>?;
     if (contact != null) {
-      final List<dynamic> names = contact['names'] as List<dynamic>;
-      final Map<String, dynamic>? name =
+      final names = contact['names'] as List<dynamic>;
+      final name =
           names.firstWhere(
-                (dynamic name) =>
-                    (name as Map<Object?, dynamic>)['displayName'] != null,
+                (dynamic name) => (name as Map<Object?, dynamic>)['displayName'] != null,
                 orElse: () => null,
               )
               as Map<String, dynamic>?;
@@ -198,8 +188,7 @@ class _SignInDemoState extends State<SignInDemo> {
   Future<void> _handleAuthorizeScopes(GoogleSignInAccount user) async {
     try {
       // #docregion RequestScopes
-      final GoogleSignInClientAuthorization authorization = await user
-          .authorizationClient
+      final GoogleSignInClientAuthorization authorization = await user.authorizationClient
           .authorizeScopes(scopes);
       // #enddocregion RequestScopes
 
@@ -230,8 +219,7 @@ class _SignInDemoState extends State<SignInDemo> {
   Future<void> _handleGetAuthCode(GoogleSignInAccount user) async {
     try {
       // #docregion RequestServerAuth
-      final GoogleSignInServerAuthorization? serverAuth = await user
-          .authorizationClient
+      final GoogleSignInServerAuthorization? serverAuth = await user.authorizationClient
           .authorizeServer(scopes);
       // #enddocregion RequestServerAuth
 
@@ -276,10 +264,7 @@ class _SignInDemoState extends State<SignInDemo> {
       if (_isAuthorized) ...<Widget>[
         // The user has Authorized all required scopes.
         if (_contactText.isNotEmpty) Text(_contactText),
-        ElevatedButton(
-          child: const Text('REFRESH'),
-          onPressed: () => _handleGetContact(user),
-        ),
+        ElevatedButton(child: const Text('REFRESH'), onPressed: () => _handleGetContact(user)),
         if (_serverAuthCode.isEmpty)
           ElevatedButton(
             child: const Text('REQUEST SERVER CODE'),
@@ -322,9 +307,7 @@ class _SignInDemoState extends State<SignInDemo> {
           web.renderButton()
         // #enddocregion ExplicitSignIn
         else
-          const Text(
-            'This platform does not have a known authentication method',
-          ),
+          const Text('This platform does not have a known authentication method'),
         // #docregion ExplicitSignIn
       ],
       // #enddocregion ExplicitSignIn
@@ -335,10 +318,7 @@ class _SignInDemoState extends State<SignInDemo> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Google Sign In')),
-      body: ConstrainedBox(
-        constraints: const BoxConstraints.expand(),
-        child: _buildBody(),
-      ),
+      body: ConstrainedBox(constraints: const BoxConstraints.expand(), child: _buildBody()),
     );
   }
 

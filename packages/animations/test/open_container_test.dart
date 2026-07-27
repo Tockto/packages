@@ -8,8 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   testWidgets('Can be opened via GlobalKey', (WidgetTester tester) async {
-    final GlobalKey<OpenContainerState> openContainerKey =
-        GlobalKey<OpenContainerState>();
+    final openContainerKey = GlobalKey<OpenContainerState>();
 
     await tester.pumpWidget(
       _boilerplate(
@@ -37,14 +36,12 @@ void main() {
     expect(find.text('Open'), findsOneWidget);
   });
 
-  testWidgets('Container opens - Fade (by default)', (
-    WidgetTester tester,
-  ) async {
+  testWidgets('Container opens - Fade (by default)', (WidgetTester tester) async {
     const ShapeBorder shape = RoundedRectangleBorder(
       borderRadius: BorderRadius.all(Radius.circular(8.0)),
     );
-    bool closedBuilderCalled = false;
-    bool openBuilderCalled = false;
+    var closedBuilderCalled = false;
+    var openBuilderCalled = false;
 
     await tester.pumpWidget(
       _boilerplate(
@@ -72,7 +69,7 @@ void main() {
     final Element srcMaterialElement = tester.firstElement(
       find.ancestor(of: find.text('Closed'), matching: find.byType(Material)),
     );
-    final Material srcMaterial = srcMaterialElement.widget as Material;
+    final srcMaterial = srcMaterialElement.widget as Material;
     expect(srcMaterial.color, Colors.green);
     expect(srcMaterial.elevation, 4.0);
     expect(srcMaterial.shape, shape);
@@ -94,7 +91,7 @@ void main() {
     final Element destMaterialElement = tester.firstElement(
       find.ancestor(of: find.text('Closed'), matching: find.byType(Material)),
     );
-    final Material closedMaterial = destMaterialElement.widget as Material;
+    final closedMaterial = destMaterialElement.widget as Material;
     expect(closedMaterial.color, Colors.green);
     expect(closedMaterial.elevation, 4.0);
     expect(closedMaterial.shape, shape);
@@ -107,18 +104,13 @@ void main() {
     expect(_getOpacity(tester, 'Open'), 0.0);
     expect(_getOpacity(tester, 'Closed'), 1.0);
 
-    final _TrackedData dataClosed = _TrackedData(
-      closedMaterial,
-      closedMaterialRect,
-    );
+    final dataClosed = _TrackedData(closedMaterial, closedMaterialRect);
 
     // Jump to the start of the fade in.
     await tester.pump(const Duration(milliseconds: 60)); // 300ms * 1/5 = 60ms
-    final _TrackedData dataPreFade = _TrackedData(
+    final dataPreFade = _TrackedData(
       destMaterialElement.widget as Material,
-      tester.getRect(
-        find.byElementPredicate((Element e) => e == destMaterialElement),
-      ),
+      tester.getRect(find.byElementPredicate((Element e) => e == destMaterialElement)),
     );
     _expectMaterialPropertiesHaveAdvanced(
       smallerMaterial: dataClosed,
@@ -130,11 +122,9 @@ void main() {
 
     // Jump to the middle of the fade in.
     await tester.pump(const Duration(milliseconds: 30)); // 300ms * 3/10 = 90ms
-    final _TrackedData dataMidFadeIn = _TrackedData(
+    final dataMidFadeIn = _TrackedData(
       destMaterialElement.widget as Material,
-      tester.getRect(
-        find.byElementPredicate((Element e) => e == destMaterialElement),
-      ),
+      tester.getRect(find.byElementPredicate((Element e) => e == destMaterialElement)),
     );
     _expectMaterialPropertiesHaveAdvanced(
       smallerMaterial: dataPreFade,
@@ -149,11 +139,9 @@ void main() {
     // Jump to the end of the fade in at 2/5 of 300ms.
     await tester.pump(const Duration(milliseconds: 30)); // 300ms * 2/5 = 120ms
 
-    final _TrackedData dataPostFadeIn = _TrackedData(
+    final dataPostFadeIn = _TrackedData(
       destMaterialElement.widget as Material,
-      tester.getRect(
-        find.byElementPredicate((Element e) => e == destMaterialElement),
-      ),
+      tester.getRect(find.byElementPredicate((Element e) => e == destMaterialElement)),
     );
     _expectMaterialPropertiesHaveAdvanced(
       smallerMaterial: dataMidFadeIn,
@@ -165,11 +153,9 @@ void main() {
 
     // Jump almost to the end of the transition.
     await tester.pump(const Duration(milliseconds: 180));
-    final _TrackedData dataTransitionDone = _TrackedData(
+    final dataTransitionDone = _TrackedData(
       destMaterialElement.widget as Material,
-      tester.getRect(
-        find.byElementPredicate((Element e) => e == destMaterialElement),
-      ),
+      tester.getRect(find.byElementPredicate((Element e) => e == destMaterialElement)),
     );
     _expectMaterialPropertiesHaveAdvanced(
       smallerMaterial: dataMidFadeIn,
@@ -188,11 +174,9 @@ void main() {
     final Element finalMaterialElement = tester.firstElement(
       find.ancestor(of: find.text('Open'), matching: find.byType(Material)),
     );
-    final _TrackedData dataOpen = _TrackedData(
+    final dataOpen = _TrackedData(
       finalMaterialElement.widget as Material,
-      tester.getRect(
-        find.byElementPredicate((Element e) => e == finalMaterialElement),
-      ),
+      tester.getRect(find.byElementPredicate((Element e) => e == finalMaterialElement)),
     );
     expect(dataOpen.material.color, dataTransitionDone.material.color);
     expect(dataOpen.material.elevation, dataTransitionDone.material.elevation);
@@ -200,9 +184,7 @@ void main() {
     expect(dataOpen.rect, dataTransitionDone.rect);
   });
 
-  testWidgets('Container closes - Fade (by default)', (
-    WidgetTester tester,
-  ) async {
+  testWidgets('Container closes - Fade (by default)', (WidgetTester tester) async {
     const ShapeBorder shape = RoundedRectangleBorder(
       borderRadius: BorderRadius.all(Radius.circular(8.0)),
     );
@@ -236,11 +218,9 @@ void main() {
     final Element initialMaterialElement = tester.firstElement(
       find.ancestor(of: find.text('Open'), matching: find.byType(Material)),
     );
-    final _TrackedData dataOpen = _TrackedData(
+    final dataOpen = _TrackedData(
       initialMaterialElement.widget as Material,
-      tester.getRect(
-        find.byElementPredicate((Element e) => e == initialMaterialElement),
-      ),
+      tester.getRect(find.byElementPredicate((Element e) => e == initialMaterialElement)),
     );
     expect(dataOpen.material.color, Colors.blue);
     expect(dataOpen.material.elevation, 8.0);
@@ -257,11 +237,9 @@ void main() {
     final Element materialElement = tester.firstElement(
       find.ancestor(of: find.text('Open'), matching: find.byType(Material)),
     );
-    final _TrackedData dataTransitionStart = _TrackedData(
+    final dataTransitionStart = _TrackedData(
       materialElement.widget as Material,
-      tester.getRect(
-        find.byElementPredicate((Element e) => e == materialElement),
-      ),
+      tester.getRect(find.byElementPredicate((Element e) => e == materialElement)),
     );
     expect(dataTransitionStart.material.color, dataOpen.material.color);
     expect(dataTransitionStart.material.elevation, dataOpen.material.elevation);
@@ -271,11 +249,9 @@ void main() {
 
     // Jump to start of fade out: 1/5 of 300.
     await tester.pump(const Duration(milliseconds: 60)); // 300 * 1/5 = 60
-    final _TrackedData dataPreFadeOut = _TrackedData(
+    final dataPreFadeOut = _TrackedData(
       materialElement.widget as Material,
-      tester.getRect(
-        find.byElementPredicate((Element e) => e == materialElement),
-      ),
+      tester.getRect(find.byElementPredicate((Element e) => e == materialElement)),
     );
     _expectMaterialPropertiesHaveAdvanced(
       smallerMaterial: dataPreFadeOut,
@@ -287,11 +263,9 @@ void main() {
 
     // Jump to the middle of the fade out.
     await tester.pump(const Duration(milliseconds: 30)); // 300 * 3/10 = 90
-    final _TrackedData dataMidpoint = _TrackedData(
+    final dataMidpoint = _TrackedData(
       materialElement.widget as Material,
-      tester.getRect(
-        find.byElementPredicate((Element e) => e == materialElement),
-      ),
+      tester.getRect(find.byElementPredicate((Element e) => e == materialElement)),
     );
     _expectMaterialPropertiesHaveAdvanced(
       smallerMaterial: dataMidpoint,
@@ -305,11 +279,9 @@ void main() {
 
     // Jump to the end of the fade out.
     await tester.pump(const Duration(milliseconds: 30)); // 300 * 2/5 = 120
-    final _TrackedData dataPostFadeOut = _TrackedData(
+    final dataPostFadeOut = _TrackedData(
       materialElement.widget as Material,
-      tester.getRect(
-        find.byElementPredicate((Element e) => e == materialElement),
-      ),
+      tester.getRect(find.byElementPredicate((Element e) => e == materialElement)),
     );
     _expectMaterialPropertiesHaveAdvanced(
       smallerMaterial: dataPostFadeOut,
@@ -321,11 +293,9 @@ void main() {
 
     // Jump almost to the end of the transition.
     await tester.pump(const Duration(milliseconds: 180));
-    final _TrackedData dataTransitionDone = _TrackedData(
+    final dataTransitionDone = _TrackedData(
       materialElement.widget as Material,
-      tester.getRect(
-        find.byElementPredicate((Element e) => e == materialElement),
-      ),
+      tester.getRect(find.byElementPredicate((Element e) => e == materialElement)),
     );
     _expectMaterialPropertiesHaveAdvanced(
       smallerMaterial: dataTransitionDone,
@@ -344,27 +314,266 @@ void main() {
     final Element finalMaterialElement = tester.firstElement(
       find.ancestor(of: find.text('Closed'), matching: find.byType(Material)),
     );
-    final _TrackedData dataClosed = _TrackedData(
+    final dataClosed = _TrackedData(
       finalMaterialElement.widget as Material,
-      tester.getRect(
-        find.byElementPredicate((Element e) => e == finalMaterialElement),
-      ),
+      tester.getRect(find.byElementPredicate((Element e) => e == finalMaterialElement)),
     );
     expect(dataClosed.material.color, dataTransitionDone.material.color);
-    expect(
-      dataClosed.material.elevation,
-      dataTransitionDone.material.elevation,
-    );
+    expect(dataClosed.material.elevation, dataTransitionDone.material.elevation);
     expect(dataClosed.radius, dataTransitionDone.radius);
     expect(dataClosed.rect, dataTransitionDone.rect);
+  });
+
+  testWidgets('Custom shadows work', (WidgetTester tester) async {
+    const closedShadows = <BoxShadow>[BoxShadow(color: Colors.blue, blurRadius: 10.0)];
+    const openShadows = <BoxShadow>[BoxShadow(color: Colors.red, blurRadius: 20.0)];
+
+    await tester.pumpWidget(
+      _boilerplate(
+        child: Center(
+          child: OpenContainer(
+            closedShadows: closedShadows,
+            openShadows: openShadows,
+            closedBuilder: (BuildContext context, VoidCallback _) {
+              return const Text('Closed');
+            },
+            openBuilder: (BuildContext context, VoidCallback _) {
+              return const Text('Open');
+            },
+          ),
+        ),
+      ),
+    );
+
+    // Verify closed state: Material elevation should be 0 because custom shadows are provided.
+    final Element srcMaterialElement = tester.firstElement(
+      find.ancestor(of: find.text('Closed'), matching: find.byType(Material)),
+    );
+    final srcMaterial = srcMaterialElement.widget as Material;
+    expect(srcMaterial.elevation, 0.0);
+
+    // Verify DecoratedBox has the correct shadows.
+    final Element decoratedBoxElement = tester.firstElement(
+      find.ancestor(
+        of: find.byElementPredicate((Element e) => e == srcMaterialElement),
+        matching: find.byType(DecoratedBox),
+      ),
+    );
+    final decoration = (decoratedBoxElement.widget as DecoratedBox).decoration as ShapeDecoration;
+    expect(decoration.shadows, closedShadows);
+
+    // Open the container.
+    await tester.tap(find.text('Closed'));
+    await tester.pump(); // Start animation.
+    await tester.pump(const Duration(milliseconds: 150)); // Mid-point.
+
+    final Element transitioningMaterialElement = tester.firstElement(
+      find.ancestor(of: find.text('Closed'), matching: find.byType(Material)),
+    );
+    final transitioningMaterial = transitioningMaterialElement.widget as Material;
+    expect(transitioningMaterial.elevation, 0.0);
+
+    final Element transitioningDecoratedBoxElement = tester.firstElement(
+      find.ancestor(
+        of: find.byElementPredicate((Element e) => e == transitioningMaterialElement),
+        matching: find.byType(DecoratedBox),
+      ),
+    );
+    final transitioningDecoration =
+        (transitioningDecoratedBoxElement.widget as DecoratedBox).decoration as ShapeDecoration;
+
+    // Verify shadows are lerping.
+    final double expectedT = Curves.fastOutSlowIn.transform(0.5);
+    expect(
+      transitioningDecoration.shadows![0].color,
+      Color.lerp(Colors.blue, Colors.red, expectedT),
+    );
+    expect(transitioningDecoration.shadows![0].blurRadius, 10.0 + (20.0 - 10.0) * expectedT);
+
+    await tester.pumpAndSettle();
+
+    // Verify open state.
+    final Element openMaterialElement = tester.firstElement(
+      find.ancestor(of: find.text('Open'), matching: find.byType(Material)),
+    );
+    final openMaterial = openMaterialElement.widget as Material;
+    expect(openMaterial.elevation, 0.0);
+
+    final Element openDecoratedBoxElement = tester.firstElement(
+      find.ancestor(
+        of: find.byElementPredicate((Element e) => e == openMaterialElement),
+        matching: find.byType(DecoratedBox),
+      ),
+    );
+    final openDecoration =
+        (openDecoratedBoxElement.widget as DecoratedBox).decoration as ShapeDecoration;
+    expect(openDecoration.shadows, openShadows);
+  });
+
+  testWidgets('Closed elevation transitions into open custom shadows', (WidgetTester tester) async {
+    const openShadows = <BoxShadow>[BoxShadow(color: Colors.red, blurRadius: 20.0)];
+
+    await tester.pumpWidget(
+      _boilerplate(
+        child: Center(
+          child: OpenContainer(
+            closedElevation: 4.0,
+            openShadows: openShadows,
+            closedBuilder: (BuildContext context, VoidCallback _) {
+              return const Text('Closed');
+            },
+            openBuilder: (BuildContext context, VoidCallback _) {
+              return const Text('Open');
+            },
+          ),
+        ),
+      ),
+    );
+
+    final Element srcMaterialElement = tester.firstElement(
+      find.ancestor(of: find.text('Closed'), matching: find.byType(Material)),
+    );
+    final srcMaterial = srcMaterialElement.widget as Material;
+    expect(srcMaterial.elevation, 4.0);
+    expect(
+      find.ancestor(
+        of: find.byElementPredicate((Element e) => e == srcMaterialElement),
+        matching: find.byType(DecoratedBox),
+      ),
+      findsNothing,
+    );
+
+    await tester.tap(find.text('Closed'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 150));
+
+    final Element transitioningMaterialElement = tester.firstElement(
+      find.ancestor(of: find.text('Closed'), matching: find.byType(Material)),
+    );
+    final transitioningMaterial = transitioningMaterialElement.widget as Material;
+    expect(transitioningMaterial.elevation, lessThan(4.0));
+    expect(transitioningMaterial.elevation, greaterThan(0.0));
+
+    final Element transitioningDecoratedBoxElement = tester.firstElement(
+      find.ancestor(
+        of: find.byElementPredicate((Element e) => e == transitioningMaterialElement),
+        matching: find.byType(DecoratedBox),
+      ),
+    );
+    final transitioningDecoration =
+        (transitioningDecoratedBoxElement.widget as DecoratedBox).decoration as ShapeDecoration;
+    final double expectedT = Curves.fastOutSlowIn.transform(0.5);
+    final BoxShadow expectedShadow = BoxShadow.lerpList(null, openShadows, expectedT)!.single;
+    expect(transitioningDecoration.shadows, hasLength(1));
+    expect(transitioningDecoration.shadows![0].color, expectedShadow.color);
+    expect(transitioningDecoration.shadows![0].blurRadius, expectedShadow.blurRadius);
+    expect(transitioningDecoration.shadows![0].spreadRadius, expectedShadow.spreadRadius);
+    expect(transitioningDecoration.shadows![0].offset, expectedShadow.offset);
+
+    await tester.pumpAndSettle();
+
+    final Element openMaterialElement = tester.firstElement(
+      find.ancestor(of: find.text('Open'), matching: find.byType(Material)),
+    );
+    final openMaterial = openMaterialElement.widget as Material;
+    expect(openMaterial.elevation, 0.0);
+
+    final Element openDecoratedBoxElement = tester.firstElement(
+      find.ancestor(
+        of: find.byElementPredicate((Element e) => e == openMaterialElement),
+        matching: find.byType(DecoratedBox),
+      ),
+    );
+    final openDecoration =
+        (openDecoratedBoxElement.widget as DecoratedBox).decoration as ShapeDecoration;
+    expect(openDecoration.shadows, openShadows);
+  });
+
+  testWidgets('Closed custom shadows transition into open elevation', (WidgetTester tester) async {
+    const closedShadows = <BoxShadow>[BoxShadow(color: Colors.blue, blurRadius: 10.0)];
+
+    await tester.pumpWidget(
+      _boilerplate(
+        child: Center(
+          child: OpenContainer(
+            closedShadows: closedShadows,
+            openElevation: 8.0,
+            closedBuilder: (BuildContext context, VoidCallback _) {
+              return const Text('Closed');
+            },
+            openBuilder: (BuildContext context, VoidCallback _) {
+              return const Text('Open');
+            },
+          ),
+        ),
+      ),
+    );
+
+    final Element srcMaterialElement = tester.firstElement(
+      find.ancestor(of: find.text('Closed'), matching: find.byType(Material)),
+    );
+    final srcMaterial = srcMaterialElement.widget as Material;
+    expect(srcMaterial.elevation, 0.0);
+
+    final Element srcDecoratedBoxElement = tester.firstElement(
+      find.ancestor(
+        of: find.byElementPredicate((Element e) => e == srcMaterialElement),
+        matching: find.byType(DecoratedBox),
+      ),
+    );
+    final srcDecoration =
+        (srcDecoratedBoxElement.widget as DecoratedBox).decoration as ShapeDecoration;
+    expect(srcDecoration.shadows, closedShadows);
+
+    await tester.tap(find.text('Closed'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 150));
+
+    final Element transitioningMaterialElement = tester.firstElement(
+      find.ancestor(of: find.text('Closed'), matching: find.byType(Material)),
+    );
+    final transitioningMaterial = transitioningMaterialElement.widget as Material;
+    expect(transitioningMaterial.elevation, greaterThan(0.0));
+    expect(transitioningMaterial.elevation, lessThan(8.0));
+
+    final Element transitioningDecoratedBoxElement = tester.firstElement(
+      find.ancestor(
+        of: find.byElementPredicate((Element e) => e == transitioningMaterialElement),
+        matching: find.byType(DecoratedBox),
+      ),
+    );
+    final transitioningDecoration =
+        (transitioningDecoratedBoxElement.widget as DecoratedBox).decoration as ShapeDecoration;
+    final double expectedT = Curves.fastOutSlowIn.transform(0.5);
+    final BoxShadow expectedShadow = BoxShadow.lerpList(closedShadows, null, expectedT)!.single;
+    expect(transitioningDecoration.shadows, hasLength(1));
+    expect(transitioningDecoration.shadows![0].color, expectedShadow.color);
+    expect(transitioningDecoration.shadows![0].blurRadius, expectedShadow.blurRadius);
+    expect(transitioningDecoration.shadows![0].spreadRadius, expectedShadow.spreadRadius);
+    expect(transitioningDecoration.shadows![0].offset, expectedShadow.offset);
+
+    await tester.pumpAndSettle();
+
+    final Element openMaterialElement = tester.firstElement(
+      find.ancestor(of: find.text('Open'), matching: find.byType(Material)),
+    );
+    final openMaterial = openMaterialElement.widget as Material;
+    expect(openMaterial.elevation, 8.0);
+    expect(
+      find.ancestor(
+        of: find.byElementPredicate((Element e) => e == openMaterialElement),
+        matching: find.byType(DecoratedBox),
+      ),
+      findsNothing,
+    );
   });
 
   testWidgets('Container opens - Fade through', (WidgetTester tester) async {
     const ShapeBorder shape = RoundedRectangleBorder(
       borderRadius: BorderRadius.all(Radius.circular(8.0)),
     );
-    bool closedBuilderCalled = false;
-    bool openBuilderCalled = false;
+    var closedBuilderCalled = false;
+    var openBuilderCalled = false;
 
     await tester.pumpWidget(
       _boilerplate(
@@ -394,7 +603,7 @@ void main() {
     final Element srcMaterialElement = tester.firstElement(
       find.ancestor(of: find.text('Closed'), matching: find.byType(Material)),
     );
-    final Material srcMaterial = srcMaterialElement.widget as Material;
+    final srcMaterial = srcMaterialElement.widget as Material;
     expect(srcMaterial.color, Colors.green);
     expect(srcMaterial.elevation, 4.0);
     expect(srcMaterial.shape, shape);
@@ -416,7 +625,7 @@ void main() {
     final Element destMaterialElement = tester.firstElement(
       find.ancestor(of: find.text('Closed'), matching: find.byType(Material)),
     );
-    final Material closedMaterial = destMaterialElement.widget as Material;
+    final closedMaterial = destMaterialElement.widget as Material;
     expect(closedMaterial.color, Colors.green);
     expect(closedMaterial.elevation, 4.0);
     expect(closedMaterial.shape, shape);
@@ -429,18 +638,13 @@ void main() {
     expect(_getOpacity(tester, 'Open'), 0.0);
     expect(_getOpacity(tester, 'Closed'), 1.0);
 
-    final _TrackedData dataClosed = _TrackedData(
-      closedMaterial,
-      closedMaterialRect,
-    );
+    final dataClosed = _TrackedData(closedMaterial, closedMaterialRect);
 
     // The fade-out takes 1/5 of 300ms. Let's jump to the midpoint of that.
     await tester.pump(const Duration(milliseconds: 30)); // 300ms * 1/10 = 30ms
-    final _TrackedData dataMidFadeOut = _TrackedData(
+    final dataMidFadeOut = _TrackedData(
       destMaterialElement.widget as Material,
-      tester.getRect(
-        find.byElementPredicate((Element e) => e == destMaterialElement),
-      ),
+      tester.getRect(find.byElementPredicate((Element e) => e == destMaterialElement)),
     );
     _expectMaterialPropertiesHaveAdvanced(
       smallerMaterial: dataClosed,
@@ -454,11 +658,9 @@ void main() {
 
     // Let's jump to the crossover point at 1/5 of 300ms.
     await tester.pump(const Duration(milliseconds: 30)); // 300ms * 1/5 = 60ms
-    final _TrackedData dataMidpoint = _TrackedData(
+    final dataMidpoint = _TrackedData(
       destMaterialElement.widget as Material,
-      tester.getRect(
-        find.byElementPredicate((Element e) => e == destMaterialElement),
-      ),
+      tester.getRect(find.byElementPredicate((Element e) => e == destMaterialElement)),
     );
     _expectMaterialPropertiesHaveAdvanced(
       smallerMaterial: dataMidFadeOut,
@@ -471,11 +673,9 @@ void main() {
 
     // Let's jump to the middle of the fade-in at 3/5 of 300ms
     await tester.pump(const Duration(milliseconds: 120)); // 300ms * 3/5 = 180ms
-    final _TrackedData dataMidFadeIn = _TrackedData(
+    final dataMidFadeIn = _TrackedData(
       destMaterialElement.widget as Material,
-      tester.getRect(
-        find.byElementPredicate((Element e) => e == destMaterialElement),
-      ),
+      tester.getRect(find.byElementPredicate((Element e) => e == destMaterialElement)),
     );
     _expectMaterialPropertiesHaveAdvanced(
       smallerMaterial: dataMidpoint,
@@ -489,21 +689,16 @@ void main() {
 
     // Let's jump almost to the end of the transition.
     await tester.pump(const Duration(milliseconds: 120));
-    final _TrackedData dataTransitionDone = _TrackedData(
+    final dataTransitionDone = _TrackedData(
       destMaterialElement.widget as Material,
-      tester.getRect(
-        find.byElementPredicate((Element e) => e == destMaterialElement),
-      ),
+      tester.getRect(find.byElementPredicate((Element e) => e == destMaterialElement)),
     );
     _expectMaterialPropertiesHaveAdvanced(
       smallerMaterial: dataMidFadeIn,
       biggerMaterial: dataTransitionDone,
       tester: tester,
     );
-    expect(
-      dataTransitionDone.material.color,
-      isNot(dataMidFadeIn.material.color),
-    );
+    expect(dataTransitionDone.material.color, isNot(dataMidFadeIn.material.color));
     expect(_getOpacity(tester, 'Open'), 1.0);
     expect(_getOpacity(tester, 'Closed'), 0.0);
     expect(dataTransitionDone.material.color, Colors.blue);
@@ -517,11 +712,9 @@ void main() {
     final Element finalMaterialElement = tester.firstElement(
       find.ancestor(of: find.text('Open'), matching: find.byType(Material)),
     );
-    final _TrackedData dataOpen = _TrackedData(
+    final dataOpen = _TrackedData(
       finalMaterialElement.widget as Material,
-      tester.getRect(
-        find.byElementPredicate((Element e) => e == finalMaterialElement),
-      ),
+      tester.getRect(find.byElementPredicate((Element e) => e == finalMaterialElement)),
     );
     expect(dataOpen.material.color, dataTransitionDone.material.color);
     expect(dataOpen.material.elevation, dataTransitionDone.material.elevation);
@@ -565,11 +758,9 @@ void main() {
     final Element initialMaterialElement = tester.firstElement(
       find.ancestor(of: find.text('Open'), matching: find.byType(Material)),
     );
-    final _TrackedData dataOpen = _TrackedData(
+    final dataOpen = _TrackedData(
       initialMaterialElement.widget as Material,
-      tester.getRect(
-        find.byElementPredicate((Element e) => e == initialMaterialElement),
-      ),
+      tester.getRect(find.byElementPredicate((Element e) => e == initialMaterialElement)),
     );
     expect(dataOpen.material.color, Colors.blue);
     expect(dataOpen.material.elevation, 8.0);
@@ -587,11 +778,9 @@ void main() {
     final Element materialElement = tester.firstElement(
       find.ancestor(of: find.text('Open'), matching: find.byType(Material)),
     );
-    final _TrackedData dataTransitionStart = _TrackedData(
+    final dataTransitionStart = _TrackedData(
       materialElement.widget as Material,
-      tester.getRect(
-        find.byElementPredicate((Element e) => e == materialElement),
-      ),
+      tester.getRect(find.byElementPredicate((Element e) => e == materialElement)),
     );
     expect(dataTransitionStart.material.color, dataOpen.material.color);
     expect(dataTransitionStart.material.elevation, dataOpen.material.elevation);
@@ -602,32 +791,25 @@ void main() {
 
     // Jump to mid-point of fade-out: 1/10 of 300ms.
     await tester.pump(const Duration(milliseconds: 30)); // 300ms * 1/10 = 30ms
-    final _TrackedData dataMidFadeOut = _TrackedData(
+    final dataMidFadeOut = _TrackedData(
       materialElement.widget as Material,
-      tester.getRect(
-        find.byElementPredicate((Element e) => e == materialElement),
-      ),
+      tester.getRect(find.byElementPredicate((Element e) => e == materialElement)),
     );
     _expectMaterialPropertiesHaveAdvanced(
       smallerMaterial: dataMidFadeOut,
       biggerMaterial: dataTransitionStart,
       tester: tester,
     );
-    expect(
-      dataMidFadeOut.material.color,
-      isNot(dataTransitionStart.material.color),
-    );
+    expect(dataMidFadeOut.material.color, isNot(dataTransitionStart.material.color));
     expect(_getOpacity(tester, 'Closed'), 0.0);
     expect(_getOpacity(tester, 'Open'), lessThan(1.0));
     expect(_getOpacity(tester, 'Open'), greaterThan(0.0));
 
     // Let's jump to the crossover point at 1/5 of 300ms.
     await tester.pump(const Duration(milliseconds: 30)); // 300ms * 1/5 = 60ms
-    final _TrackedData dataMidpoint = _TrackedData(
+    final dataMidpoint = _TrackedData(
       materialElement.widget as Material,
-      tester.getRect(
-        find.byElementPredicate((Element e) => e == materialElement),
-      ),
+      tester.getRect(find.byElementPredicate((Element e) => e == materialElement)),
     );
     _expectMaterialPropertiesHaveAdvanced(
       smallerMaterial: dataMidpoint,
@@ -640,11 +822,9 @@ void main() {
 
     // Let's jump to the middle of the fade-in at 3/5 of 300ms
     await tester.pump(const Duration(milliseconds: 120)); // 300ms * 3/5 = 180ms
-    final _TrackedData dataMidFadeIn = _TrackedData(
+    final dataMidFadeIn = _TrackedData(
       materialElement.widget as Material,
-      tester.getRect(
-        find.byElementPredicate((Element e) => e == materialElement),
-      ),
+      tester.getRect(find.byElementPredicate((Element e) => e == materialElement)),
     );
     _expectMaterialPropertiesHaveAdvanced(
       smallerMaterial: dataMidFadeIn,
@@ -658,21 +838,16 @@ void main() {
 
     // Let's jump almost to the end of the transition.
     await tester.pump(const Duration(milliseconds: 120));
-    final _TrackedData dataTransitionDone = _TrackedData(
+    final dataTransitionDone = _TrackedData(
       materialElement.widget as Material,
-      tester.getRect(
-        find.byElementPredicate((Element e) => e == materialElement),
-      ),
+      tester.getRect(find.byElementPredicate((Element e) => e == materialElement)),
     );
     _expectMaterialPropertiesHaveAdvanced(
       smallerMaterial: dataTransitionDone,
       biggerMaterial: dataMidFadeIn,
       tester: tester,
     );
-    expect(
-      dataTransitionDone.material.color,
-      isNot(dataMidFadeIn.material.color),
-    );
+    expect(dataTransitionDone.material.color, isNot(dataMidFadeIn.material.color));
     expect(_getOpacity(tester, 'Closed'), 1.0);
     expect(_getOpacity(tester, 'Open'), 0.0);
     expect(dataTransitionDone.material.color, Colors.green);
@@ -685,24 +860,17 @@ void main() {
     final Element finalMaterialElement = tester.firstElement(
       find.ancestor(of: find.text('Closed'), matching: find.byType(Material)),
     );
-    final _TrackedData dataClosed = _TrackedData(
+    final dataClosed = _TrackedData(
       finalMaterialElement.widget as Material,
-      tester.getRect(
-        find.byElementPredicate((Element e) => e == finalMaterialElement),
-      ),
+      tester.getRect(find.byElementPredicate((Element e) => e == finalMaterialElement)),
     );
     expect(dataClosed.material.color, dataTransitionDone.material.color);
-    expect(
-      dataClosed.material.elevation,
-      dataTransitionDone.material.elevation,
-    );
+    expect(dataClosed.material.elevation, dataTransitionDone.material.elevation);
     expect(dataClosed.radius, dataTransitionDone.radius);
     expect(dataClosed.rect, dataTransitionDone.rect);
   });
 
-  testWidgets('Cannot tap container if tappable=false', (
-    WidgetTester tester,
-  ) async {
+  testWidgets('Cannot tap container if tappable=false', (WidgetTester tester) async {
     await tester.pumpWidget(
       _boilerplate(
         child: Center(
@@ -833,9 +1001,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(DummyStatefulWidget), findsNothing);
     expect(find.text('Open'), findsOneWidget);
-    final State stateOpen = tester.state(
-      find.byType(DummyStatefulWidget, skipOffstage: false),
-    );
+    final State stateOpen = tester.state(find.byType(DummyStatefulWidget, skipOffstage: false));
     expect(stateOpen, same(stateOpening));
 
     final NavigatorState navigator = tester.state(find.byType(Navigator));
@@ -847,9 +1013,7 @@ void main() {
 
     await tester.pumpAndSettle();
     expect(find.text('Open'), findsNothing);
-    final State stateClosedAgain = tester.state(
-      find.byType(DummyStatefulWidget),
-    );
+    final State stateClosedAgain = tester.state(find.byType(DummyStatefulWidget));
     expect(stateClosedAgain, same(stateClosing));
   });
 
@@ -911,10 +1075,7 @@ void main() {
       child: Center(
         child: OpenContainer(
           closedBuilder: (BuildContext context, VoidCallback action) {
-            return const _SizableContainer(
-              initialSize: 100,
-              child: Text('Closed'),
-            );
+            return const _SizableContainer(initialSize: 100, child: Text('Closed'));
           },
           openBuilder: (BuildContext context, VoidCallback action) {
             return GestureDetector(onTap: action, child: const Text('Open'));
@@ -926,9 +1087,7 @@ void main() {
     await tester.pumpWidget(openContainer);
 
     final Size orignalClosedRect = tester.getSize(
-      find
-          .ancestor(of: find.text('Closed'), matching: find.byType(Material))
-          .first,
+      find.ancestor(of: find.text('Closed'), matching: find.byType(Material)).first,
     );
     expect(orignalClosedRect, const Size(100, 100));
 
@@ -952,9 +1111,7 @@ void main() {
     expect(find.text('Closed'), findsOneWidget);
 
     final Size transitionEndSize = tester.getSize(
-      find
-          .ancestor(of: find.text('Open'), matching: find.byType(Material))
-          .first,
+      find.ancestor(of: find.text('Open'), matching: find.byType(Material)).first,
     );
     expect(transitionEndSize, const Size(200, 200));
 
@@ -963,16 +1120,12 @@ void main() {
     expect(find.text('Closed'), findsOneWidget);
 
     final Size finalSize = tester.getSize(
-      find
-          .ancestor(of: find.text('Closed'), matching: find.byType(Material))
-          .first,
+      find.ancestor(of: find.text('Closed'), matching: find.byType(Material)).first,
     );
     expect(finalSize, const Size(200, 200));
   });
 
-  testWidgets('transition is interrupted and should not jump', (
-    WidgetTester tester,
-  ) async {
+  testWidgets('transition is interrupted and should not jump', (WidgetTester tester) async {
     await tester.pumpWidget(
       _boilerplate(
         child: Center(
@@ -1040,13 +1193,11 @@ void main() {
         ),
       ),
     );
-    const Rect fullNavigator = Rect.fromLTWH(250, 100, 300, 400);
+    const fullNavigator = Rect.fromLTWH(250, 100, 300, 400);
 
     expect(tester.getRect(find.byType(Navigator)), fullNavigator);
     final Rect materialRectClosed = tester.getRect(
-      find
-          .ancestor(of: find.text('Closed'), matching: find.byType(Material))
-          .first,
+      find.ancestor(of: find.text('Closed'), matching: find.byType(Material)).first,
     );
 
     await tester.tap(find.text('Closed'));
@@ -1074,9 +1225,7 @@ void main() {
     expect(materialRectOpen, fullNavigator);
   });
 
-  testWidgets('does not crash when disposed right after pop', (
-    WidgetTester tester,
-  ) async {
+  testWidgets('does not crash when disposed right after pop', (WidgetTester tester) async {
     await tester.pumpWidget(
       Center(
         child: SizedBox(
@@ -1169,12 +1318,8 @@ void main() {
           child: _boilerplate(
             child: Center(
               child: OpenContainer(
-                closedShape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                openShape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(40),
-                ),
+                closedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                openShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
                 closedBuilder: (BuildContext context, VoidCallback action) {
                   return const Text('Closed');
                 },
@@ -1191,9 +1336,7 @@ void main() {
     expect(find.text('Open'), findsNothing);
     expect(find.text('Closed'), findsOneWidget);
     final double closedRadius = _getRadius(
-      tester.firstWidget(
-        find.ancestor(of: find.text('Closed'), matching: find.byType(Material)),
-      ),
+      tester.firstWidget(find.ancestor(of: find.text('Closed'), matching: find.byType(Material))),
     );
     expect(closedRadius, 10.0);
 
@@ -1202,9 +1345,7 @@ void main() {
     expect(find.text('Open'), findsOneWidget);
     expect(find.text('Closed'), findsOneWidget);
     final double openingRadius = _getRadius(
-      tester.firstWidget(
-        find.ancestor(of: find.text('Open'), matching: find.byType(Material)),
-      ),
+      tester.firstWidget(find.ancestor(of: find.text('Open'), matching: find.byType(Material))),
     );
     expect(openingRadius, 10.0);
 
@@ -1212,9 +1353,7 @@ void main() {
     expect(find.text('Open'), findsOneWidget);
     expect(find.text('Closed'), findsOneWidget);
     final double halfwayRadius = _getRadius(
-      tester.firstWidget(
-        find.ancestor(of: find.text('Open'), matching: find.byType(Material)),
-      ),
+      tester.firstWidget(find.ancestor(of: find.text('Open'), matching: find.byType(Material))),
     );
     expect(halfwayRadius, greaterThan(10.0));
     expect(halfwayRadius, lessThan(40.0));
@@ -1223,9 +1362,7 @@ void main() {
     expect(find.text('Open'), findsOneWidget);
     expect(find.text('Closed'), findsOneWidget);
     final double openRadius = _getRadius(
-      tester.firstWidget(
-        find.ancestor(of: find.text('Open'), matching: find.byType(Material)),
-      ),
+      tester.firstWidget(find.ancestor(of: find.text('Open'), matching: find.byType(Material))),
     );
     expect(openRadius, 40.0);
 
@@ -1233,9 +1370,7 @@ void main() {
     expect(find.text('Closed'), findsNothing);
     expect(find.text('Open'), findsOneWidget);
     final double finalRadius = _getRadius(
-      tester.firstWidget(
-        find.ancestor(of: find.text('Open'), matching: find.byType(Material)),
-      ),
+      tester.firstWidget(find.ancestor(of: find.text('Open'), matching: find.byType(Material))),
     );
     expect(finalRadius, 40.0);
   });
@@ -1303,198 +1438,171 @@ void main() {
     expect(_getScrimColor(tester), Colors.transparent);
   });
 
-  testWidgets(
-    'Container partly offscreen can be opened without crash - vertical',
-    (WidgetTester tester) async {
-      final ScrollController controller = ScrollController(
-        initialScrollOffset: 50,
-      );
-      await tester.pumpWidget(
-        Center(
-          child: SizedBox(
-            height: 200,
-            width: 200,
-            child: _boilerplate(
-              child: ListView.builder(
-                cacheExtent: 0,
-                controller: controller,
-                itemBuilder: (BuildContext context, int index) {
-                  return OpenContainer(
-                    closedBuilder: (BuildContext context, VoidCallback _) {
-                      return SizedBox(
-                        height: 100,
-                        width: 100,
-                        child: Text('Closed $index'),
-                      );
-                    },
-                    openBuilder: (BuildContext context, VoidCallback _) {
-                      return Text('Open $index');
-                    },
-                  );
-                },
-              ),
-            ),
-          ),
-        ),
-      );
-
-      void expectClosedState() {
-        expect(find.text('Closed 0'), findsOneWidget);
-        expect(find.text('Closed 1'), findsOneWidget);
-        expect(find.text('Closed 2'), findsOneWidget);
-        expect(find.text('Closed 3'), findsNothing);
-
-        expect(find.text('Open 0'), findsNothing);
-        expect(find.text('Open 1'), findsNothing);
-        expect(find.text('Open 2'), findsNothing);
-        expect(find.text('Open 3'), findsNothing);
-      }
-
-      expectClosedState();
-
-      // Open container that's partly visible at top.
-      await tester.tapAt(
-        tester.getBottomRight(find.text('Closed 0')) - const Offset(20, 20),
-      );
-      await tester.pump();
-      await tester.pumpAndSettle();
-      expect(find.text('Closed 0'), findsNothing);
-      expect(find.text('Open 0'), findsOneWidget);
-
-      final NavigatorState navigator = tester.state(find.byType(Navigator));
-      navigator.pop();
-      await tester.pump();
-      await tester.pumpAndSettle();
-      expectClosedState();
-
-      // Open container that's partly visible at bottom.
-      await tester.tapAt(
-        tester.getTopLeft(find.text('Closed 2')) + const Offset(20, 20),
-      );
-      await tester.pump();
-      await tester.pumpAndSettle();
-
-      expect(find.text('Closed 2'), findsNothing);
-      expect(find.text('Open 2'), findsOneWidget);
-    },
-  );
-
-  testWidgets(
-    'Container partly offscreen can be opened without crash - horizontal',
-    (WidgetTester tester) async {
-      final ScrollController controller = ScrollController(
-        initialScrollOffset: 50,
-      );
-      await tester.pumpWidget(
-        Center(
-          child: SizedBox(
-            height: 200,
-            width: 200,
-            child: _boilerplate(
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                cacheExtent: 0,
-                controller: controller,
-                itemBuilder: (BuildContext context, int index) {
-                  return OpenContainer(
-                    closedBuilder: (BuildContext context, VoidCallback _) {
-                      return SizedBox(
-                        height: 100,
-                        width: 100,
-                        child: Text('Closed $index'),
-                      );
-                    },
-                    openBuilder: (BuildContext context, VoidCallback _) {
-                      return Text('Open $index');
-                    },
-                  );
-                },
-              ),
-            ),
-          ),
-        ),
-      );
-
-      void expectClosedState() {
-        expect(find.text('Closed 0'), findsOneWidget);
-        expect(find.text('Closed 1'), findsOneWidget);
-        expect(find.text('Closed 2'), findsOneWidget);
-        expect(find.text('Closed 3'), findsNothing);
-
-        expect(find.text('Open 0'), findsNothing);
-        expect(find.text('Open 1'), findsNothing);
-        expect(find.text('Open 2'), findsNothing);
-        expect(find.text('Open 3'), findsNothing);
-      }
-
-      expectClosedState();
-
-      // Open container that's partly visible at left edge.
-      await tester.tapAt(
-        tester.getBottomRight(find.text('Closed 0')) - const Offset(20, 20),
-      );
-      await tester.pump();
-      await tester.pumpAndSettle();
-      expect(find.text('Closed 0'), findsNothing);
-      expect(find.text('Open 0'), findsOneWidget);
-
-      final NavigatorState navigator = tester.state(find.byType(Navigator));
-      navigator.pop();
-      await tester.pump();
-      await tester.pumpAndSettle();
-      expectClosedState();
-
-      // Open container that's partly visible at right edge.
-      await tester.tapAt(
-        tester.getTopLeft(find.text('Closed 2')) + const Offset(20, 20),
-      );
-      await tester.pump();
-      await tester.pumpAndSettle();
-
-      expect(find.text('Closed 2'), findsNothing);
-      expect(find.text('Open 2'), findsOneWidget);
-    },
-  );
-
-  testWidgets(
-    'Container can be dismissed after container widget itself is removed without crash',
-    (WidgetTester tester) async {
-      await tester.pumpWidget(
-        _boilerplate(child: _RemoveOpenContainerExample()),
-      );
-
-      expect(find.text('Closed'), findsOneWidget);
-      expect(find.text('Closed', skipOffstage: false), findsOneWidget);
-      expect(find.text('Open'), findsNothing);
-
-      await tester.tap(find.text('Open the container'));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Closed'), findsNothing);
-      expect(find.text('Closed', skipOffstage: false), findsOneWidget);
-      expect(find.text('Open'), findsOneWidget);
-
-      await tester.tap(find.text('Remove the container'));
-      await tester.pump();
-
-      expect(find.text('Closed'), findsNothing);
-      expect(find.text('Closed', skipOffstage: false), findsNothing);
-      expect(find.text('Open'), findsOneWidget);
-
-      await tester.tap(find.text('Close the container'));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Closed'), findsNothing);
-      expect(find.text('Closed', skipOffstage: false), findsNothing);
-      expect(find.text('Open'), findsNothing);
-      expect(find.text('Container has been removed'), findsOneWidget);
-    },
-  );
-
-  testWidgets('onClosed callback is called when container has closed', (
+  testWidgets('Container partly offscreen can be opened without crash - vertical', (
     WidgetTester tester,
   ) async {
-    bool hasClosed = false;
+    final controller = ScrollController(initialScrollOffset: 50);
+    await tester.pumpWidget(
+      Center(
+        child: SizedBox(
+          height: 200,
+          width: 200,
+          child: _boilerplate(
+            child: ListView.builder(
+              cacheExtent: 0,
+              controller: controller,
+              itemBuilder: (BuildContext context, int index) {
+                return OpenContainer(
+                  closedBuilder: (BuildContext context, VoidCallback _) {
+                    return SizedBox(height: 100, width: 100, child: Text('Closed $index'));
+                  },
+                  openBuilder: (BuildContext context, VoidCallback _) {
+                    return Text('Open $index');
+                  },
+                );
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+
+    void expectClosedState() {
+      expect(find.text('Closed 0'), findsOneWidget);
+      expect(find.text('Closed 1'), findsOneWidget);
+      expect(find.text('Closed 2'), findsOneWidget);
+      expect(find.text('Closed 3'), findsNothing);
+
+      expect(find.text('Open 0'), findsNothing);
+      expect(find.text('Open 1'), findsNothing);
+      expect(find.text('Open 2'), findsNothing);
+      expect(find.text('Open 3'), findsNothing);
+    }
+
+    expectClosedState();
+
+    // Open container that's partly visible at top.
+    await tester.tapAt(tester.getBottomRight(find.text('Closed 0')) - const Offset(20, 20));
+    await tester.pump();
+    await tester.pumpAndSettle();
+    expect(find.text('Closed 0'), findsNothing);
+    expect(find.text('Open 0'), findsOneWidget);
+
+    final NavigatorState navigator = tester.state(find.byType(Navigator));
+    navigator.pop();
+    await tester.pump();
+    await tester.pumpAndSettle();
+    expectClosedState();
+
+    // Open container that's partly visible at bottom.
+    await tester.tapAt(tester.getTopLeft(find.text('Closed 2')) + const Offset(20, 20));
+    await tester.pump();
+    await tester.pumpAndSettle();
+
+    expect(find.text('Closed 2'), findsNothing);
+    expect(find.text('Open 2'), findsOneWidget);
+  });
+
+  testWidgets('Container partly offscreen can be opened without crash - horizontal', (
+    WidgetTester tester,
+  ) async {
+    final controller = ScrollController(initialScrollOffset: 50);
+    await tester.pumpWidget(
+      Center(
+        child: SizedBox(
+          height: 200,
+          width: 200,
+          child: _boilerplate(
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              cacheExtent: 0,
+              controller: controller,
+              itemBuilder: (BuildContext context, int index) {
+                return OpenContainer(
+                  closedBuilder: (BuildContext context, VoidCallback _) {
+                    return SizedBox(height: 100, width: 100, child: Text('Closed $index'));
+                  },
+                  openBuilder: (BuildContext context, VoidCallback _) {
+                    return Text('Open $index');
+                  },
+                );
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+
+    void expectClosedState() {
+      expect(find.text('Closed 0'), findsOneWidget);
+      expect(find.text('Closed 1'), findsOneWidget);
+      expect(find.text('Closed 2'), findsOneWidget);
+      expect(find.text('Closed 3'), findsNothing);
+
+      expect(find.text('Open 0'), findsNothing);
+      expect(find.text('Open 1'), findsNothing);
+      expect(find.text('Open 2'), findsNothing);
+      expect(find.text('Open 3'), findsNothing);
+    }
+
+    expectClosedState();
+
+    // Open container that's partly visible at left edge.
+    await tester.tapAt(tester.getBottomRight(find.text('Closed 0')) - const Offset(20, 20));
+    await tester.pump();
+    await tester.pumpAndSettle();
+    expect(find.text('Closed 0'), findsNothing);
+    expect(find.text('Open 0'), findsOneWidget);
+
+    final NavigatorState navigator = tester.state(find.byType(Navigator));
+    navigator.pop();
+    await tester.pump();
+    await tester.pumpAndSettle();
+    expectClosedState();
+
+    // Open container that's partly visible at right edge.
+    await tester.tapAt(tester.getTopLeft(find.text('Closed 2')) + const Offset(20, 20));
+    await tester.pump();
+    await tester.pumpAndSettle();
+
+    expect(find.text('Closed 2'), findsNothing);
+    expect(find.text('Open 2'), findsOneWidget);
+  });
+
+  testWidgets('Container can be dismissed after container widget itself is removed without crash', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(_boilerplate(child: _RemoveOpenContainerExample()));
+
+    expect(find.text('Closed'), findsOneWidget);
+    expect(find.text('Closed', skipOffstage: false), findsOneWidget);
+    expect(find.text('Open'), findsNothing);
+
+    await tester.tap(find.text('Open the container'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Closed'), findsNothing);
+    expect(find.text('Closed', skipOffstage: false), findsOneWidget);
+    expect(find.text('Open'), findsOneWidget);
+
+    await tester.tap(find.text('Remove the container'));
+    await tester.pump();
+
+    expect(find.text('Closed'), findsNothing);
+    expect(find.text('Closed', skipOffstage: false), findsNothing);
+    expect(find.text('Open'), findsOneWidget);
+
+    await tester.tap(find.text('Close the container'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Closed'), findsNothing);
+    expect(find.text('Closed', skipOffstage: false), findsNothing);
+    expect(find.text('Open'), findsNothing);
+    expect(find.text('Container has been removed'), findsOneWidget);
+  });
+
+  testWidgets('onClosed callback is called when container has closed', (WidgetTester tester) async {
+    var hasClosed = false;
     final Widget openContainer = OpenContainer(
       onClosed: (dynamic _) {
         hasClosed = true;
@@ -1527,74 +1635,58 @@ void main() {
     expect(hasClosed, isTrue);
   });
 
-  testWidgets(
-    'onClosed callback receives popped value when container has closed',
-    (WidgetTester tester) async {
-      bool? value = false;
-      final Widget openContainer = OpenContainer<bool>(
-        onClosed: (bool? poppedValue) {
-          value = poppedValue;
-        },
-        closedBuilder: (BuildContext context, VoidCallback action) {
-          return GestureDetector(onTap: action, child: const Text('Closed'));
-        },
-        openBuilder: (
-          BuildContext context,
-          CloseContainerActionCallback<bool> action,
-        ) {
-          return GestureDetector(
-            onTap: () => action(returnValue: true),
-            child: const Text('Open'),
-          );
-        },
-      );
-
-      await tester.pumpWidget(_boilerplate(child: openContainer));
-
-      expect(find.text('Open'), findsNothing);
-      expect(find.text('Closed'), findsOneWidget);
-      expect(value, isFalse);
-
-      await tester.tap(find.text('Closed'));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Open'), findsOneWidget);
-      expect(find.text('Closed'), findsNothing);
-
-      await tester.tap(find.text('Open'));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Open'), findsNothing);
-      expect(find.text('Closed'), findsOneWidget);
-      expect(value, isTrue);
-    },
-  );
-
-  testWidgets('closedBuilder has anti-alias clip by default', (
+  testWidgets('onClosed callback receives popped value when container has closed', (
     WidgetTester tester,
   ) async {
+    bool? value = false;
+    final Widget openContainer = OpenContainer<bool>(
+      onClosed: (bool? poppedValue) {
+        value = poppedValue;
+      },
+      closedBuilder: (BuildContext context, VoidCallback action) {
+        return GestureDetector(onTap: action, child: const Text('Closed'));
+      },
+      openBuilder: (BuildContext context, CloseContainerActionCallback<bool> action) {
+        return GestureDetector(onTap: () => action(returnValue: true), child: const Text('Open'));
+      },
+    );
+
+    await tester.pumpWidget(_boilerplate(child: openContainer));
+
+    expect(find.text('Open'), findsNothing);
+    expect(find.text('Closed'), findsOneWidget);
+    expect(value, isFalse);
+
+    await tester.tap(find.text('Closed'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Open'), findsOneWidget);
+    expect(find.text('Closed'), findsNothing);
+
+    await tester.tap(find.text('Open'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Open'), findsNothing);
+    expect(find.text('Closed'), findsOneWidget);
+    expect(value, isTrue);
+  });
+
+  testWidgets('closedBuilder has anti-alias clip by default', (WidgetTester tester) async {
     final GlobalKey closedBuilderKey = GlobalKey();
     final Widget openContainer = OpenContainer(
       closedBuilder: (BuildContext context, VoidCallback action) {
         return Text('Close', key: closedBuilderKey);
       },
-      openBuilder: (
-        BuildContext context,
-        CloseContainerActionCallback<bool> action,
-      ) {
+      openBuilder: (BuildContext context, CloseContainerActionCallback<bool> action) {
         return const Text('Open');
       },
     );
 
     await tester.pumpWidget(_boilerplate(child: openContainer));
 
-    final Finder closedBuilderMaterial =
-        find
-            .ancestor(
-              of: find.byKey(closedBuilderKey),
-              matching: find.byType(Material),
-            )
-            .first;
+    final Finder closedBuilderMaterial = find
+        .ancestor(of: find.byKey(closedBuilderKey), matching: find.byType(Material))
+        .first;
 
     final Material material = tester.widget<Material>(closedBuilderMaterial);
     expect(material.clipBehavior, Clip.antiAlias);
@@ -1606,10 +1698,7 @@ void main() {
       closedBuilder: (BuildContext context, VoidCallback action) {
         return Text('Close', key: closedBuilderKey);
       },
-      openBuilder: (
-        BuildContext context,
-        CloseContainerActionCallback<bool> action,
-      ) {
+      openBuilder: (BuildContext context, CloseContainerActionCallback<bool> action) {
         return const Text('Open');
       },
       clipBehavior: Clip.none,
@@ -1617,13 +1706,9 @@ void main() {
 
     await tester.pumpWidget(_boilerplate(child: openContainer));
 
-    final Finder closedBuilderMaterial =
-        find
-            .ancestor(
-              of: find.byKey(closedBuilderKey),
-              matching: find.byType(Material),
-            )
-            .first;
+    final Finder closedBuilderMaterial = find
+        .ancestor(of: find.byKey(closedBuilderKey), matching: find.byType(Material))
+        .first;
 
     final Material material = tester.widget<Material>(closedBuilderMaterial);
     expect(material.clipBehavior, Clip.none);
@@ -1671,75 +1756,61 @@ void main() {
     );
   }
 
-  testWidgets(
-    'Verify that "useRootNavigator: false" uses the correct navigator',
-    (WidgetTester tester) async {
-      const Key appKey = Key('App');
-      const Key nestedNavigatorKey = Key('Nested Navigator');
+  testWidgets('Verify that "useRootNavigator: false" uses the correct navigator', (
+    WidgetTester tester,
+  ) async {
+    const appKey = Key('App');
+    const nestedNavigatorKey = Key('Nested Navigator');
 
-      await tester.pumpWidget(
-        createRootNavigatorTest(
-          appKey: appKey,
-          nestedNavigatorKey: nestedNavigatorKey,
-          useRootNavigator: false,
-        ),
-      );
+    await tester.pumpWidget(
+      createRootNavigatorTest(
+        appKey: appKey,
+        nestedNavigatorKey: nestedNavigatorKey,
+        useRootNavigator: false,
+      ),
+    );
 
-      await tester.tap(find.text('Closed'));
-      await tester.pumpAndSettle();
+    await tester.tap(find.text('Closed'));
+    await tester.pumpAndSettle();
 
-      expect(
-        find.descendant(of: find.byKey(appKey), matching: find.text('Opened')),
-        findsOneWidget,
-      );
+    expect(find.descendant(of: find.byKey(appKey), matching: find.text('Opened')), findsOneWidget);
 
-      expect(
-        find.descendant(
-          of: find.byKey(nestedNavigatorKey),
-          matching: find.text('Opened'),
-        ),
-        findsOneWidget,
-      );
-    },
-  );
+    expect(
+      find.descendant(of: find.byKey(nestedNavigatorKey), matching: find.text('Opened')),
+      findsOneWidget,
+    );
+  });
 
-  testWidgets(
-    'Verify that "useRootNavigator: true" uses the correct navigator',
-    (WidgetTester tester) async {
-      const Key appKey = Key('App');
-      const Key nestedNavigatorKey = Key('Nested Navigator');
+  testWidgets('Verify that "useRootNavigator: true" uses the correct navigator', (
+    WidgetTester tester,
+  ) async {
+    const appKey = Key('App');
+    const nestedNavigatorKey = Key('Nested Navigator');
 
-      await tester.pumpWidget(
-        createRootNavigatorTest(
-          appKey: appKey,
-          nestedNavigatorKey: nestedNavigatorKey,
-          useRootNavigator: true,
-        ),
-      );
+    await tester.pumpWidget(
+      createRootNavigatorTest(
+        appKey: appKey,
+        nestedNavigatorKey: nestedNavigatorKey,
+        useRootNavigator: true,
+      ),
+    );
 
-      await tester.tap(find.text('Closed'));
-      await tester.pumpAndSettle();
+    await tester.tap(find.text('Closed'));
+    await tester.pumpAndSettle();
 
-      expect(
-        find.descendant(of: find.byKey(appKey), matching: find.text('Opened')),
-        findsOneWidget,
-      );
+    expect(find.descendant(of: find.byKey(appKey), matching: find.text('Opened')), findsOneWidget);
 
-      expect(
-        find.descendant(
-          of: find.byKey(nestedNavigatorKey),
-          matching: find.text('Opened'),
-        ),
-        findsNothing,
-      );
-    },
-  );
+    expect(
+      find.descendant(of: find.byKey(nestedNavigatorKey), matching: find.text('Opened')),
+      findsNothing,
+    );
+  });
 
   testWidgets('Verify correct opened size  when "useRootNavigator: false"', (
     WidgetTester tester,
   ) async {
-    const Key appKey = Key('App');
-    const Key nestedNavigatorKey = Key('Nested Navigator');
+    const appKey = Key('App');
+    const nestedNavigatorKey = Key('Nested Navigator');
 
     await tester.pumpWidget(
       createRootNavigatorTest(
@@ -1761,8 +1832,8 @@ void main() {
   testWidgets('Verify correct opened size  when "useRootNavigator: true"', (
     WidgetTester tester,
   ) async {
-    const Key appKey = Key('App');
-    const Key nestedNavigatorKey = Key('Nested Navigator');
+    const appKey = Key('App');
+    const nestedNavigatorKey = Key('Nested Navigator');
 
     await tester.pumpWidget(
       createRootNavigatorTest(
@@ -1775,19 +1846,11 @@ void main() {
     await tester.tap(find.text('Closed'));
     await tester.pumpAndSettle();
 
-    expect(
-      tester.getSize(find.text('Opened')),
-      equals(tester.getSize(find.byKey(appKey))),
-    );
+    expect(tester.getSize(find.text('Opened')), equals(tester.getSize(find.byKey(appKey))));
   });
 
-  testWidgets('Verify routeSettings passed to Navigator', (
-    WidgetTester tester,
-  ) async {
-    const RouteSettings routeSettings = RouteSettings(
-      name: 'route-name',
-      arguments: 'arguments',
-    );
+  testWidgets('Verify routeSettings passed to Navigator', (WidgetTester tester) async {
+    const routeSettings = RouteSettings(name: 'route-name', arguments: 'arguments');
 
     final Widget openContainer = OpenContainer(
       routeSettings: routeSettings,
@@ -1807,8 +1870,7 @@ void main() {
 
     // Expect the last route pushed to the navigator to contain RouteSettings
     // equal to the RouteSettings passed to the OpenContainer
-    final ModalRoute<dynamic> modalRoute =
-        ModalRoute.of(tester.element(find.text('Open')))!;
+    final ModalRoute<dynamic> modalRoute = ModalRoute.of(tester.element(find.text('Open')))!;
     expect(modalRoute.settings, routeSettings);
   });
 }
@@ -1816,10 +1878,7 @@ void main() {
 Color _getScrimColor(WidgetTester tester) {
   return tester
       .widget<ColoredBox>(
-        find.descendant(
-          of: find.byType(Container),
-          matching: find.byType(ColoredBox),
-        ),
+        find.descendant(of: find.byType(Container), matching: find.byType(ColoredBox)),
       )
       .color;
 }
@@ -1829,10 +1888,7 @@ void _expectMaterialPropertiesHaveAdvanced({
   required _TrackedData smallerMaterial,
   required WidgetTester tester,
 }) {
-  expect(
-    biggerMaterial.material.elevation,
-    greaterThan(smallerMaterial.material.elevation),
-  );
+  expect(biggerMaterial.material.elevation, greaterThan(smallerMaterial.material.elevation));
   expect(biggerMaterial.radius, lessThan(smallerMaterial.radius));
   expect(biggerMaterial.rect.height, greaterThan(smallerMaterial.rect.height));
   expect(biggerMaterial.rect.width, greaterThan(smallerMaterial.rect.width));
@@ -1859,12 +1915,11 @@ class _TrackedData {
 }
 
 double _getRadius(Material material) {
-  final RoundedRectangleBorder? shape =
-      material.shape as RoundedRectangleBorder?;
+  final shape = material.shape as RoundedRectangleBorder?;
   if (shape == null) {
     return 0.0;
   }
-  final BorderRadius radius = shape.borderRadius as BorderRadius;
+  final radius = shape.borderRadius as BorderRadius;
   return radius.topRight.x;
 }
 
@@ -1909,12 +1964,10 @@ class _SizableContainerState extends State<_SizableContainer> {
 
 class _RemoveOpenContainerExample extends StatefulWidget {
   @override
-  __RemoveOpenContainerExampleState createState() =>
-      __RemoveOpenContainerExampleState();
+  __RemoveOpenContainerExampleState createState() => __RemoveOpenContainerExampleState();
 }
 
-class __RemoveOpenContainerExampleState
-    extends State<_RemoveOpenContainerExample> {
+class __RemoveOpenContainerExampleState extends State<_RemoveOpenContainerExample> {
   bool removeOpenContainerWidget = false;
 
   @override
@@ -1922,35 +1975,27 @@ class __RemoveOpenContainerExampleState
     return removeOpenContainerWidget
         ? const Text('Container has been removed')
         : OpenContainer(
-          closedBuilder:
-              (BuildContext context, VoidCallback action) => Column(
-                children: <Widget>[
-                  const Text('Closed'),
-                  ElevatedButton(
-                    onPressed: action,
-                    child: const Text('Open the container'),
-                  ),
-                ],
-              ),
-          openBuilder:
-              (BuildContext context, VoidCallback action) => Column(
-                children: <Widget>[
-                  const Text('Open'),
-                  ElevatedButton(
-                    onPressed: action,
-                    child: const Text('Close the container'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        removeOpenContainerWidget = true;
-                      });
-                    },
-                    child: const Text('Remove the container'),
-                  ),
-                ],
-              ),
-        );
+            closedBuilder: (BuildContext context, VoidCallback action) => Column(
+              children: <Widget>[
+                const Text('Closed'),
+                ElevatedButton(onPressed: action, child: const Text('Open the container')),
+              ],
+            ),
+            openBuilder: (BuildContext context, VoidCallback action) => Column(
+              children: <Widget>[
+                const Text('Open'),
+                ElevatedButton(onPressed: action, child: const Text('Close the container')),
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      removeOpenContainerWidget = true;
+                    });
+                  },
+                  child: const Text('Remove the container'),
+                ),
+              ],
+            ),
+          );
   }
 }
 

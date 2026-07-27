@@ -11,35 +11,27 @@ import 'helpers/error_screen_helpers.dart';
 
 void main() {
   group('isMaterialApp', () {
-    testWidgets('returns [true] when MaterialApp is present', (
-      WidgetTester tester,
-    ) async {
-      final GlobalKey<_DummyStatefulWidgetState> key =
-          GlobalKey<_DummyStatefulWidgetState>();
+    testWidgets('returns [true] when MaterialApp is present', (WidgetTester tester) async {
+      final key = GlobalKey<_DummyStatefulWidgetState>();
       await tester.pumpWidget(MaterialApp(home: DummyStatefulWidget(key: key)));
       final bool isMaterial = isMaterialApp(key.currentContext! as Element);
       expect(isMaterial, true);
     });
 
-    testWidgets('returns [false] when CupertinoApp is present', (
-      WidgetTester tester,
-    ) async {
-      final GlobalKey<_DummyStatefulWidgetState> key =
-          GlobalKey<_DummyStatefulWidgetState>();
-      await tester.pumpWidget(
-        CupertinoApp(home: DummyStatefulWidget(key: key)),
-      );
+    testWidgets('returns [false] when CupertinoApp is present', (WidgetTester tester) async {
+      final key = GlobalKey<_DummyStatefulWidgetState>();
+      await tester.pumpWidget(CupertinoApp(home: DummyStatefulWidget(key: key)));
       final bool isMaterial = isMaterialApp(key.currentContext! as Element);
       expect(isMaterial, false);
     });
   });
 
   test('pageBuilderForMaterialApp creates a [MaterialPage] accordingly', () {
-    final UniqueKey key = UniqueKey();
-    const String name = 'name';
-    const String arguments = 'arguments';
-    const String restorationId = 'restorationId';
-    const DummyStatefulWidget child = DummyStatefulWidget();
+    final key = UniqueKey();
+    const name = 'name';
+    const arguments = 'arguments';
+    const restorationId = 'restorationId';
+    const child = DummyStatefulWidget();
     final MaterialPage<void> page = pageBuilderForMaterialApp(
       key: key,
       name: name,
@@ -57,12 +49,10 @@ void main() {
   group('GoRouterMaterialErrorScreen', () {
     testWidgets(
       'shows "page not found" by default',
-      testPageNotFound(
-        widget: const MaterialApp(home: MaterialErrorScreen(null)),
-      ),
+      testPageNotFound(widget: const MaterialApp(home: MaterialErrorScreen(null))),
     );
 
-    final Exception exception = Exception('Something went wrong!');
+    final exception = Exception('Something went wrong!');
     testWidgets(
       'shows the exception message when provided',
       testPageShowsExceptionMessage(

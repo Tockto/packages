@@ -1,3 +1,40 @@
+## 2.0.9
+
+* Migrates to Built-in Kotlin to support AGP 9.
+* Updates minimum supported SDK version to Flutter 3.44/Dart 3.12.
+
+## 2.0.8
+
+* Updates internal implementation to use Kotlin Pigeon.
+
+## 2.0.7
+
+* Updates build files from Groovy to Kotlin.
+
+## 2.0.6
+
+* Bumps androidx.core:core from 1.17.0 to 1.18.0.
+
+## 2.0.5
+
+* Adds platform-specific setup instructions to README.
+
+## 2.0.4
+
+* Bumps androidx.core:core from 1.13.1 to 1.17.0.
+
+## 2.0.3
+
+* Bumps com.android.tools.build:gradle from 8.12.1 to 8.13.1.
+
+## 2.0.2
+
+* Updates to Pigeon 26.
+
+## 2.0.1
+
+* Removed mockito-inline and updated to mockito-core 5.17.0.
+
 ## 2.0.0
 
 * **BREAKING CHANGES:**

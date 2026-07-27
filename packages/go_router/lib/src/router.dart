@@ -15,6 +15,7 @@ import 'logging.dart';
 import 'match.dart';
 import 'misc/constants.dart';
 import 'misc/inherited_router.dart';
+import 'on_enter.dart';
 import 'parser.dart';
 import 'route.dart';
 import 'state.dart';
@@ -24,6 +25,20 @@ import 'state.dart';
 /// Use `state.error` to access the exception.
 typedef GoExceptionHandler =
     void Function(BuildContext context, GoRouterState state, GoRouter router);
+
+/// The signature for the top-level [onEnter] callback.
+///
+/// This callback receives the [BuildContext], the current navigation state,
+/// the state being navigated to, and a reference to the [GoRouter] instance.
+/// It returns a [FutureOr<OnEnterResult>] which should resolve to [Allow] if navigation
+/// is allowed, or [Block] to block navigation.
+typedef OnEnter =
+    FutureOr<OnEnterResult> Function(
+      BuildContext context,
+      GoRouterState currentState,
+      GoRouterState nextState,
+      GoRouter goRouter,
+    );
 
 /// A set of parameters that defines routing in GoRouter.
 ///
@@ -39,14 +54,12 @@ class RoutingConfig {
   /// The [routes] must not be empty.
   const RoutingConfig({
     required this.routes,
+    this.onEnter,
     this.redirect = _defaultRedirect,
     this.redirectLimit = 5,
   });
 
-  static FutureOr<String?> _defaultRedirect(
-    BuildContext context,
-    GoRouterState state,
-  ) => null;
+  static FutureOr<String?> _defaultRedirect(BuildContext context, GoRouterState state) => null;
 
   /// The supported routes.
   ///
@@ -64,13 +77,45 @@ class RoutingConfig {
   /// implemented), a re-evaluation will be triggered when the [InheritedWidget]
   /// changes.
   ///
-  /// See [GoRouter].
+  /// This legacy callback remains supported alongside [onEnter]. If both are
+  /// provided, [onEnter] executes first and may block the navigation. When
+  /// allowed, this callback runs once per navigation cycle before any
+  /// route-level redirects.
   final GoRouterRedirect redirect;
 
   /// The maximum number of redirection allowed.
   ///
   /// See [GoRouter].
   final int redirectLimit;
+
+  /// A callback invoked for every incoming route before it is processed.
+  ///
+  /// This callback allows you to control navigation by inspecting the incoming
+  /// route and conditionally preventing the navigation. Return [Allow] to proceed
+  /// with navigation or [Block] to cancel it. Both can optionally include an
+  /// `then` callback for deferred actions.
+  ///
+  /// When a deep link opens the app and `onEnter` returns [Block], GoRouter
+  /// will stay on the current route or redirect to the initial route.
+  ///
+  /// Example:
+  /// ```dart
+  /// final GoRouter router = GoRouter(
+  ///   routes: [...],
+  ///   onEnter: (BuildContext context, GoRouterState current,
+  ///             GoRouterState next, GoRouter router) async {
+  ///     if (next.uri.path == '/login' && isUserLoggedIn()) {
+  ///       return const Block.stop(); // Prevent navigation to /login
+  ///     }
+  ///     if (next.uri.path == '/protected' && !isUserLoggedIn()) {
+  ///       // Block and redirect to login
+  ///       return Block.then(() => router.go('/login?from=${next.uri}'));
+  ///     }
+  ///     return const Allow(); // Allow navigation
+  ///   },
+  /// );
+  /// ```
+  final OnEnter? onEnter;
 }
 
 /// The route configuration for the app.
@@ -81,6 +126,13 @@ class RoutingConfig {
 /// See the [Get
 /// started](https://github.com/flutter/packages/blob/main/packages/go_router/example/lib/main.dart)
 /// example, which shows an app with a simple route configuration.
+///
+/// The [onEnter] callback allows intercepting navigation before routes are
+/// processed. Return [Allow] to proceed or [Block] to prevent navigation.
+/// Order of operations:
+/// 1) `onEnter` (your guard) - can block navigation
+/// 2) If allowed: legacy top-level `redirect` - runs in same navigation cycle
+/// 3) route-level `GoRoute.redirect`
 ///
 /// The [redirect] callback allows the app to redirect to a new location.
 /// Alternatively, you can specify a redirect for an individual route using
@@ -122,13 +174,14 @@ class GoRouter implements RouterConfig<RouteMatchList> {
   /// The `routes` must not be null and must contain an [GoRouter] to match `/`.
   factory GoRouter({
     required List<RouteBase> routes,
+    OnEnter? onEnter,
     Codec<Object?, Object?>? extraCodec,
     GoExceptionHandler? onException,
     GoRouterPageBuilder? errorPageBuilder,
     GoRouterWidgetBuilder? errorBuilder,
     GoRouterRedirect? redirect,
-    Listenable? refreshListenable,
     int redirectLimit = 5,
+    Listenable? refreshListenable,
     bool routerNeglect = false,
     String? initialLocation,
     bool overridePlatformDefaultLocation = false,
@@ -144,6 +197,7 @@ class GoRouter implements RouterConfig<RouteMatchList> {
         RoutingConfig(
           routes: routes,
           redirect: redirect ?? RoutingConfig._defaultRedirect,
+          onEnter: onEnter,
           redirectLimit: redirectLimit,
         ),
       ),
@@ -178,7 +232,7 @@ class GoRouter implements RouterConfig<RouteMatchList> {
     String? initialLocation,
     this.overridePlatformDefaultLocation = false,
     Object? initialExtra,
-    List<NavigatorObserver>? observers,
+    this.observers,
     bool debugLogDiagnostics = false,
     GlobalKey<NavigatorState>? navigatorKey,
     String? restorationScopeId,
@@ -215,15 +269,8 @@ class GoRouter implements RouterConfig<RouteMatchList> {
 
     final ParserExceptionHandler? parserExceptionHandler;
     if (onException != null) {
-      parserExceptionHandler = (
-        BuildContext context,
-        RouteMatchList routeMatchList,
-      ) {
-        onException(
-          context,
-          configuration.buildTopLevelGoRouterState(routeMatchList),
-          this,
-        );
+      parserExceptionHandler = (BuildContext context, RouteMatchList routeMatchList) {
+        onException(context, configuration.buildTopLevelGoRouterState(routeMatchList), this);
         // Avoid updating GoRouterDelegate if onException is provided.
         return routerDelegate.currentConfiguration;
       };
@@ -234,6 +281,7 @@ class GoRouter implements RouterConfig<RouteMatchList> {
     routeInformationParser = GoRouteInformationParser(
       onParserException: parserExceptionHandler,
       configuration: configuration,
+      router: this,
     );
 
     routeInformationProvider = GoRouteInformationProvider(
@@ -253,9 +301,8 @@ class GoRouter implements RouterConfig<RouteMatchList> {
       requestFocus: requestFocus,
       // wrap the returned Navigator to enable GoRouter.of(context).go() et al,
       // allowing the caller to wrap the navigator themselves
-      builderWithNav:
-          (BuildContext context, Widget child) =>
-              InheritedGoRouter(goRouter: this, child: child),
+      builderWithNav: (BuildContext context, Widget child) =>
+          InheritedGoRouter(goRouter: this, child: child),
     );
 
     assert(() {
@@ -311,6 +358,9 @@ class GoRouter implements RouterConfig<RouteMatchList> {
   @override
   late final GoRouteInformationParser routeInformationParser;
 
+  /// The navigator observers used by [GoRouter].
+  final List<NavigatorObserver>? observers;
+
   void _handleRoutingConfigChanged() {
     // Reparse is needed to update its builder
     restore(configuration.reparse(routerDelegate.currentConfiguration));
@@ -362,10 +412,7 @@ class GoRouter implements RouterConfig<RouteMatchList> {
   /// Restore the RouteMatchList
   void restore(RouteMatchList matchList) {
     log('restoring ${matchList.uri}');
-    routeInformationProvider.restore(
-      matchList.uri.toString(),
-      matchList: matchList,
-    );
+    routeInformationProvider.restore(matchList.uri.toString(), matchList: matchList);
   }
 
   /// Navigate to a named route w/ optional parameters, e.g.
@@ -378,16 +425,16 @@ class GoRouter implements RouterConfig<RouteMatchList> {
     Object? extra,
     String? fragment,
   }) =>
-  /// Construct location with optional fragment, using null-safe navigation
-  go(
-    namedLocation(
-      name,
-      pathParameters: pathParameters,
-      queryParameters: queryParameters,
-      fragment: fragment,
-    ),
-    extra: extra,
-  );
+      // Construct location with optional fragment
+      go(
+        namedLocation(
+          name,
+          pathParameters: pathParameters,
+          queryParameters: queryParameters,
+          fragment: fragment,
+        ),
+        extra: extra,
+      );
 
   /// Push a URI location onto the page stack w/ optional query parameters, e.g.
   /// `/family/f2/person/p1?color=blue`.
@@ -415,11 +462,7 @@ class GoRouter implements RouterConfig<RouteMatchList> {
     Map<String, dynamic> queryParameters = const <String, dynamic>{},
     Object? extra,
   }) => push<T>(
-    namedLocation(
-      name,
-      pathParameters: pathParameters,
-      queryParameters: queryParameters,
-    ),
+    namedLocation(name, pathParameters: pathParameters, queryParameters: queryParameters),
     extra: extra,
   );
 
@@ -432,10 +475,7 @@ class GoRouter implements RouterConfig<RouteMatchList> {
   /// * [replace] which replaces the top-most page of the page stack but treats
   ///   it as the same page. The page key will be reused. This will preserve the
   ///   state and not run any page animation.
-  Future<T?> pushReplacement<T extends Object?>(
-    String location, {
-    Object? extra,
-  }) {
+  Future<T?> pushReplacement<T extends Object?>(String location, {Object? extra}) {
     log('pushReplacement $location');
     return routeInformationProvider.pushReplacement<T>(
       location,
@@ -458,11 +498,7 @@ class GoRouter implements RouterConfig<RouteMatchList> {
     Object? extra,
   }) {
     return pushReplacement<T>(
-      namedLocation(
-        name,
-        pathParameters: pathParameters,
-        queryParameters: queryParameters,
-      ),
+      namedLocation(name, pathParameters: pathParameters, queryParameters: queryParameters),
       extra: extra,
     );
   }
@@ -504,11 +540,7 @@ class GoRouter implements RouterConfig<RouteMatchList> {
     Object? extra,
   }) {
     return replace(
-      namedLocation(
-        name,
-        pathParameters: pathParameters,
-        queryParameters: queryParameters,
-      ),
+      namedLocation(name, pathParameters: pathParameters, queryParameters: queryParameters),
       extra: extra,
     );
   }
@@ -525,8 +557,13 @@ class GoRouter implements RouterConfig<RouteMatchList> {
       log('popping ${routerDelegate.currentConfiguration.uri}');
       return true;
     }());
+    final RouteMatchList configBeforePop = routerDelegate.currentConfiguration;
     routerDelegate.pop<T>(result);
-    restore(routerDelegate.currentConfiguration);
+    // Only restore when the pop completed synchronously (no onExit).
+    // If deferred, currentConfiguration is still the same instance.
+    if (!identical(routerDelegate.currentConfiguration, configBeforePop)) {
+      restore(routerDelegate.currentConfiguration);
+    }
   }
 
   /// Refresh the route.
@@ -549,10 +586,8 @@ class GoRouter implements RouterConfig<RouteMatchList> {
 
   /// The current GoRouter in the widget tree, if any.
   static GoRouter? maybeOf(BuildContext context) {
-    final InheritedGoRouter? inherited =
-        context
-                .getElementForInheritedWidgetOfExactType<InheritedGoRouter>()
-                ?.widget
+    final inherited =
+        context.getElementForInheritedWidgetOfExactType<InheritedGoRouter>()?.widget
             as InheritedGoRouter?;
     if (inherited != null) {
       return inherited.goRouter;
@@ -575,13 +610,11 @@ class GoRouter implements RouterConfig<RouteMatchList> {
       // verified by assert() during the initialization.
       return initialLocation!;
     }
-    Uri platformDefaultUri = Uri.parse(
-      WidgetsBinding.instance.platformDispatcher.defaultRouteName,
-    );
+    Uri platformDefaultUri = Uri.parse(WidgetsBinding.instance.platformDispatcher.defaultRouteName);
     if (platformDefaultUri.hasEmptyPath) {
       platformDefaultUri = platformDefaultUri.replace(path: '/');
     }
-    final String platformDefault = platformDefaultUri.toString();
+    final platformDefault = platformDefaultUri.toString();
     if (initialLocation == null) {
       return platformDefault;
     } else if (platformDefault == '/') {
@@ -595,6 +628,7 @@ class GoRouter implements RouterConfig<RouteMatchList> {
 /// A routing config that is never going to change.
 class _ConstantRoutingConfig extends ValueListenable<RoutingConfig> {
   const _ConstantRoutingConfig(this.value);
+
   @override
   void addListener(VoidCallback listener) {
     // Intentionally empty because listener will never be called.

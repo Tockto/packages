@@ -14,12 +14,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 // #docregion PrecompiledAsset
 import 'package:vector_graphics/vector_graphics.dart';
+
 // #enddocregion PrecompiledAsset
 
 /// Loads an SVG asset.
 Widget loadAsset() {
   // #docregion SimpleAsset
-  const String assetName = 'assets/dart.svg';
+  const assetName = 'assets/dart.svg';
   final Widget svg = SvgPicture.asset(assetName, semanticsLabel: 'Dart Logo');
   // #enddocregion SimpleAsset
   return svg;
@@ -28,7 +29,7 @@ Widget loadAsset() {
 /// Loads an SVG asset.
 Widget loadColorizedAsset() {
   // #docregion ColorizedAsset
-  const String assetName = 'assets/simple/dash_path.svg';
+  const assetName = 'assets/simple/dash_path.svg';
   final Widget svgIcon = SvgPicture.asset(
     assetName,
     colorFilter: const ColorFilter.mode(Colors.red, BlendMode.srcIn),
@@ -42,7 +43,7 @@ Widget loadColorizedAsset() {
 Widget loadMissingAsset() {
   // #docregion MissingAsset
   // Will print error messages to the console.
-  const String assetName = 'assets/image_that_does_not_exist.svg';
+  const assetName = 'assets/image_that_does_not_exist.svg';
   final Widget svg = SvgPicture.asset(assetName);
   // #enddocregion MissingAsset
   return svg;
@@ -58,11 +59,8 @@ Widget loadNetworkAssetWithPlaceholder() {
   final Widget networkSvg = SvgPicture.network(
     'https://site-that-takes-a-while.com/image.svg',
     semanticsLabel: 'A shark?!',
-    placeholderBuilder:
-        (BuildContext context) => Container(
-          padding: const EdgeInsets.all(30.0),
-          child: const CircularProgressIndicator(),
-        ),
+    placeholderBuilder: (BuildContext context) =>
+        Container(padding: const EdgeInsets.all(30.0), child: const CircularProgressIndicator()),
   );
   // #enddocregion AssetWithPlaceholder
   return networkSvg;
@@ -80,16 +78,16 @@ Widget loadPrecompiledAsset() {
 
 /// Demonstrates converting SVG to another type.
 Future<ui.Image> convertSvgOutput() async {
-  final Canvas canvas = Canvas(ui.PictureRecorder());
-  const int width = 100;
-  const int height = 100;
+  final canvas = Canvas(ui.PictureRecorder());
+  const width = 100;
+  const height = 100;
 
   // #docregion OutputConversion
-  const String rawSvg = '''<svg ...>...</svg>''';
-  final PictureInfo pictureInfo = await vg.loadPicture(
-    const SvgStringLoader(rawSvg),
-    null,
-  );
+  const rawSvg = '''<svg ...>...</svg>''';
+  final PictureInfo pictureInfo = await vg.loadPicture(const SvgStringLoader(rawSvg), null);
+
+  // You can scale the canvas to achieve lossless scaling:
+  canvas.scale(1.2, 1.2);
 
   // You can draw the picture to a canvas:
   canvas.drawPicture(pictureInfo.picture);
@@ -107,12 +105,7 @@ class _MyColorMapper extends ColorMapper {
   const _MyColorMapper();
 
   @override
-  Color substitute(
-    String? id,
-    String elementName,
-    String attributeName,
-    Color color,
-  ) {
+  Color substitute(String? id, String elementName, String attributeName, Color color) {
     if (color == const Color(0xFFFF0000)) {
       return Colors.blue;
     }
@@ -122,21 +115,19 @@ class _MyColorMapper extends ColorMapper {
     return color;
   }
 }
+
 // #enddocregion ColorMapper
 
 /// Demonstrates loading an SVG asset with a color mapping.
 Widget loadWithColorMapper() {
   // #docregion ColorMapper
-  const String svgString = '''
+  const svgString = '''
 <svg viewBox="0 0 100 100">
   <rect width="50" height="50" fill="#FF0000" />
   <circle cx="75" cy="75" r="25" fill="#00FF00" />
 </svg>
 ''';
-  final Widget svgIcon = SvgPicture.string(
-    svgString,
-    colorMapper: const _MyColorMapper(),
-  );
+  final Widget svgIcon = SvgPicture.string(svgString, colorMapper: const _MyColorMapper());
   // #enddocregion ColorMapper
   return svgIcon;
 }
