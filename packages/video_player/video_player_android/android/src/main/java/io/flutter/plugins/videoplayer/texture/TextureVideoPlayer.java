@@ -99,6 +99,8 @@ public final class TextureVideoPlayer extends VideoPlayer implements SurfaceProd
     Surface surface = surfaceProducer.getSurface();
     this.exoPlayer.setVideoSurface(surface);
     needsSurface = surface == null;
+
+    initializeEventListener();
   }
 
   @NonNull
