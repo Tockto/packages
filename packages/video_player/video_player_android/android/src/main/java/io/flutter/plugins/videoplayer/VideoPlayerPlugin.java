@@ -5,6 +5,7 @@
 package io.flutter.plugins.videoplayer;
 
 import android.content.Context;
+import android.os.Build;
 import android.util.LongSparseArray;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -15,6 +16,7 @@ import io.flutter.Log;
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugins.videoplayer.gputexture.GPUTextureVideoPlayer;
+import io.flutter.plugins.videoplayer.imagetexture.ImageTextureVideoPlayer;
 import io.flutter.plugins.videoplayer.platformview.PlatformVideoViewFactory;
 import io.flutter.plugins.videoplayer.platformview.PlatformViewVideoPlayer;
 import io.flutter.plugins.videoplayer.texture.TextureVideoPlayer;
@@ -133,12 +135,45 @@ public class VideoPlayerPlugin implements FlutterPlugin, AndroidVideoPlayerApi {
     final String streamInstance = Long.toString(id);
     TextureRegistry.SurfaceProducer handle = flutterState.textureRegistry.createSurfaceProducer();
     VideoPlayer videoPlayer =
-            GPUTextureVideoPlayer.create(
-                    flutterState.applicationContext,
-                    VideoPlayerEventCallbacks.bindTo(flutterState.binaryMessenger, streamInstance),
-                    handle,
-                    videoAsset,
-                    sharedOptions);
+        GPUTextureVideoPlayer.create(
+            flutterState.applicationContext,
+            VideoPlayerEventCallbacks.bindTo(flutterState.binaryMessenger, streamInstance),
+            handle,
+            videoAsset,
+            sharedOptions);
+
+    registerPlayerInstance(videoPlayer, id);
+    return new TexturePlayerIds(id, handle.id());
+  }
+
+  @OptIn(markerClass = UnstableApi.class)
+  @Override
+  public @NonNull TexturePlayerIds createForImageTextureView(@NonNull CreationOptions options) {
+    // ImageTextureEntry consumes AHardwareBuffer-backed Images and requires Android 10.
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+      return createForTextureView(options);
+    }
+
+    final VideoAsset videoAsset = videoAssetWithOptions(options);
+    long id = nextPlayerIdentifier++;
+    final String streamInstance = Long.toString(id);
+    TextureRegistry.ImageTextureEntry handle = flutterState.textureRegistry.createImageTexture();
+    VideoPlayerOptions playerOptions = new VideoPlayerOptions(sharedOptions);
+    playerOptions.backBufferDurationMs = options.getBackBufferDurationMs();
+
+    final VideoPlayer videoPlayer;
+    try {
+      videoPlayer =
+          ImageTextureVideoPlayer.create(
+              flutterState.applicationContext,
+              VideoPlayerEventCallbacks.bindTo(flutterState.binaryMessenger, streamInstance),
+              videoAsset,
+              playerOptions,
+              handle);
+    } catch (RuntimeException exception) {
+      handle.release();
+      throw exception;
+    }
 
     registerPlayerInstance(videoPlayer, id);
     return new TexturePlayerIds(id, handle.id());

@@ -33,6 +33,7 @@ public class PlatformViewVideoPlayer extends VideoPlayer {
       @NonNull VideoPlayerOptions options,
       @NonNull ExoPlayerProvider exoPlayerProvider) {
     super(events, mediaItem, options, /* surfaceProducer */ null, exoPlayerProvider);
+    initializeEventListener();
   }
 
   /**
@@ -52,36 +53,36 @@ public class PlatformViewVideoPlayer extends VideoPlayer {
       @NonNull VideoPlayerCallbacks events,
       @NonNull VideoAsset asset,
       @NonNull VideoPlayerOptions options) {
-    PlatformViewVideoPlayer player = new PlatformViewVideoPlayer(
-        events,
-        asset.getMediaItem(),
-        options,
-        () -> {
-          ExoPlayer.Builder builder = new ExoPlayer.Builder(context);
-          if (options.backBufferDurationMs != null) {
-            if (options.backBufferDurationMs < 0) {
-              throw new IllegalArgumentException("backBufferDurationMs must be at least 0");
-            }
-            if (options.backBufferDurationMs > 0) {
-              // Clamp the value to ensure it fits within the int range expected by
-              // DefaultLoadControl.
-              int backBufferInt =
-                  (int) Math.min(options.backBufferDurationMs.longValue(), Integer.MAX_VALUE);
-              DefaultLoadControl loadControl =
-                  new DefaultLoadControl.Builder()
-                      .setBackBuffer(backBufferInt, /* retainBackBufferFromKeyframe= */ true)
-                      .build();
-              builder.setLoadControl(loadControl);
-            }
-          }
-          androidx.media3.exoplayer.trackselection.DefaultTrackSelector trackSelector =
-              new androidx.media3.exoplayer.trackselection.DefaultTrackSelector(context);
-          builder
-              .setTrackSelector(trackSelector)
-              .setMediaSourceFactory(asset.getMediaSourceFactory(context));
-          return builder.build();
-        });
-    player.initializeEventListener();
+    PlatformViewVideoPlayer player =
+        new PlatformViewVideoPlayer(
+            events,
+            asset.getMediaItem(),
+            options,
+            () -> {
+              ExoPlayer.Builder builder = new ExoPlayer.Builder(context);
+              if (options.backBufferDurationMs != null) {
+                if (options.backBufferDurationMs < 0) {
+                  throw new IllegalArgumentException("backBufferDurationMs must be at least 0");
+                }
+                if (options.backBufferDurationMs > 0) {
+                  // Clamp the value to ensure it fits within the int range expected by
+                  // DefaultLoadControl.
+                  int backBufferInt =
+                      (int) Math.min(options.backBufferDurationMs.longValue(), Integer.MAX_VALUE);
+                  DefaultLoadControl loadControl =
+                      new DefaultLoadControl.Builder()
+                          .setBackBuffer(backBufferInt, /* retainBackBufferFromKeyframe= */ true)
+                          .build();
+                  builder.setLoadControl(loadControl);
+                }
+              }
+              androidx.media3.exoplayer.trackselection.DefaultTrackSelector trackSelector =
+                  new androidx.media3.exoplayer.trackselection.DefaultTrackSelector(context);
+              builder
+                  .setTrackSelector(trackSelector)
+                  .setMediaSourceFactory(asset.getMediaSourceFactory(context));
+              return builder.build();
+            });
     return player;
   }
 

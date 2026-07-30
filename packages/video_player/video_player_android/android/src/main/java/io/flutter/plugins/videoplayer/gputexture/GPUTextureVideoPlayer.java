@@ -6,14 +6,14 @@ package io.flutter.plugins.videoplayer.gputexture;
 
 import android.content.Context;
 import android.view.Surface;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.media3.common.MediaItem;
+import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.ExoPlayer;
-
 import io.flutter.plugins.videoplayer.ExoPlayerEventListener;
 import io.flutter.plugins.videoplayer.VideoAsset;
 import io.flutter.plugins.videoplayer.VideoPlayer;
@@ -37,40 +37,41 @@ public final class GPUTextureVideoPlayer extends VideoPlayer implements SurfaceP
   /**
    * Creates a texture video player.
    *
-   * @param context         application context.
-   * @param events          event callbacks.
+   * @param context application context.
+   * @param events event callbacks.
    * @param surfaceProducer produces a texture to render to.
-   * @param asset           asset to play.
-   * @param options         options for playback.
+   * @param asset asset to play.
+   * @param options options for playback.
    * @return a video player instance.
    */
   @NonNull
   public static GPUTextureVideoPlayer create(
-          @NonNull Context context,
-          @NonNull VideoPlayerCallbacks events,
-          @NonNull SurfaceProducer surfaceProducer,
-          @NonNull VideoAsset asset,
-          @NonNull VideoPlayerOptions options) {
+      @NonNull Context context,
+      @NonNull VideoPlayerCallbacks events,
+      @NonNull SurfaceProducer surfaceProducer,
+      @NonNull VideoAsset asset,
+      @NonNull VideoPlayerOptions options) {
     return new GPUTextureVideoPlayer(
-            events,
-            surfaceProducer,
-            asset.getMediaItem(),
-            options,
-            () -> {
-              ExoPlayer.Builder builder =
-                      new ExoPlayer.Builder(context)
-                              .setMediaSourceFactory(asset.getMediaSourceFactory(context));
-              return builder.build();
-            });
+        events,
+        surfaceProducer,
+        asset.getMediaItem(),
+        options,
+        () -> {
+          ExoPlayer.Builder builder =
+              new ExoPlayer.Builder(context)
+                  .setMediaSourceFactory(asset.getMediaSourceFactory(context));
+          return builder.build();
+        });
   }
 
   @VisibleForTesting
+  @OptIn(markerClass = UnstableApi.class)
   public GPUTextureVideoPlayer(
-          @NonNull VideoPlayerCallbacks events,
-          @NonNull SurfaceProducer surfaceProducer,
-          @NonNull MediaItem mediaItem,
-          @NonNull VideoPlayerOptions options,
-          @NonNull ExoPlayerProvider exoPlayerProvider) {
+      @NonNull VideoPlayerCallbacks events,
+      @NonNull SurfaceProducer surfaceProducer,
+      @NonNull MediaItem mediaItem,
+      @NonNull VideoPlayerOptions options,
+      @NonNull ExoPlayerProvider exoPlayerProvider) {
     super(events, mediaItem, options, surfaceProducer, exoPlayerProvider);
 
     surfaceProducer.setCallback(this);
@@ -92,21 +93,19 @@ public final class GPUTextureVideoPlayer extends VideoPlayer implements SurfaceP
   @NonNull
   @Override
   protected ExoPlayerEventListener createExoPlayerEventListener(
-          @NonNull ExoPlayer exoPlayer, @Nullable SurfaceProducer surfaceProducer) {
+      @NonNull ExoPlayer exoPlayer, @Nullable SurfaceProducer surfaceProducer) {
     if (surfaceProducer == null) {
       throw new IllegalArgumentException(
-              "surfaceProducer cannot be null to create an ExoPlayerEventListener for GPUTextureVideoPlayer.");
+          "surfaceProducer cannot be null to create an ExoPlayerEventListener for"
+              + " GPUTextureVideoPlayer.");
     }
     if (surfaceRenderer == null) {
       throw new IllegalStateException(
-              "surfaceRenderer cannot be null to create an ExoPlayerEventListener for GPUTextureVideoPlayer.");
+          "surfaceRenderer cannot be null to create an ExoPlayerEventListener for"
+              + " GPUTextureVideoPlayer.");
     }
     return new GPUTextureExoPlayerEventListener(
-            exoPlayer,
-            videoPlayerEvents,
-            surfaceProducer,
-            surfaceRenderer
-    );
+        exoPlayer, videoPlayerEvents, surfaceProducer, surfaceRenderer);
   }
 
   @RestrictTo(RestrictTo.Scope.LIBRARY)

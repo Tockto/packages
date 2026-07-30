@@ -58,7 +58,7 @@ class _ViewTypeTabBarState extends State<_ViewTypeTabBar> with SingleTickerProvi
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
   }
 
   @override
@@ -78,6 +78,7 @@ class _ViewTypeTabBarState extends State<_ViewTypeTabBar> with SingleTickerProvi
             Tab(icon: Icon(Icons.texture), text: 'Texture view'),
             Tab(icon: Icon(Icons.construction), text: 'Platform view'),
             Tab(icon: Icon(Icons.computer), text: 'GPU Texture view'),
+            Tab(icon: Icon(Icons.image), text: 'Image Texture view'),
           ],
         ),
         Expanded(
@@ -87,6 +88,7 @@ class _ViewTypeTabBarState extends State<_ViewTypeTabBar> with SingleTickerProvi
               widget.builder(VideoViewType.textureView),
               widget.builder(VideoViewType.platformView),
               widget.builder(VideoViewType.gpuTextureView),
+              widget.builder(VideoViewType.imageTextureView),
             ],
           ),
         ),

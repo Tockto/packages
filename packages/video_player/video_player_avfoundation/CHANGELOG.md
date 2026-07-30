@@ -1,3 +1,8 @@
+## 2.11.1
+
+* Handles GPU texture and image texture video view types using the existing
+  texture rendering path.
+
 ## 2.11.0
 
 * Implements `setPreventsDisplaySleepDuringVideoPlayback` using

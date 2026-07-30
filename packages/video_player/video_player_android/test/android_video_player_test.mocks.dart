@@ -90,6 +90,38 @@ class MockAndroidVideoPlayerApi extends _i1.Mock implements _i2.AndroidVideoPlay
           as _i4.Future<_i2.TexturePlayerIds>);
 
   @override
+  _i4.Future<_i2.TexturePlayerIds> createForGPUTextureView(_i2.CreationOptions? options) =>
+      (super.noSuchMethod(
+            Invocation.method(#createForGPUTextureView, [options]),
+            returnValue: _i4.Future<_i2.TexturePlayerIds>.value(
+              _FakeTexturePlayerIds_0(this, Invocation.method(#createForGPUTextureView, [options])),
+            ),
+            returnValueForMissingStub: _i4.Future<_i2.TexturePlayerIds>.value(
+              _FakeTexturePlayerIds_0(this, Invocation.method(#createForGPUTextureView, [options])),
+            ),
+          )
+          as _i4.Future<_i2.TexturePlayerIds>);
+
+  @override
+  _i4.Future<_i2.TexturePlayerIds> createForImageTextureView(_i2.CreationOptions? options) =>
+      (super.noSuchMethod(
+            Invocation.method(#createForImageTextureView, [options]),
+            returnValue: _i4.Future<_i2.TexturePlayerIds>.value(
+              _FakeTexturePlayerIds_0(
+                this,
+                Invocation.method(#createForImageTextureView, [options]),
+              ),
+            ),
+            returnValueForMissingStub: _i4.Future<_i2.TexturePlayerIds>.value(
+              _FakeTexturePlayerIds_0(
+                this,
+                Invocation.method(#createForImageTextureView, [options]),
+              ),
+            ),
+          )
+          as _i4.Future<_i2.TexturePlayerIds>);
+
+  @override
   _i4.Future<void> dispose(int? playerId) =>
       (super.noSuchMethod(
             Invocation.method(#dispose, [playerId]),

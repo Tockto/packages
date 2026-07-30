@@ -9,12 +9,10 @@ import androidx.annotation.OptIn;
 import androidx.media3.common.Format;
 import androidx.media3.common.VideoSize;
 import androidx.media3.exoplayer.ExoPlayer;
-
-import java.util.Objects;
-
 import io.flutter.plugins.videoplayer.ExoPlayerEventListener;
 import io.flutter.plugins.videoplayer.VideoPlayerCallbacks;
 import io.flutter.view.TextureRegistry;
+import java.util.Objects;
 
 public final class GPUTextureExoPlayerEventListener extends ExoPlayerEventListener {
   private final boolean surfaceProducerHandlesCropAndRotation;
@@ -22,10 +20,10 @@ public final class GPUTextureExoPlayerEventListener extends ExoPlayerEventListen
   private final SurfaceRenderer surfaceRenderer;
 
   public GPUTextureExoPlayerEventListener(
-          @NonNull ExoPlayer exoPlayer,
-          @NonNull VideoPlayerCallbacks events,
-          @NonNull TextureRegistry.SurfaceProducer surfaceProducer,
-          @NonNull SurfaceRenderer surfaceRenderer) {
+      @NonNull ExoPlayer exoPlayer,
+      @NonNull VideoPlayerCallbacks events,
+      @NonNull TextureRegistry.SurfaceProducer surfaceProducer,
+      @NonNull SurfaceRenderer surfaceRenderer) {
     super(exoPlayer, events);
     this.surfaceProducerHandlesCropAndRotation = surfaceProducer.handlesCropAndRotation();
     this.surfaceProducer = surfaceProducer;

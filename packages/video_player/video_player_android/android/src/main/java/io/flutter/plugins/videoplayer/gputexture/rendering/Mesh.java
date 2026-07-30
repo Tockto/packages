@@ -1,3 +1,7 @@
+// Copyright 2013 The Flutter Authors
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 /*
  * Copyright 2017 Google Inc. All Rights Reserved.
  *
@@ -17,7 +21,7 @@
 package io.flutter.plugins.videoplayer.gputexture.rendering;
 
 import android.opengl.GLES20;
-
+import androidx.annotation.NonNull;
 import java.nio.FloatBuffer;
 
 /**
@@ -27,49 +31,43 @@ import java.nio.FloatBuffer;
  */
 public abstract class Mesh {
 
-    // Vertices for the mesh with 3D position + left 2D texture UV + right 2D texture UV.
-    public final float[] vertices;
-    protected final FloatBuffer vertexBuffer;
+  // Vertices for the mesh with 3D position + left 2D texture UV + right 2D texture UV.
+  public final float[] vertices;
+  protected final FloatBuffer vertexBuffer;
 
-    // Program related GL items. These are only valid if program != 0.
-    protected int program;
-    protected int mvpMatrixHandle;
-    protected int positionHandle;
-    protected int texCoordsHandle;
-    protected int textureHandle;
-    protected int textureId;
+  // Program related GL items. These are only valid if program != 0.
+  protected int program;
+  protected int mvpMatrixHandle;
+  protected int positionHandle;
+  protected int texCoordsHandle;
+  protected int textureHandle;
+  protected int textureId;
 
+  /** Used by static constructors. */
+  protected Mesh(@NonNull float[] vertexData) {
+    vertices = vertexData;
+    vertexBuffer = Utils.createBuffer(vertices);
+  }
 
-    /**
-     * Used by static constructors.
-     */
-    protected Mesh(float[] vertexData) {
-        vertices = vertexData;
-        vertexBuffer = Utils.createBuffer(vertices);
+  /**
+   * Finishes initialization of the GL components.
+   *
+   * @param textureId GL_TEXTURE_EXTERNAL_OES used for this mesh.
+   */
+  public abstract void glInit(int textureId);
+
+  /**
+   * Renders the mesh. This must be called on the GL thread.
+   *
+   * @param mvpMatrix The Model View Projection matrix.
+   */
+  public abstract void glDraw(@NonNull float[] mvpMatrix);
+
+  /** Cleans up the GL resources. */
+  public void glShutdown() {
+    if (program != 0) {
+      GLES20.glDeleteProgram(program);
+      GLES20.glDeleteTextures(1, new int[] {textureId}, 0);
     }
-
-    /**
-     * Finishes initialization of the GL components.
-     *
-     * @param textureId GL_TEXTURE_EXTERNAL_OES used for this mesh.
-     */
-    public abstract void glInit(int textureId);
-
-    /**
-     * Renders the mesh. This must be called on the GL thread.
-     *
-     * @param mvpMatrix The Model View Projection matrix.
-     */
-    public abstract void glDraw(float[] mvpMatrix);
-
-    /**
-     * Cleans up the GL resources.
-     */
-    public void glShutdown() {
-        if (program != 0) {
-            GLES20.glDeleteProgram(program);
-            GLES20.glDeleteTextures(1, new int[]{textureId}, 0);
-        }
-    }
-
+  }
 }

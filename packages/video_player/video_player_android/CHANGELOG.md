@@ -1,3 +1,9 @@
+## 2.13.0
+
+* Adds GPU texture and image texture video view modes. The image texture mode
+  uses an Android `ImageReader` on Android 10 and later, and falls back to the
+  existing texture mode on earlier Android versions.
+
 ## 2.12.0
 
 * Fixes a [bug](https://github.com/flutter/flutter/issues/176575) where some videos report an incorrect duration when initialized without a video duration.

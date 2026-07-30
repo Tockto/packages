@@ -282,6 +282,32 @@ void main() {
       );
     });
 
+    for (final viewType in <VideoViewType>[
+      VideoViewType.gpuTextureView,
+      VideoViewType.imageTextureView,
+    ]) {
+      test('createWithOptions maps $viewType to a texture view', () async {
+        final (AVFoundationVideoPlayer player, MockAVFoundationVideoPlayerApi api, _) =
+            setUpMockPlayer(playerId: 1);
+        const newPlayerId = 2;
+        const textureId = 100;
+        when(
+          api.createForTextureView(any),
+        ).thenAnswer((_) async => TexturePlayerIds(playerId: newPlayerId, textureId: textureId));
+
+        final int? playerId = await player.createWithOptions(
+          VideoCreationOptions(
+            dataSource: DataSource(sourceType: DataSourceType.file, uri: 'file:///foo/bar'),
+            viewType: viewType,
+          ),
+        );
+
+        verify(api.createForTextureView(any));
+        expect(playerId, newPlayerId);
+        expect(player.buildViewWithOptions(VideoViewOptions(playerId: playerId!)), isA<Texture>());
+      });
+    }
+
     test('setLooping', () async {
       final (AVFoundationVideoPlayer player, _, MockVideoPlayerInstanceApi playerApi) =
           setUpMockPlayer(playerId: 1);

@@ -76,6 +76,7 @@ public final class VideoPlayerTest {
         @Nullable SurfaceProducer surfaceProducer,
         @NonNull ExoPlayerProvider exoPlayerProvider) {
       super(events, mediaItem, options, surfaceProducer, exoPlayerProvider);
+      initializeEventListener();
     }
 
     @NonNull

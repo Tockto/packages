@@ -296,6 +296,13 @@ enum VideoViewType {
 
   /// GPU texture view will be used to render video.
   gpuTextureView,
+
+  /// An image texture will be used to render video.
+  ///
+  /// On Android 10 and later, video frames are decoded into an Android
+  /// `ImageReader` and forwarded to a Flutter image texture. Android versions
+  /// earlier than 10 fall back to [textureView].
+  imageTextureView,
 }
 
 /// Event emitted from the platform implementation.

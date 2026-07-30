@@ -1,3 +1,7 @@
+// Copyright 2013 The Flutter Authors
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 package io.flutter.plugins.videoplayer.gputexture;
 
 import android.graphics.SurfaceTexture;
@@ -11,7 +15,8 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
 import android.view.Surface;
-
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import io.flutter.plugins.videoplayer.gputexture.rendering.CanvasQuad;
 import io.flutter.plugins.videoplayer.gputexture.rendering.Utils;
 
@@ -28,8 +33,7 @@ public class SurfaceRenderer implements SurfaceTexture.OnFrameAvailableListener 
   };
 
   private static final int[] EGL_CONTEXT_ATTRIBS = {
-    EGL14.EGL_CONTEXT_CLIENT_VERSION, 2,
-    EGL14.EGL_NONE
+    EGL14.EGL_CONTEXT_CLIENT_VERSION, 2, EGL14.EGL_NONE
   };
 
   private static final float[] IDENTITY_MATRIX = {
@@ -56,7 +60,7 @@ public class SurfaceRenderer implements SurfaceTexture.OnFrameAvailableListener 
   private boolean isInitialized = false;
   private final Object surfaceLock = new Object(); // Add synchronization for surface updates
 
-  public void initialize(Surface surface) {
+  public void initialize(@NonNull Surface surface) {
     if (isInitialized) return;
 
     targetSurface = surface;
@@ -103,7 +107,8 @@ public class SurfaceRenderer implements SurfaceTexture.OnFrameAvailableListener 
   }
 
   private EGLContext createEGLContext(EGLConfig config, EGLContext sharedContext) {
-    EGLContext context = EGL14.eglCreateContext(eglDisplay, config, sharedContext, EGL_CONTEXT_ATTRIBS, 0);
+    EGLContext context =
+        EGL14.eglCreateContext(eglDisplay, config, sharedContext, EGL_CONTEXT_ATTRIBS, 0);
     if (context == EGL14.EGL_NO_CONTEXT) {
       throw new RuntimeException("Failed to create EGL context");
     }
@@ -111,7 +116,9 @@ public class SurfaceRenderer implements SurfaceTexture.OnFrameAvailableListener 
   }
 
   private EGLSurface createEGLSurface(EGLConfig config) {
-    EGLSurface surface = EGL14.eglCreateWindowSurface(eglDisplay, config, targetSurface, new int[]{EGL14.EGL_NONE}, 0);
+    EGLSurface surface =
+        EGL14.eglCreateWindowSurface(
+            eglDisplay, config, targetSurface, new int[] {EGL14.EGL_NONE}, 0);
     if (surface == EGL14.EGL_NO_SURFACE) {
       throw new RuntimeException("Failed to create EGL surface");
     }
@@ -150,7 +157,8 @@ public class SurfaceRenderer implements SurfaceTexture.OnFrameAvailableListener 
   }
 
   private void setupRenderThread() {
-    EGL14.eglMakeCurrent(eglDisplay, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_CONTEXT);
+    EGL14.eglMakeCurrent(
+        eglDisplay, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_CONTEXT);
 
     renderThread = new HandlerThread("SurfaceRenderer");
     renderThread.start();
@@ -159,14 +167,13 @@ public class SurfaceRenderer implements SurfaceTexture.OnFrameAvailableListener 
     sourceSurfaceTexture.setOnFrameAvailableListener(this, renderHandler);
   }
 
+  @NonNull
   public Surface getInputSurface() {
     return inputSurface;
   }
 
-  /**
-   * Update the target surface, typically called when the surface is resized
-   */
-  public void updateSurface(Surface newSurface) {
+  /** Update the target surface, typically called when the surface is resized */
+  public void updateSurface(@Nullable Surface newSurface) {
     if (isReleased || !isInitialized) return;
 
     synchronized (surfaceLock) {
@@ -185,7 +192,8 @@ public class SurfaceRenderer implements SurfaceTexture.OnFrameAvailableListener 
 
     // Destroy old surface
     if (eglSurface != EGL14.EGL_NO_SURFACE) {
-      EGL14.eglMakeCurrent(eglDisplay, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_CONTEXT);
+      EGL14.eglMakeCurrent(
+          eglDisplay, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_CONTEXT);
       EGL14.eglDestroySurface(eglDisplay, eglSurface);
     }
 
@@ -281,7 +289,8 @@ public class SurfaceRenderer implements SurfaceTexture.OnFrameAvailableListener 
 
     // Clean up EGL resources in proper order
     if (eglDisplay != EGL14.EGL_NO_DISPLAY) {
-      EGL14.eglMakeCurrent(eglDisplay, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_CONTEXT);
+      EGL14.eglMakeCurrent(
+          eglDisplay, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_CONTEXT);
 
       if (eglSurface != EGL14.EGL_NO_SURFACE) {
         EGL14.eglDestroySurface(eglDisplay, eglSurface);
@@ -309,4 +318,3 @@ public class SurfaceRenderer implements SurfaceTexture.OnFrameAvailableListener 
     isInitialized = false;
   }
 }
-

@@ -426,6 +426,34 @@ void main() {
       );
     });
 
+    test('createWithOptions with image texture view', () async {
+      final (AndroidVideoPlayer player, MockAndroidVideoPlayerApi api, _) = setUpMockPlayer(
+        playerId: 1,
+        textureId: 100,
+      );
+      const newPlayerId = 2;
+      const textureId = 101;
+      when(
+        api.createForImageTextureView(any),
+      ).thenAnswer((_) async => TexturePlayerIds(playerId: newPlayerId, textureId: textureId));
+
+      const uri = 'file:///foo/bar';
+      final int? playerId = await player.createWithOptions(
+        VideoCreationOptions(
+          dataSource: DataSource(sourceType: DataSourceType.file, uri: uri),
+          viewType: VideoViewType.imageTextureView,
+        ),
+      );
+
+      final VerificationResult verification = verify(api.createForImageTextureView(captureAny));
+      final creationOptions = verification.captured[0] as CreationOptions;
+      expect(creationOptions.uri, uri);
+      expect(playerId, newPlayerId);
+      final Widget view = player.buildViewWithOptions(VideoViewOptions(playerId: playerId!));
+      expect(view, isA<Texture>());
+      expect((view as Texture).textureId, textureId);
+    });
+
     test('createWithOptions passes backBufferDurationMs for texture view', () async {
       final (AndroidVideoPlayer player, MockAndroidVideoPlayerApi api, _) = setUpMockPlayer(
         playerId: 1,

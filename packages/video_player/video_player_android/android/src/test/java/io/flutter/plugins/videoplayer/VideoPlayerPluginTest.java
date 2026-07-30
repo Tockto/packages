@@ -11,6 +11,7 @@ import android.content.Context;
 import android.util.LongSparseArray;
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.plugin.platform.PlatformViewRegistry;
+import io.flutter.plugins.videoplayer.imagetexture.ImageTextureVideoPlayer;
 import io.flutter.plugins.videoplayer.platformview.PlatformVideoViewFactory;
 import io.flutter.plugins.videoplayer.platformview.PlatformViewVideoPlayer;
 import io.flutter.plugins.videoplayer.texture.TextureVideoPlayer;
@@ -24,11 +25,13 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 @RunWith(RobolectricTestRunner.class)
 public class VideoPlayerPluginTest {
   @Mock private TextureRegistry mockTextureRegistry;
   @Mock private TextureRegistry.SurfaceProducer mockSurfaceProducer;
+  @Mock private TextureRegistry.ImageTextureEntry mockImageTextureEntry;
   @Mock private PlatformViewRegistry mockPlatformViewRegistry;
   private VideoPlayerPlugin plugin;
 
@@ -36,6 +39,7 @@ public class VideoPlayerPluginTest {
   public void setUp() {
     MockitoAnnotations.openMocks(this);
     when(mockTextureRegistry.createSurfaceProducer()).thenReturn(mockSurfaceProducer);
+    when(mockTextureRegistry.createImageTexture()).thenReturn(mockImageTextureEntry);
 
     FlutterPlugin.FlutterPluginBinding binding = mock(FlutterPlugin.FlutterPluginBinding.class);
     when(binding.getApplicationContext()).thenReturn(mock(Context.class));
@@ -111,6 +115,60 @@ public class VideoPlayerPluginTest {
 
       final LongSparseArray<VideoPlayer> videoPlayers = getVideoPlayers();
       assertTrue(videoPlayers.get(ids.getPlayerId()) instanceof TextureVideoPlayer);
+    }
+  }
+
+  @Config(sdk = 29)
+  @Test
+  public void createsImageTextureVideoPlayerOnApi29AndLater() throws Exception {
+    when(mockImageTextureEntry.id()).thenReturn(88L);
+    try (MockedStatic<ImageTextureVideoPlayer> mockedImageTextureVideoPlayerStatic =
+        mockStatic(ImageTextureVideoPlayer.class)) {
+      mockedImageTextureVideoPlayerStatic
+          .when(() -> ImageTextureVideoPlayer.create(any(), any(), any(), any(), any()))
+          .thenReturn(mock(ImageTextureVideoPlayer.class));
+
+      final CreationOptions options =
+          new CreationOptions(
+              "https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4",
+              null,
+              new HashMap<>(),
+              null,
+              null);
+
+      final TexturePlayerIds ids = plugin.createForImageTextureView(options);
+
+      assertEquals(88L, ids.getTextureId());
+      assertTrue(getVideoPlayers().get(ids.getPlayerId()) instanceof ImageTextureVideoPlayer);
+      verify(mockTextureRegistry).createImageTexture();
+      verify(mockTextureRegistry, never()).createSurfaceProducer();
+    }
+  }
+
+  @Config(sdk = 28)
+  @Test
+  public void imageTextureViewFallsBackToTextureVideoPlayerBeforeApi29() throws Exception {
+    when(mockSurfaceProducer.id()).thenReturn(44L);
+    try (MockedStatic<TextureVideoPlayer> mockedTextureVideoPlayerStatic =
+        mockStatic(TextureVideoPlayer.class)) {
+      mockedTextureVideoPlayerStatic
+          .when(() -> TextureVideoPlayer.create(any(), any(), any(), any(), any()))
+          .thenReturn(mock(TextureVideoPlayer.class));
+
+      final CreationOptions options =
+          new CreationOptions(
+              "https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4",
+              null,
+              new HashMap<>(),
+              null,
+              null);
+
+      final TexturePlayerIds ids = plugin.createForImageTextureView(options);
+
+      assertEquals(44L, ids.getTextureId());
+      assertTrue(getVideoPlayers().get(ids.getPlayerId()) instanceof TextureVideoPlayer);
+      verify(mockTextureRegistry).createSurfaceProducer();
+      verify(mockTextureRegistry, never()).createImageTexture();
     }
   }
 }

@@ -110,9 +110,11 @@ class AndroidVideoPlayer extends VideoPlayerPlatform {
     final VideoPlayerViewState state;
     switch (options.viewType) {
       case VideoViewType.gpuTextureView:
-        final TexturePlayerIds ids = await _api.createForGPUTextureView(
-          pigeonCreationOptions,
-        );
+        final TexturePlayerIds ids = await _api.createForGPUTextureView(pigeonCreationOptions);
+        playerId = ids.playerId;
+        state = VideoPlayerTextureViewState(textureId: ids.textureId);
+      case VideoViewType.imageTextureView:
+        final TexturePlayerIds ids = await _api.createForImageTextureView(pigeonCreationOptions);
         playerId = ids.playerId;
         state = VideoPlayerTextureViewState(textureId: ids.textureId);
       case VideoViewType.textureView:
